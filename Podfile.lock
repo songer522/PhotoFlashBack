@@ -1,0 +1,10 @@
+PODS:
+  - GSImageViewerController (1.1.1)
+
+DEPENDENCIES:
+  - GSImageViewerController
+
+SPEC CHECKSUMS:
+  GSImageViewerController: 1fd7ff9210bca2eaaeb89811c55230b575377143
+
+COCOAPODS: 0.39.0
