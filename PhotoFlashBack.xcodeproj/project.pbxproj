@@ -13,6 +13,7 @@
 		FCB1DF0928D9602A00160033 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1DF0728D9602A00160033 /* Main.storyboard */; };
 		FCB1DF0B28D9602C00160033 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FCB1DF0A28D9602C00160033 /* Assets.xcassets */; };
 		FCB1DF0E28D9602C00160033 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */; };
+		FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF1528D9638000160033 /* PhotosViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		FCB1DF0A28D9602C00160033 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FCB1DF0D28D9602C00160033 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FCB1DF0F28D9602C00160033 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FCB1DF1528D9638000160033 /* PhotosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 				FCB1DF0128D9602A00160033 /* AppDelegate.swift */,
 				FCB1DF0328D9602A00160033 /* SceneDelegate.swift */,
 				FCB1DF0528D9602A00160033 /* ViewController.swift */,
+				FCB1DF1528D9638000160033 /* PhotosViewModel.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
@@ -139,6 +142,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCB1DF0628D9602A00160033 /* ViewController.swift in Sources */,
+				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
 			);
