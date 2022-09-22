@@ -20,21 +20,13 @@ extension PhotosViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Header", for: indexPath)
-        
-        view.backgroundColor = UIColor.clear
-        for subView in view.subviews {
-            
-            subView.removeFromSuperview()
+        if let header = view as? PhotoCollectionHeaderView {
+            let key = viewModel.assetArray[indexPath.section].0
+            header.yearLabel.text = key
+            header.dateLabel.text = viewModel.displayDate()
+            header.dateLabel.isHidden = indexPath.section != 0
+            return header
         }
-        
-        let key = viewModel.assetArray[indexPath.section].0
-        let label = UILabel.init(frame: CGRect(x: 10, y: 10, width: view.frame.size.width - 10, height: view.frame.size.height-10))
-        label.text = key
-        label.font = UIFont(name: "AppleSDGothicNeo-Bold", size: 30)
-        label.textColor = .white
-        label.textAlignment = .left;
-        view.addSubview(label)
-        view.tag = indexPath.section
         
         return view
         
@@ -44,6 +36,28 @@ extension PhotosViewController: UICollectionViewDelegate {
         
         return CGSize(width: collectionView.bounds.width, height: 80)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
+        if var headers = collectionView.visibleSupplementaryViews(ofKind: "UICollectionElementKindSectionHeader") as? [PhotoCollectionHeaderView], !headers.isEmpty {
+            headers.sort {
+                $0.frame.origin.y < $1.frame.origin.y
+            }
+            headers.first?.dateLabel.isHidden = false
+        }
+       
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
+        if var headers = collectionView.visibleSupplementaryViews(ofKind: "UICollectionElementKindSectionHeader") as? [PhotoCollectionHeaderView], !headers.isEmpty, let headerView = view as? PhotoCollectionHeaderView {
+            headers.sort {
+                $0.frame.origin.y < $1.frame.origin.y
+            }
+            
+            headers.first?.dateLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
+            headerView.dateLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
+        }
+    }
+    
 }
 
 extension PhotosViewController: UICollectionViewDataSource {
