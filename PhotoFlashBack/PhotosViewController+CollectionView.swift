@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 extension PhotosViewController: UICollectionViewDelegate {
     
@@ -67,30 +68,42 @@ extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCollectionViewCell
+        collectionCell?.playerView.isHidden = true
+        collectionCell?.stopVideo()
         let targetSize = CGSize(width: 300, height: 300)
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
-        viewModel.assetManager.requestImage(for: asset,
-                                            targetSize: targetSize,
-                                            contentMode: .aspectFill,
-                                            options: nil,
-                                            resultHandler: { image, info in
-            
-            //collectionCell?.itemImageView.contentMode = .scaleAspectFill
-            collectionCell?.itemImageView.image = image
-            collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
-            if asset.mediaType == .video {
-                collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
-            }
-          
-            //                                        if self.fullFeatureUnlocked == false && self.month != NSCalendar.currentCalendar().component(.Month, fromDate: NSDate()){
-            //                                           collectionCell?.blurEffectView.hidden = false
-            //                                        }else {
-            //                                            collectionCell?.blurEffectView.hidden = true
-            //                                        }
-            
-            
-        })
-        
+            viewModel.assetManager.requestImage(for: asset,
+                                                targetSize: targetSize,
+                                                contentMode: .aspectFill,
+                                                options: nil,
+                                                resultHandler: { image, info in
+                
+                collectionCell?.itemImageView.image = image
+                collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
+                if asset.mediaType == .video {
+                    collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
+                    collectionCell?.playerView.isHidden = false
+                    let options = PHVideoRequestOptions()
+                    options.version = .current
+                    options.isNetworkAccessAllowed = true
+                    options.deliveryMode = .fastFormat
+                   self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
+                        DispatchQueue.main.async {
+                            if let playerItem = playerItem {
+                                collectionCell?.setupPlayerView()
+                                collectionCell?.playVideo(playerItem: playerItem)
+                            }
+                        }
+                    }
+                }
+                
+                //                                        if self.fullFeatureUnlocked == false && self.month != NSCalendar.currentCalendar().component(.Month, fromDate: NSDate()){
+                //                                           collectionCell?.blurEffectView.hidden = false
+                //                                        }else {
+                //                                            collectionCell?.blurEffectView.hidden = true
+                //                                        }
+         
+            })
         return collectionCell!
     }
     
@@ -189,7 +202,7 @@ extension PhotosViewController {
     func configureHierarchy() {
         photoCollectionView.collectionViewLayout = createLayout(size: view.bounds.size)
         photoCollectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        photoCollectionView.backgroundColor = .systemBackground
+        photoCollectionView.backgroundColor = .black
         
     }
 }

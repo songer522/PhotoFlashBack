@@ -6,8 +6,40 @@
 //
 
 import UIKit
+import AVFoundation
 
 class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var videoLengthLabel: UILabel!
+    
+    var playerView: PlayerView = {
+        var player = PlayerView()
+        player.backgroundColor = .clear
+        return player
+    }()
+    
+    var videoPlayer: AVPlayer? = nil
+    //var playerLooper: NSObject?
+    
+    func setupPlayerView() {
+        addSubview(playerView)
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        playerView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        playerView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
+        playerView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
+        playerView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+    }
+    
+    func playVideo(playerItem: AVPlayerItem) {
+        videoPlayer = AVPlayer(playerItem: playerItem)
+        // playerLooper = AVPlayerLooper(player: videoPlayer! as! AVQueuePlayer, templateItem: playerItem)
+        videoPlayer?.isMuted = true
+        videoPlayer?.playImmediately(atRate: 1)
+        
+        playerView.player = videoPlayer
+    }
+    
+    func stopVideo() {
+        playerView.player?.pause()
+    }
 }
