@@ -16,6 +16,7 @@
 		FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF1528D9638000160033 /* PhotosViewModel.swift */; };
 		FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */; };
 		FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */; };
+		FCB1DF2028DAB11000160033 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF1F28DAB11000160033 /* Helper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		FCB1DF1528D9638000160033 /* PhotosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosViewModel.swift; sourceTree = "<group>"; };
 		FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+CollectionView.swift"; sourceTree = "<group>"; };
 		FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
+		FCB1DF1F28DAB11000160033 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
 				FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */,
 				FCB1DF1528D9638000160033 /* PhotosViewModel.swift */,
+				FCB1DF1F28DAB11000160033 /* Helper.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
@@ -148,6 +151,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
+				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,

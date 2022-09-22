@@ -32,7 +32,12 @@ class PhotosViewModel {
         assetSequence.removeAll()
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        options.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+       
+        var predicates = Helper.compoundPredicateFrom(day: day, month: month)
+        let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+        let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
+        let compoundPredicate2 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1,predicate2])
+        options.predicate = compoundPredicate1
         let assetsFetchResults = PHAsset.fetchAssets(with: options)
         assetsFetchResults.enumerateObjects({ [self] (object: AnyObject, count: Int, stop: UnsafeMutablePointer<ObjCBool>) in
             if let asset = object as? PHAsset {

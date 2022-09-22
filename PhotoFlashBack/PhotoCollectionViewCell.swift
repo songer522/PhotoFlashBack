@@ -9,4 +9,5 @@ import UIKit
 
 class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var itemImageView: UIImageView!
+    @IBOutlet weak var videoLengthLabel: UILabel!
 }

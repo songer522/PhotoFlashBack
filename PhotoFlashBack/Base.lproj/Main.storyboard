@@ -38,16 +38,29 @@
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="vSi-53-6A3">
                                                     <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                                 </imageView>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s7L-94-nVm">
+                                                    <rect key="frame" x="81" y="102" width="42" height="21"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="21" id="WNT-5m-kT7"/>
+                                                        <constraint firstAttribute="width" constant="42" id="eZN-xr-esh"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="trailing" secondItem="s7L-94-nVm" secondAttribute="trailing" constant="5" id="6b7-M2-ZpZ"/>
                                                 <constraint firstItem="vSi-53-6A3" firstAttribute="top" secondItem="tvc-Wi-KsU" secondAttribute="top" id="BQQ-Yt-rwf"/>
                                                 <constraint firstAttribute="bottom" secondItem="vSi-53-6A3" secondAttribute="bottom" id="iS1-7A-W5l"/>
                                                 <constraint firstAttribute="trailing" secondItem="vSi-53-6A3" secondAttribute="trailing" id="shV-qa-LZa"/>
+                                                <constraint firstAttribute="bottom" secondItem="s7L-94-nVm" secondAttribute="bottom" constant="5" id="vxc-7q-56R"/>
                                                 <constraint firstItem="vSi-53-6A3" firstAttribute="leading" secondItem="tvc-Wi-KsU" secondAttribute="leading" id="w6P-vY-d4x"/>
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <connections>
                                             <outlet property="itemImageView" destination="vSi-53-6A3" id="Duk-TL-qVj"/>
+                                            <outlet property="videoLengthLabel" destination="s7L-94-nVm" id="kOI-lX-GwL"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -60,6 +73,10 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="CKt-XW-61j"/>
                                 </connections>
                             </collectionView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="PWP-10-FJn">
+                                <rect key="frame" x="186" y="416" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -71,6 +88,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="PWP-10-FJn" id="ekP-Cp-lYd"/>
                         <outlet property="photoCollectionView" destination="col-Wl-AWS" id="UGb-bm-Ydu"/>
                     </connections>
                 </viewController>

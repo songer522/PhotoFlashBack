@@ -9,6 +9,7 @@ import UIKit
 
 class PhotosViewController: UIViewController {
     @IBOutlet weak var photoCollectionView: UICollectionView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     var viewModel = PhotosViewModel()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,9 +17,16 @@ class PhotosViewController: UIViewController {
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.sectionHeadersPinToVisibleBounds = true
         }
-        viewModel.fetchPhoto {
-            DispatchQueue.main.async {
-                self.photoCollectionView.reloadData()
+        configureHierarchy()
+        activityIndicator.startAnimating()
+        activityIndicator.hidesWhenStopped = true
+        photoCollectionView.reloadData()
+        DispatchQueue.global(qos: .userInteractive).async {
+            self.viewModel.fetchPhoto {
+                DispatchQueue.main.async {
+                    self.photoCollectionView.reloadData()
+                    self.activityIndicator.stopAnimating()
+                }
             }
         }
         // Do any additional setup after loading the view.
