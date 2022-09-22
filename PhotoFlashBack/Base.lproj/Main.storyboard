@@ -39,10 +39,10 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                                 </imageView>
                                                 <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s7L-94-nVm">
-                                                    <rect key="frame" x="81" y="102" width="42" height="21"/>
+                                                    <rect key="frame" x="85.666666666666671" y="102" width="37.333333333333329" height="21"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="21" id="WNT-5m-kT7"/>
-                                                        <constraint firstAttribute="width" constant="42" id="eZN-xr-esh"/>
+                                                        <constraint firstAttribute="width" priority="250" constant="42" id="eZN-xr-esh"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
