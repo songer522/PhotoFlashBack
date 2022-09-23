@@ -11,8 +11,8 @@ import Photos
 extension PhotosViewController: UICollectionViewDelegate {
     
     enum Section {
-          case main
-      }
+        case main
+    }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
@@ -45,7 +45,7 @@ extension PhotosViewController: UICollectionViewDelegate {
             }
             headers.first?.dateLabel.isHidden = false
         }
-       
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
@@ -70,40 +70,46 @@ extension PhotosViewController: UICollectionViewDataSource {
         let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCollectionViewCell
         collectionCell?.playerView.isHidden = true
         collectionCell?.stopVideo()
+        collectionCell?.tag = 0
         let targetSize = CGSize(width: 300, height: 300)
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
-            viewModel.assetManager.requestImage(for: asset,
-                                                targetSize: targetSize,
-                                                contentMode: .aspectFill,
-                                                options: nil,
-                                                resultHandler: { image, info in
+        viewModel.assetManager.requestImage(for: asset,
+                                            targetSize: targetSize,
+                                            contentMode: .aspectFill,
+                                            options: nil,
+                                            resultHandler: { image, info in
+            
+            collectionCell?.itemImageView.image = image
+            collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
+            if asset.mediaType == .video {
+                collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
                 
-                collectionCell?.itemImageView.image = image
-                collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
-                if asset.mediaType == .video {
-                    collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
-                    collectionCell?.playerView.isHidden = false
-                    let options = PHVideoRequestOptions()
-                    options.version = .current
-                    options.isNetworkAccessAllowed = true
-                    options.deliveryMode = .fastFormat
-                   self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
-                        DispatchQueue.main.async {
-                            if let playerItem = playerItem {
+                let options = PHVideoRequestOptions()
+                options.version = .current
+                options.isNetworkAccessAllowed = true
+                options.deliveryMode = .fastFormat
+                let requestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
+                    DispatchQueue.main.async {
+                        print("resultID: \(info?["PHImageResultRequestIDKey"]), collectionCellID: \(collectionCell?.tag)")
+                        if let playerItem = playerItem, let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber  {
+                            if requestResultID.intValue == collectionCell?.tag {
+                                collectionCell?.playerView.isHidden = false
                                 collectionCell?.setupPlayerView()
                                 collectionCell?.playVideo(playerItem: playerItem)
                             }
                         }
                     }
                 }
-                
-                //                                        if self.fullFeatureUnlocked == false && self.month != NSCalendar.currentCalendar().component(.Month, fromDate: NSDate()){
-                //                                           collectionCell?.blurEffectView.hidden = false
-                //                                        }else {
-                //                                            collectionCell?.blurEffectView.hidden = true
-                //                                        }
-         
-            })
+                collectionCell?.tag = Int(requestID)
+            }
+            
+            //                                        if self.fullFeatureUnlocked == false && self.month != NSCalendar.currentCalendar().component(.Month, fromDate: NSDate()){
+            //                                           collectionCell?.blurEffectView.hidden = false
+            //                                        }else {
+            //                                            collectionCell?.blurEffectView.hidden = true
+            //                                        }
+            
+        })
         return collectionCell!
     }
     
