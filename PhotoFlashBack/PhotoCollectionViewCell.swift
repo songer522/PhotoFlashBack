@@ -18,8 +18,8 @@ class PhotoCollectionViewCell: UICollectionViewCell {
         return player
     }()
     
-    var videoPlayer: AVPlayer? = nil
-    //var playerLooper: NSObject?
+    var videoPlayer = AVQueuePlayer()
+    var playerLooper: NSObject?
     
     func setupPlayerView() {
         addSubview(playerView)
@@ -31,10 +31,10 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     }
     
     func playVideo(playerItem: AVPlayerItem) {
-        videoPlayer = AVPlayer(playerItem: playerItem)
-        // playerLooper = AVPlayerLooper(player: videoPlayer! as! AVQueuePlayer, templateItem: playerItem)
-        videoPlayer?.isMuted = true
-        videoPlayer?.playImmediately(atRate: 1)
+        videoPlayer = AVQueuePlayer(playerItem: playerItem)
+        playerLooper = AVPlayerLooper(player: videoPlayer, templateItem: playerItem)
+        videoPlayer.isMuted = true
+        videoPlayer.playImmediately(atRate: 1)
         
         playerView.player = videoPlayer
     }
