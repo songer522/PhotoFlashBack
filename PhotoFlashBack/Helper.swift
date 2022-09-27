@@ -16,7 +16,7 @@ class Helper {
         var predicates: [NSPredicate] = []
         for year in 1970...2050 {
             let dateString = String(year) + "-" + String(month) + "-" + String(day)
-            if let date = dateFormatter.date(from: dateString) as? Date {
+            if let date = dateFormatter.date(from: dateString) {
                 let dateFrom = calendar.startOfDay(for: date) // eg. 2016-10-10 00:00:00
                 let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)
                 let predicate1 = NSPredicate(format: "creationDate <= %@", dateTo! as CVarArg)

@@ -33,7 +33,7 @@ class PhotosViewModel {
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
        
-        var predicates = Helper.compoundPredicateFrom(day: day, month: month)
+        let predicates = Helper.compoundPredicateFrom(day: day, month: month)
         let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         let predicate3 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
         let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)

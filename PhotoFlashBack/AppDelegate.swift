@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFAudio
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -13,6 +14,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        do{
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.mixWithOthers])
+          try AVAudioSession.sharedInstance().setActive(true)
+        }catch{//some meaningful exception handling
+            
+        }
         // Override point for customization after application launch.
         return true
     }
