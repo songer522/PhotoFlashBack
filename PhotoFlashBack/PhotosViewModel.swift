@@ -11,11 +11,13 @@ import Photos
 class PhotosViewModel {
     var assetArray : [(String, [PHAsset])] = []
     var assetSequence : [PHAsset] = []
-    var assetDict : [String: [PHAsset]] = Dictionary()
+    var assetDict : [String: [PHAsset]] = [:]
+    var locationDict : [String: String] = [:]
     let assetManager = PHImageManager.default()
     var month = 1
     var day = 1
     var monthArray = ["January", "Feburay", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    var yearIndex = 0
     
     init() {
         day = Calendar.current.component(.day, from: Date())
@@ -32,7 +34,7 @@ class PhotosViewModel {
         assetSequence.removeAll()
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-       
+        
         let predicates = Helper.compoundPredicateFrom(day: day, month: month)
         let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         let predicate3 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
@@ -75,12 +77,10 @@ class PhotosViewModel {
             
         }
         completion()
-        // self.photoCollectionView.contentOffset = CGPoint(x: 0, y: -80)
-        //self.photoCollectionView.reloadData()
     }
     
     func nextDay(completion: () -> Void) {
-
+        
         if day < maxday() {
             day = day + 1
         }else {
@@ -93,9 +93,9 @@ class PhotosViewModel {
             }
         }
         
-//        let dayString = String(day)
-//        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
-//        titleTextField?.resignFirstResponder()
+        //        let dayString = String(day)
+        //        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
+        //        titleTextField?.resignFirstResponder()
         
         fetchPhoto(completion: completion)
         
@@ -111,11 +111,11 @@ class PhotosViewModel {
                 day = maxday()
             }
         }else {
-        day = day - 1
+            day = day - 1
         }
-//        let dayString = String(day)
-//        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
-//        titleTextField?.resignFirstResponder()
+        //        let dayString = String(day)
+        //        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
+        //        titleTextField?.resignFirstResponder()
         
         fetchPhoto(completion: completion)
         
@@ -130,6 +130,75 @@ class PhotosViewModel {
             return 29
         }else {
             return 30
+        }
+    }
+    func findLocations(completion:@escaping () -> Void) {
+        let key = Array(assetDict.keys)[yearIndex]
+        if let value = assetDict[key] {
+            findLocation(year: key, assetArray: value, currentIndex: 0) {
+                if self.assetDict.keys.count - 1 > self.yearIndex {
+                    self.yearIndex = self.yearIndex + 1
+                    self.findLocations(completion: completion)
+                } else {
+                    self.yearIndex = 0
+                    completion()
+                }
+            }
+        }
+    }
+    
+    
+    func findLocation(year: String, assetArray: [PHAsset], currentIndex: Int, completion: @escaping () -> Void) {
+        let geocoder = CLGeocoder()
+        if currentIndex <= assetArray.count - 1 {
+            let asset = assetArray[currentIndex]
+            if let location = asset.location {
+                geocoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
+                    // Place details
+                    DispatchQueue.main.async {
+                        var placeMark: CLPlacemark!
+                        placeMark = placemarks?[0]
+                        
+                        var array : [String] = []
+                        if let placeMark = placeMark {
+                            if let subCity = placeMark.subLocality {
+                                array.append(subCity)
+                            } else if let city = placeMark.locality {
+                                array.append(city)
+                            } else if let state = placeMark.administrativeArea {
+                                array.append(state)
+                            } else if let country = placeMark.country {
+                                array.append(country)
+                            }
+                            
+                            if array.count > 0 {
+                                if let location = self.locationDict[year], let secondLocation = array.first,  location != secondLocation {
+                                    //too expensive to do this
+                                    let newLocation = location + " & " + secondLocation
+                                    self.locationDict[year] = newLocation
+                                    completion()
+                                } else {
+                                    self.locationDict[year] = array.first
+                                    if currentIndex == assetArray.count - 1 {
+                                        completion()
+                                    } else {
+                                        self.findLocation(year: year, assetArray: assetArray, currentIndex: assetArray.count - 1, completion: completion)
+                                    }
+                                }
+                                
+                            } else {
+                                self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
+                            }
+                        } else {
+                            self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
+                        }
+                    }
+                })
+            } else {
+                self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
+            }
+        } else {
+            completion()
         }
     }
 }

@@ -24,8 +24,14 @@ extension PhotosViewController: UICollectionViewDelegate {
         if let header = view as? PhotoCollectionHeaderView {
             let key = viewModel.assetArray[indexPath.section].0
             header.yearLabel.text = key
-            header.dateLabel.text = viewModel.displayDate()
             header.dateLabel.isHidden = indexPath.section != 0
+            header.dateLabel.text = viewModel.displayDate()
+            if let location = viewModel.locationDict[key] {
+                header.locationLabel.text = location
+                header.locationLabel.isHidden = indexPath.section != 0
+            } else {
+                header.locationLabel.text = ""
+            }
             return header
         }
         
@@ -35,7 +41,7 @@ extension PhotosViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
-        return CGSize(width: collectionView.bounds.width, height: 80)
+        return CGSize(width: collectionView.bounds.width, height: 70)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
@@ -44,6 +50,7 @@ extension PhotosViewController: UICollectionViewDelegate {
                 $0.frame.origin.y < $1.frame.origin.y
             }
             headers.first?.dateLabel.isHidden = false
+            headers.first?.locationLabel.isHidden = false
         }
         
     }
@@ -55,9 +62,13 @@ extension PhotosViewController: UICollectionViewDelegate {
             }
             
             headers.first?.dateLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
+            headers.first?.locationLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
             headerView.dateLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
+            headerView.locationLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
         }
     }
+    
+    
     
 }
 
@@ -90,7 +101,6 @@ extension PhotosViewController: UICollectionViewDataSource {
                 options.deliveryMode = .fastFormat
                 let requestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
                     DispatchQueue.main.async {
-                        print("resultID: \(info?["PHImageResultRequestIDKey"]), collectionCellID: \(collectionCell?.tag)")
                         if let playerItem = playerItem, let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber  {
                             if requestResultID.intValue == collectionCell?.tag {
                                 collectionCell?.playerView.isHidden = false

@@ -26,12 +26,24 @@ class PhotosViewController: UIViewController {
                 DispatchQueue.main.async {
                     self.photoCollectionView.reloadData()
                     self.activityIndicator.stopAnimating()
+                    self.viewModel.findLocations {
+                        DispatchQueue.main.async {
+                            self.photoCollectionView.collectionViewLayout.invalidateLayout()
+                        }
+                    }
                 }
             }
         }
         // Do any additional setup after loading the view.
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setNeedsStatusBarAppearanceUpdate()
+    }
 
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
 
 }
 

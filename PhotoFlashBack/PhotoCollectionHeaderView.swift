@@ -10,4 +10,5 @@ import UIKit
 class PhotoCollectionHeaderView: UICollectionReusableView {
     @IBOutlet weak var yearLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
+    @IBOutlet weak var locationLabel: UILabel!
 }
