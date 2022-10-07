@@ -7,6 +7,7 @@
 
 import UIKit
 import Photos
+import SkeletonView
 
 extension PhotosViewController: UICollectionViewDelegate {
     
@@ -15,17 +16,44 @@ extension PhotosViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+        let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
+        if asset.mediaType == .video {
+            let options = PHVideoRequestOptions()
+            options.version = .current
+            options.deliveryMode = .automatic
+            options.isNetworkAccessAllowed = true
+            addChild(self.player)
+            view.addSubview(self.player.view)
+            player.didMove(toParent: self)
+            player.view.autoLayoutFullScreen(parentView: view)
+            player.playerView.isSkeletonable = true
+            let animation = GradientDirection.leftRight.slidingAnimation()
+            let gradient = SkeletonGradient(baseColor: .asbestos)
+            player.playerView.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
+            player.playerView.isHidden = false
+            viewModel.assetManager.requestAVAsset(forVideo: asset, options: options) { avAsset, adudioMix, info in
+                if let urlAsset = avAsset as? AVURLAsset {
+                    DispatchQueue.main.async {
+                        self.player.playerView.hideSkeleton()
+                        self.player.url = urlAsset.url
+                        self.player.playFromBeginning()
+                    }
+                }
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Header", for: indexPath)
-        if let header = view as? PhotoCollectionHeaderView {
+        if let header = view as? PhotoCollectionHeaderView, viewModel.assetArray.count - 1 >= indexPath.section {
             let key = viewModel.assetArray[indexPath.section].0
             header.yearLabel.text = key
-            header.dateLabel.isHidden = indexPath.section != 0
-            header.dateLabel.text = viewModel.displayDate()
+           // header.dateLabel.isHidden = indexPath.section != 0
+            //header.dateLabel.text = viewModel.displayDate()
+            header.dateTextField.delegate = self
+            header.dateTextField.isHidden = indexPath.section != 0
+            header.dateTextField.text = viewModel.displayDate() + " ✐"
             if let location = viewModel.locationDict[key] {
                 header.locationLabel.text = location
                 header.locationLabel.isHidden = indexPath.section != 0
@@ -33,6 +61,11 @@ extension PhotosViewController: UICollectionViewDelegate {
                 header.locationLabel.text = ""
             }
             return header
+        } else {
+            let animation = GradientDirection.leftRight.slidingAnimation()
+            let gradient = SkeletonGradient(baseColor: .asbestos)
+            view.isSkeletonable = true
+            view.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
         }
         
         return view
@@ -49,7 +82,8 @@ extension PhotosViewController: UICollectionViewDelegate {
             headers.sort {
                 $0.frame.origin.y < $1.frame.origin.y
             }
-            headers.first?.dateLabel.isHidden = false
+           // headers.first?.dateLabel.isHidden = false
+            headers.first?.dateTextField.isHidden = false
             headers.first?.locationLabel.isHidden = false
         }
         
@@ -61,9 +95,11 @@ extension PhotosViewController: UICollectionViewDelegate {
                 $0.frame.origin.y < $1.frame.origin.y
             }
             
-            headers.first?.dateLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
+            //headers.first?.dateLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
+            headers.first?.dateTextField.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
             headers.first?.locationLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
-            headerView.dateLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
+           // headerView.dateLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
+            headerView.dateTextField.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
             headerView.locationLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
         }
     }
@@ -83,6 +119,9 @@ extension PhotosViewController: UICollectionViewDataSource {
         collectionCell?.stopVideo()
         collectionCell?.tag = 0
         let targetSize = CGSize(width: 300, height: 300)
+        guard viewModel.assetArray.count - 1 >= indexPath.section, viewModel.assetArray[indexPath.section].1.count - 1 >= indexPath.row else {
+            return collectionCell!
+        }
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
         viewModel.assetManager.requestImage(for: asset,
                                             targetSize: targetSize,

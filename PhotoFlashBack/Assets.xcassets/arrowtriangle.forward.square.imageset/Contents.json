@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "arrowtriangle.forward.square@2x.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -29,6 +29,8 @@ class PhotosViewModel {
     }
     
     func fetchPhoto(completion: () -> Void){
+        
+        locationDict.removeAll()
         assetArray.removeAll()
         assetDict.removeAll()
         assetSequence.removeAll()
@@ -133,6 +135,11 @@ class PhotosViewModel {
         }
     }
     func findLocations(completion:@escaping () -> Void) {
+        guard assetDict.keys.count > 0 else {
+            completion()
+            return
+            
+        }
         let key = Array(assetDict.keys)[yearIndex]
         if let value = assetDict[key] {
             findLocation(year: key, assetArray: value, currentIndex: 0) {

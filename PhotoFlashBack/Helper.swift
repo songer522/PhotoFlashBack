@@ -7,6 +7,7 @@
 
 import Foundation
 import Photos
+import UIKit
 
 class Helper {
    class func compoundPredicateFrom(day: Int, month: Int) -> [NSPredicate] {
@@ -48,5 +49,15 @@ class Helper {
         formatter.unitsStyle = .abbreviated
         formatter.allowedUnits = [.hour, .minute, .second]
         return formatter.string(from: duration) ?? ""
+    }
+}
+
+extension UIView {
+    func autoLayoutFullScreen(parentView: UIView) {
+        self.translatesAutoresizingMaskIntoConstraints = false
+        self.leadingAnchor.constraint(equalTo: parentView.leadingAnchor).isActive = true
+        self.trailingAnchor.constraint(equalTo: parentView.trailingAnchor).isActive = true
+        self.topAnchor.constraint(equalTo: parentView.topAnchor).isActive = true
+        self.bottomAnchor.constraint(equalTo: parentView.bottomAnchor).isActive = true
     }
 }
