@@ -60,4 +60,15 @@ extension UIView {
         self.topAnchor.constraint(equalTo: parentView.topAnchor).isActive = true
         self.bottomAnchor.constraint(equalTo: parentView.bottomAnchor).isActive = true
     }
+    
+    func parentViewController() -> UIViewController? {
+            var responder: UIResponder? = self
+            while let nextResponder = responder?.next {
+                if let viewController = nextResponder as? UIViewController {
+                    return viewController
+                }
+                responder = nextResponder
+            }
+            return nil
+        }
 }
