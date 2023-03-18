@@ -40,6 +40,16 @@ extension PhotosViewController: UICollectionViewDelegate {
                     }
                 }
             }
+        } else {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController {
+                imageViewerVC.viewModel = viewModel
+                let currentIndex = viewModel.assetSequence.firstIndex(of: asset) ?? 0
+                imageViewerVC.currentIndex = currentIndex
+                imageViewerVC.modalPresentationStyle = .fullScreen
+                present(imageViewerVC, animated: true)
+            }
+            
         }
     }
     

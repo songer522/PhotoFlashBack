@@ -11,6 +11,8 @@
 		FC3EFB8728E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB8628E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB8C28E7806100704DE3 /* PhotosViewController+PlayerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB8B28E7806100704DE3 /* PhotosViewController+PlayerDelegate.swift */; };
+		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
+		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
 		FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */; };
 		FC81130628E4E52C00112583 /* PhotosViewController+DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
@@ -30,6 +32,8 @@
 /* Begin PBXFileReference section */
 		FC3EFB8628E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+SkeletonView.swift"; sourceTree = "<group>"; };
 		FC3EFB8B28E7806100704DE3 /* PhotosViewController+PlayerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+PlayerDelegate.swift"; sourceTree = "<group>"; };
+		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
 		FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+DatePicker.swift"; sourceTree = "<group>"; };
 		FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoFlashBack.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,6 +96,8 @@
 				FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */,
 				FCB1DF2328DC214700160033 /* PlayerView.swift */,
 				FCB1DF1528D9638000160033 /* PhotosViewModel.swift */,
+				FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */,
+				FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */,
 				FCB1DF1F28DAB11000160033 /* Helper.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
@@ -181,6 +187,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */,
+				FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */,
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
 				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
@@ -191,6 +198,7 @@
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
 				FC81130628E4E52C00112583 /* PhotosViewController+DatePicker.swift in Sources */,
 				FC3EFB8728E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift in Sources */,
+				FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */,
 				FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */,
 				FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */,
 			);
