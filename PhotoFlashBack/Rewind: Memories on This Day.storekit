@@ -1,0 +1,35 @@
+{
+  "identifier" : "139B1215",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "6446445043",
+      "localizations" : [
+        {
+          "description" : "Show appreciation to app developer",
+          "displayName" : "Small Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.YangSong.PhotoFalshBack.tip",
+      "referenceName" : "Tip",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "1137168287",
+    "_developerTeamID" : "4UXP3NANFN",
+    "_lastSynchronizedDate" : 700983771.45248997
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}

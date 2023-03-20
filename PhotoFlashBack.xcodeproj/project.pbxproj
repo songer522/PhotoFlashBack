@@ -15,6 +15,10 @@
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
 		FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */; };
 		FC81130628E4E52C00112583 /* PhotosViewController+DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */; };
+		FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2129C6C50400890051 /* SettingsViewController.swift */; };
+		FC821D2729C6D48600890051 /* SwiftTipJar in Frameworks */ = {isa = PBXBuildFile; productRef = FC821D2629C6D48600890051 /* SwiftTipJar */; };
+		FC821D2A29C819EA00890051 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC821D2929C819EA00890051 /* StoreKit.framework */; };
+		FC821D2C29C81A7200890051 /* Rewind: Memories on This Day.storekit in Resources */ = {isa = PBXBuildFile; fileRef = FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
 		FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0328D9602A00160033 /* SceneDelegate.swift */; };
 		FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0528D9602A00160033 /* PhotosViewController.swift */; };
@@ -36,6 +40,9 @@
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
 		FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+DatePicker.swift"; sourceTree = "<group>"; };
+		FC821D2129C6C50400890051 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		FC821D2929C819EA00890051 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Rewind: Memories on This Day.storekit"; sourceTree = "<group>"; };
 		FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoFlashBack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DF0128D9602A00160033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FCB1DF0328D9602A00160033 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -58,18 +65,29 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC3EFB8528E6A75900704DE3 /* SkeletonView in Frameworks */,
+				FC821D2729C6D48600890051 /* SwiftTipJar in Frameworks */,
 				FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */,
+				FC821D2A29C819EA00890051 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FC821D2829C819EA00890051 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FC821D2929C819EA00890051 /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FCB1DEF528D9602A00160033 = {
 			isa = PBXGroup;
 			children = (
 				FCB1DF0028D9602A00160033 /* PhotoFlashBack */,
 				FCB1DEFF28D9602A00160033 /* Products */,
+				FC821D2829C819EA00890051 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -97,12 +115,14 @@
 				FCB1DF2328DC214700160033 /* PlayerView.swift */,
 				FCB1DF1528D9638000160033 /* PhotosViewModel.swift */,
 				FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */,
+				FC821D2129C6C50400890051 /* SettingsViewController.swift */,
 				FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */,
 				FCB1DF1F28DAB11000160033 /* Helper.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
 				FCB1DF0F28D9602C00160033 /* Info.plist */,
+				FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */,
 			);
 			path = PhotoFlashBack;
 			sourceTree = "<group>";
@@ -126,6 +146,7 @@
 			packageProductDependencies = (
 				FC3EFB8428E6A75900704DE3 /* SkeletonView */,
 				FC3EFB8928E77D7000704DE3 /* Player */,
+				FC821D2629C6D48600890051 /* SwiftTipJar */,
 			);
 			productName = PhotoFlashBack;
 			productReference = FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */;
@@ -158,6 +179,7 @@
 			packageReferences = (
 				FC3EFB8328E6A75900704DE3 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 				FC3EFB8828E77D7000704DE3 /* XCRemoteSwiftPackageReference "Player" */,
+				FC821D2529C6D48600890051 /* XCRemoteSwiftPackageReference "SwiftTipJar" */,
 			);
 			productRefGroup = FCB1DEFF28D9602A00160033 /* Products */;
 			projectDirPath = "";
@@ -176,6 +198,7 @@
 				FCB1DF0E28D9602C00160033 /* LaunchScreen.storyboard in Resources */,
 				FCB1DF0B28D9602C00160033 /* Assets.xcassets in Resources */,
 				FCB1DF0928D9602A00160033 /* Main.storyboard in Resources */,
+				FC821D2C29C81A7200890051 /* Rewind: Memories on This Day.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,6 +216,7 @@
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
 				FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
+				FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */,
 				FC3EFB8C28E7806100704DE3 /* PhotosViewController+PlayerDelegate.swift in Sources */,
 				FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
@@ -351,6 +375,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PhotoFlashBack/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Rewind;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To show you photos on this day, please grant permission for all photos.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -358,12 +383,12 @@
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -383,6 +408,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PhotoFlashBack/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Rewind;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "To show you photos on this day, please grant permission for all photos.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -390,12 +416,12 @@
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -444,6 +470,14 @@
 				minimumVersion = 0.9.2;
 			};
 		};
+		FC821D2529C6D48600890051 /* XCRemoteSwiftPackageReference "SwiftTipJar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dkasaj/SwiftTipJar.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -456,6 +490,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FC3EFB8828E77D7000704DE3 /* XCRemoteSwiftPackageReference "Player" */;
 			productName = Player;
+		};
+		FC821D2629C6D48600890051 /* SwiftTipJar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FC821D2529C6D48600890051 /* XCRemoteSwiftPackageReference "SwiftTipJar" */;
+			productName = SwiftTipJar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

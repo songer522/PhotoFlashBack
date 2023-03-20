@@ -19,6 +19,18 @@ class PhotosViewController: UIViewController {
     var viewModel = PhotosViewModel()
     var picker = UIPickerView()
     var player = Player()
+    
+    private let settingsButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.tintColor = .white
+        if let image = UIImage(systemName: "gearshape") {
+            button.setImage(image, for: .normal)
+        }
+        button.addTarget(self, action: #selector(settingsButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
        // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
@@ -80,7 +92,20 @@ class PhotosViewController: UIViewController {
         configureHierarchy()
         photoCollectionView.reloadData()
         setupVideoPlayer()
+        setupSettingsButton()
     }
+    
+    private func setupSettingsButton() {
+        view.addSubview(settingsButton)
+        settingsButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            settingsButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            settingsButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            settingsButton.widthAnchor.constraint(equalToConstant: 31),
+            settingsButton.heightAnchor.constraint(equalToConstant: 31)
+        ])
+    }
+
     
     func showLoadingScreen() {
         let animation = GradientDirection.leftRight.slidingAnimation()
@@ -158,6 +183,14 @@ class PhotosViewController: UIViewController {
         player.view.removeFromSuperview()
         player.removeFromParent()
     }
+    
+    @objc func settingsButtonTapped() {
+        let settingsViewController = SettingsViewController()
+        let navigationController = UINavigationController(rootViewController: settingsViewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true, completion: nil)
+    }
+
 
 }
 

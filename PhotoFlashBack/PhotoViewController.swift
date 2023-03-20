@@ -14,12 +14,13 @@ class PhotoViewController: UIViewController {
     @IBOutlet weak var photoCollectionView: UICollectionView!
     var viewModel = PhotosViewModel()
     var currentIndex: Int = 0
+    
     private let shareButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "square.and.arrow.up"), for: .normal)
-        button.imageView?.tintColor = .white
         button.tintColor = .white
         button.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
+        button.backgroundColor = .lightGray
         return button
     }()
     
@@ -44,14 +45,17 @@ class PhotoViewController: UIViewController {
     private func setupShareButton() {
             view.addSubview(shareButton)
             shareButton.translatesAutoresizingMaskIntoConstraints = false
+            let buttonSize: CGFloat = 50
             NSLayoutConstraint.activate([
-                shareButton.widthAnchor.constraint(equalToConstant: 60),
-                shareButton.heightAnchor.constraint(equalToConstant: 60),
+                shareButton.widthAnchor.constraint(equalToConstant: buttonSize),
+                shareButton.heightAnchor.constraint(equalToConstant: buttonSize),
                 shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
                 shareButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8)
             ])
             shareButton.imageView?.contentMode = .scaleAspectFill
+            shareButton.layer.cornerRadius = buttonSize / 2
         }
+
     func setupViews() {
         photoCollectionView.delegate = self
         photoCollectionView.dataSource = self
