@@ -8,9 +8,10 @@
 import Foundation
 import Photos
 import UIKit
+import CoreLocation
 
 class Helper {
-   class func compoundPredicateFrom(day: Int, month: Int) -> [NSPredicate] {
+    class func compoundPredicateFrom(day: Int, month: Int) -> [NSPredicate] {
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-M-d"
@@ -50,6 +51,52 @@ class Helper {
         formatter.allowedUnits = [.hour, .minute, .second]
         return formatter.string(from: duration) ?? ""
     }
+    
+    class func formatDateAndTime(_ date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        
+        return dateFormatter.string(from: date)
+    }
+    
+    class func updateAssetInfoLabelWithLocationName(asset: PHAsset, label: UILabel) {
+        let creationDate = asset.creationDate ?? Date()
+        let formattedDate = Helper.formatDateAndTime(creationDate)
+        
+        if let location = asset.location {
+            let geocoder = CLGeocoder()
+            geocoder.reverseGeocodeLocation(location) { placemarks, error in
+                if let placemark = placemarks?.first {
+                    var locationName = ""
+                    
+                    if let city = placemark.locality {
+                        locationName += city
+                    }
+                    
+                    if let state = placemark.administrativeArea {
+                        if !locationName.isEmpty {
+                            locationName += ", "
+                        }
+                        locationName += state
+                    }
+                    
+                    if !locationName.isEmpty {
+                        label.text = "\(locationName)\n\(formattedDate)"
+                    } else {
+                        label.text = "\(formattedDate)"
+                    }
+                } else {
+                    label.text = "\(formattedDate)"
+                }
+            }
+        } else {
+            label.text = "\(formattedDate)"
+        }
+    }
+
+    
+    
 }
 
 extension UIView {
@@ -62,13 +109,13 @@ extension UIView {
     }
     
     func parentViewController() -> UIViewController? {
-            var responder: UIResponder? = self
-            while let nextResponder = responder?.next {
-                if let viewController = nextResponder as? UIViewController {
-                    return viewController
-                }
-                responder = nextResponder
+        var responder: UIResponder? = self
+        while let nextResponder = responder?.next {
+            if let viewController = nextResponder as? UIViewController {
+                return viewController
             }
-            return nil
+            responder = nextResponder
         }
+        return nil
+    }
 }

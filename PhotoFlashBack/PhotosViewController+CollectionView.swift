@@ -17,30 +17,6 @@ extension PhotosViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
-        if asset.mediaType == .video {
-            let options = PHVideoRequestOptions()
-            options.version = .current
-            options.deliveryMode = .automatic
-            options.isNetworkAccessAllowed = true
-            addChild(self.player)
-            view.addSubview(self.player.view)
-            player.didMove(toParent: self)
-            player.view.autoLayoutFullScreen(parentView: view)
-            player.playerView.isSkeletonable = true
-            let animation = GradientDirection.leftRight.slidingAnimation()
-            let gradient = SkeletonGradient(baseColor: .asbestos)
-            player.playerView.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
-            player.playerView.isHidden = false
-            viewModel.assetManager.requestAVAsset(forVideo: asset, options: options) { avAsset, adudioMix, info in
-                if let urlAsset = avAsset as? AVURLAsset {
-                    DispatchQueue.main.async {
-                        self.player.playerView.hideSkeleton()
-                        self.player.url = urlAsset.url
-                        self.player.playFromBeginning()
-                    }
-                }
-            }
-        } else {
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController {
                 imageViewerVC.viewModel = viewModel
@@ -49,8 +25,6 @@ extension PhotosViewController: UICollectionViewDelegate {
                 imageViewerVC.modalPresentationStyle = .fullScreen
                 present(imageViewerVC, animated: true)
             }
-            
-        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

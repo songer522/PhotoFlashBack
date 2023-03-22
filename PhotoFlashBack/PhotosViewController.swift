@@ -8,7 +8,6 @@
 import UIKit
 import SkeletonView
 import Photos
-import Player
 
 class PhotosViewController: UIViewController {
 
@@ -18,7 +17,6 @@ class PhotosViewController: UIViewController {
     var isFetching = false
     var viewModel = PhotosViewModel()
     var picker = UIPickerView()
-    var player = Player()
     
     private let settingsButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -91,7 +89,6 @@ class PhotosViewController: UIViewController {
         picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
         configureHierarchy()
         photoCollectionView.reloadData()
-        setupVideoPlayer()
         setupSettingsButton()
     }
     
@@ -165,25 +162,7 @@ class PhotosViewController: UIViewController {
     @objc func dateCancelled () {
         view.endEditing(true)
     }
-    
-    func setupVideoPlayer() {
-        player.playerDelegate = self
-        //self.player.playbackDelegate = self
-        player.view.frame = self.view.bounds
-        player.playerView.playerBackgroundColor = .black
-        let tapGestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(PhotosViewController.dismissVideo))
-        tapGestureRecognizer.numberOfTapsRequired = 1
-        player.view.addGestureRecognizer(tapGestureRecognizer)
-    }
-    
-    @objc func dismissVideo() {
-        player.stop()
-        player.playerView.isHidden = true
-        player.willMove(toParent: nil)
-        player.view.removeFromSuperview()
-        player.removeFromParent()
-    }
-    
+
     @objc func settingsButtonTapped() {
         let settingsViewController = SettingsViewController()
         let navigationController = UINavigationController(rootViewController: settingsViewController)

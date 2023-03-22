@@ -158,7 +158,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="DUA-Nj-c8Y">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <viewLayoutGuide key="contentLayoutGuide" id="mIp-tj-VTP"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="b7F-AX-8q4"/>
@@ -170,7 +170,7 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ImageViewer" id="9n8-vT-V0Y" customClass="ImageViewerCollectionViewCell" customModule="PhotoFlashBack" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="59" width="128" height="128"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="aM8-io-irl">
                                             <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
@@ -203,8 +203,8 @@
                         <viewLayoutGuide key="safeArea" id="fux-NM-XJA"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="DUA-Nj-c8Y" firstAttribute="top" secondItem="j4S-00-Nsw" secondAttribute="top" id="eMs-IY-3z1"/>
-                            <constraint firstAttribute="bottom" secondItem="DUA-Nj-c8Y" secondAttribute="bottom" id="uTb-Jy-N0l"/>
+                            <constraint firstItem="DUA-Nj-c8Y" firstAttribute="top" secondItem="fux-NM-XJA" secondAttribute="top" id="BDD-hV-kvc"/>
+                            <constraint firstItem="fux-NM-XJA" firstAttribute="bottom" secondItem="DUA-Nj-c8Y" secondAttribute="bottom" id="eJk-EG-fmS"/>
                             <constraint firstItem="DUA-Nj-c8Y" firstAttribute="leading" secondItem="fux-NM-XJA" secondAttribute="leading" id="v06-3F-lvC"/>
                             <constraint firstItem="DUA-Nj-c8Y" firstAttribute="trailing" secondItem="fux-NM-XJA" secondAttribute="trailing" id="vAy-ph-IMz"/>
                         </constraints>

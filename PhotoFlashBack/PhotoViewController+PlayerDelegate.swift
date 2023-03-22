@@ -1,14 +1,14 @@
 //
-//  PhotosViewController+PlayerDelegate.swift
+//  PhotoViewController+PlayerDelegate.swift
 //  PhotoFlashBack
 //
-//  Created by Yang Song on 9/30/22.
+//  Created by Yang Song on 3/21/23.
 //
 
 import UIKit
 import Player
 
-extension PhotosViewController: PlayerDelegate {
+extension PhotoViewController: PlayerDelegate {
     
     func playerReady(_ player: Player) {
     }
@@ -30,3 +30,4 @@ extension PhotosViewController: PlayerDelegate {
     }
     
 }
+
