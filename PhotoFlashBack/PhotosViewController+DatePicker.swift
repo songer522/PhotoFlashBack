@@ -14,16 +14,12 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         let pickerLabel = UILabel()
         pickerLabel.textColor = UIColor.white
         switch component {
-                    case 0:
+        case 0:
             pickerLabel.text = viewModel.monthArray[row]
-            
-
-                        //return monthArray[row]
-                    case 1:
-                        pickerLabel.text = String(row + 1)
-                        //return String(row + 1)
-                    default:
-                        pickerLabel.text = ""
+        case 1:
+            pickerLabel.text = String(row + 1)
+        default:
+            pickerLabel.text = ""
         }
         pickerLabel.textAlignment = NSTextAlignment.center
         return pickerLabel
