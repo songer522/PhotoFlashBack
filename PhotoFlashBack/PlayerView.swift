@@ -14,6 +14,7 @@ class PlayerView: UIView {
         return AVPlayerLayer.self
     }
 
+    var isFullScreen: Bool = false
     var playerLayer: AVPlayerLayer {
     
         return layer as! AVPlayerLayer
@@ -25,7 +26,7 @@ class PlayerView: UIView {
         }
     
         set {
-            playerLayer.videoGravity = .resizeAspectFill
+            playerLayer.videoGravity =  isFullScreen ? .resizeAspect : .resizeAspectFill
             playerLayer.player = newValue
         }
     }

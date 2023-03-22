@@ -25,7 +25,6 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
                     default:
                         pickerLabel.text = ""
         }
-        pickerLabel.font = UIFont(name: "AppleSDGothicNeo-Regular", size: 20) // In this use your custom font
         pickerLabel.textAlignment = NSTextAlignment.center
         return pickerLabel
     }

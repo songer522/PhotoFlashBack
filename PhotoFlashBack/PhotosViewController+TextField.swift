@@ -19,7 +19,7 @@ extension PhotosViewController: UITextFieldDelegate {
         keyboardDoneButtonView.tintColor = UIColor.white
         let item = UIBarButtonItem(title: "Select", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.datePicked) )
         let item2 = UIBarButtonItem(title: "Cancel", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.dateCancelled) )
-        let font = UIFont.preferredFont(forTextStyle: .body)
+        let font = UIFont.systemFont(ofSize: 20)
             item.setTitleTextAttributes([NSAttributedString.Key.font: font], for: UIControl.State())
             item2.setTitleTextAttributes([NSAttributedString.Key.font: font], for: UIControl.State())
         let title = UILabel.init(frame: CGRect(x: 0, y: 0, width: 120, height: 30))
