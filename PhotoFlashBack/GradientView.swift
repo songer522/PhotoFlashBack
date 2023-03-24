@@ -20,7 +20,7 @@ class GradientView: UIView {
     }
     
     private func setup() {
-        gradientLayer.colors = [UIColor.black.cgColor, UIColor.black.cgColor]
+        gradientLayer.colors = [UIColor.black.cgColor, UIColor.clear.cgColor]
         gradientLayer.locations = [0, 1]
         gradientLayer.opacity = 0.2
         layer.insertSublayer(gradientLayer, at: 0)

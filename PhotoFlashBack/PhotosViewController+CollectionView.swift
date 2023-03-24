@@ -58,7 +58,7 @@ extension PhotosViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
-        return CGSize(width: collectionView.bounds.width, height: 70)
+        return CGSize(width: collectionView.bounds.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
@@ -227,7 +227,7 @@ extension PhotosViewController {
             let section = NSCollectionLayoutSection(group: megaGroup)
             
             let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(80.0))
+                                                          heightDimension: .absolute(50.0))
             let header = NSCollectionLayoutBoundarySupplementaryItem(
                 layoutSize: footerHeaderSize,
                 elementKind: UICollectionView.elementKindSectionHeader,
@@ -241,7 +241,8 @@ extension PhotosViewController {
     func configureHierarchy() {
         photoCollectionView.collectionViewLayout = createLayout(size: view.bounds.size)
         photoCollectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        photoCollectionView.backgroundColor = .black
+        photoCollectionView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0) //warmAlmostBlack
+
         
     }
 }
