@@ -64,12 +64,21 @@ class PhotosViewModel {
             }
         })
         
-        assetArray = self.assetDict.sorted { $0.0 < $1.0 }
+        assetArray = self.assetDict.sorted { $0.0 > $1.0 }
         if assetArray.count > 0 {
             //noPhotoLabel.isHidden = true
         } else {
             //noPhotoLabel.isHidden = false
         }
+        var yearArray: [PHAsset] = []
+        for (_, assets) in assetArray {
+            if let asset = assets.first {
+                yearArray.append(asset)
+            }
+        }
+        yearArray.reverse()
+        let yearDic = ("Rewind", yearArray)
+        assetArray.insert(yearDic, at: 0)
         
         for (_, assets) in assetArray {
             

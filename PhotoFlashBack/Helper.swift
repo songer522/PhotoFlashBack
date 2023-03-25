@@ -60,6 +60,13 @@ class Helper {
         return dateFormatter.string(from: date)
     }
     
+    class func getYear(from asset: PHAsset) -> String {
+        guard let creationDate = asset.creationDate else { return "" }
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: creationDate)
+        return String(year)
+    }
+    
     class func updateAssetInfoLabelWithLocationName(asset: PHAsset, label: UILabel) {
         let creationDate = asset.creationDate ?? Date()
         let formattedDate = Helper.formatDateAndTime(creationDate)

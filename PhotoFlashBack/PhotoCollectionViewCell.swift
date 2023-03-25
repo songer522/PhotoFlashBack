@@ -11,6 +11,7 @@ import AVFoundation
 class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var videoLengthLabel: UILabel!
+    @IBOutlet weak var yearLabel: UILabel!
     
     var playerView: PlayerView = {
         var player = PlayerView()

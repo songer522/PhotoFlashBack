@@ -7,7 +7,7 @@
 
 import UIKit
 import Photos
-import SkeletonView
+//import SkeletonView
 
 extension PhotosViewController: UICollectionViewDelegate {
     
@@ -15,7 +15,17 @@ extension PhotosViewController: UICollectionViewDelegate {
         case main
     }
     
+    func scrollToSection(_ section: Int, collectionView: UICollectionView) {
+        let indexPath = IndexPath(item: 0, section: section)
+        collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            let section = viewModel.assetArray.count - 1 - indexPath.row
+            scrollToSection(section, collectionView: collectionView)
+            return
+        }
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController {
@@ -46,10 +56,10 @@ extension PhotosViewController: UICollectionViewDelegate {
             }
             return header
         } else {
-            let animation = GradientDirection.leftRight.slidingAnimation()
-            let gradient = SkeletonGradient(baseColor: .asbestos)
-            view.isSkeletonable = true
-            view.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
+//            let animation = GradientDirection.leftRight.slidingAnimation()
+//            let gradient = SkeletonGradient(baseColor: .asbestos)
+//            view.isSkeletonable = true
+//            view.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
         }
         
         return view
@@ -114,7 +124,17 @@ extension PhotosViewController: UICollectionViewDataSource {
                                             resultHandler: { image, info in
             
             collectionCell?.itemImageView.image = image
+            collectionCell?.itemImageView.clipsToBounds = true
             collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
+            if indexPath.section == 0 {
+                collectionCell?.itemImageView.layer.cornerRadius = 10
+                collectionCell?.yearLabel.isHidden = false
+                collectionCell?.yearLabel.text = Helper.getYear(from: asset)
+            } else {
+                collectionCell?.itemImageView.layer.cornerRadius = 0
+                collectionCell?.yearLabel.isHidden = true
+                collectionCell?.yearLabel.text = ""
+            }
             if asset.mediaType == .video {
                 collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
                 
@@ -136,28 +156,13 @@ extension PhotosViewController: UICollectionViewDataSource {
                 collectionCell?.tag = Int(requestID)
             }
             
-            //                                        if self.fullFeatureUnlocked == false && self.month != NSCalendar.currentCalendar().component(.Month, fromDate: NSDate()){
-            //                                           collectionCell?.blurEffectView.hidden = false
-            //                                        }else {
-            //                                            collectionCell?.blurEffectView.hidden = true
-            //                                        }
-            
         })
         return collectionCell!
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.assetDict.count
+        return viewModel.assetArray.count
     }
-    
-    //    func collectionView(_ collectionView: UICollectionView,
-    //                          layout collectionViewLayout: UICollectionViewLayout,
-    //                                 sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize {
-    //
-    //        let width = (UIScreen.main.bounds.width - 6)/3
-    //
-    //        return CGSize(width: width, height: width)
-    //    }
 }
 
 extension PhotosViewController {
@@ -185,56 +190,80 @@ extension PhotosViewController {
     
     private func createLayout(isLandscape: Bool = false, size: CGSize) -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnv) -> NSCollectionLayoutSection? in
-            let leadingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5),
-                                                         heightDimension: .fractionalHeight(1.0))
-            let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
-            leadingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
             
-            let trailingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .fractionalHeight(0.3))
-            let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
-            trailingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
-            
-            let trailingLeftGroup = NSCollectionLayoutGroup.vertical(
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
-                                                   heightDimension: .fractionalHeight(1.0)),
-                subitem: trailingItem, count: 2)
-            
-            let trailingRightGroup = NSCollectionLayoutGroup.vertical(
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
-                                                   heightDimension: .fractionalHeight(1.0)),
-                subitem: trailingItem, count: 2)
-            
-            let fractionalHeight = isLandscape ? NSCollectionLayoutDimension.fractionalHeight(0.8) : NSCollectionLayoutDimension.fractionalHeight(0.4)
-            let groupDimensionHeight: NSCollectionLayoutDimension = fractionalHeight
-            
-            let rightGroup = NSCollectionLayoutGroup.horizontal(
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                   heightDimension: groupDimensionHeight),
-                subitems: [leadingItem, trailingLeftGroup, trailingRightGroup])
-            
-            let leftGroup = NSCollectionLayoutGroup.horizontal(
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                   heightDimension: groupDimensionHeight),
-                subitems: [trailingRightGroup, trailingLeftGroup, leadingItem])
-            
-            let height = isLandscape ? size.height / 0.9 : size.height / 1.25
-            let megaGroup = NSCollectionLayoutGroup.vertical(
-                layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                   heightDimension: .estimated(height)),
-                subitems: [rightGroup, leftGroup])
-            
-            let section = NSCollectionLayoutSection(group: megaGroup)
-            
-            let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                          heightDimension: .absolute(50.0))
-            let header = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: footerHeaderSize,
-                elementKind: UICollectionView.elementKindSectionHeader,
-                alignment: .top)
-            header.pinToVisibleBounds = true
-            section.boundarySupplementaryItems = [header]
-            return section
+            if sectionIndex == 0 {
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.33), heightDimension: .fractionalHeight(1.0))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
+                
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(150.0))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                
+                let section = NSCollectionLayoutSection(group: group)
+                let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                              heightDimension: .absolute(50.0))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: footerHeaderSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top)
+                header.pinToVisibleBounds = true
+                section.boundarySupplementaryItems = [header]
+                section.orthogonalScrollingBehavior = .continuous
+                
+                return section
+            } else {
+                
+                let leadingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5),
+                                                             heightDimension: .fractionalHeight(1.0))
+                let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
+                leadingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
+                
+                let trailingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                              heightDimension: .fractionalHeight(0.3))
+                let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
+                trailingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
+                
+                let trailingLeftGroup = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
+                                                       heightDimension: .fractionalHeight(1.0)),
+                    subitem: trailingItem, count: 2)
+                
+                let trailingRightGroup = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
+                                                       heightDimension: .fractionalHeight(1.0)),
+                    subitem: trailingItem, count: 2)
+                
+                let fractionalHeight = isLandscape ? NSCollectionLayoutDimension.fractionalHeight(0.8) : NSCollectionLayoutDimension.fractionalHeight(0.4)
+                let groupDimensionHeight: NSCollectionLayoutDimension = fractionalHeight
+                
+                let rightGroup = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: groupDimensionHeight),
+                    subitems: [leadingItem, trailingLeftGroup, trailingRightGroup])
+                
+                let leftGroup = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: groupDimensionHeight),
+                    subitems: [trailingRightGroup, trailingLeftGroup, leadingItem])
+                
+                let height = isLandscape ? size.height / 0.9 : size.height / 1.25
+                let megaGroup = NSCollectionLayoutGroup.vertical(
+                    layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                       heightDimension: .estimated(height)),
+                    subitems: [rightGroup, leftGroup])
+                
+                let section = NSCollectionLayoutSection(group: megaGroup)
+                
+                let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                              heightDimension: .absolute(50.0))
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: footerHeaderSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top)
+                header.pinToVisibleBounds = true
+                section.boundarySupplementaryItems = [header]
+                return section
+            }
         }
     }
     

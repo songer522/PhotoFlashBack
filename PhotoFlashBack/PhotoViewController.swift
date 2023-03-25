@@ -8,7 +8,6 @@
 import UIKit
 import Photos
 import Player
-import SkeletonView
 
 class PhotoViewController: UIViewController {
     

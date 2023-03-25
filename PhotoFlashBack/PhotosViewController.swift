@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import SkeletonView
 import Photos
 
 class PhotosViewController: UIViewController {
@@ -27,8 +26,6 @@ class PhotosViewController: UIViewController {
         button.addTarget(self, action: #selector(settingsButtonTapped), for: .touchUpInside)
         return button
     }()
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
        // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
@@ -79,10 +76,10 @@ class PhotosViewController: UIViewController {
     
     func setupViews() {
         photoCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Header")
-        showLoadingScreen()
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.sectionHeadersPinToVisibleBounds = true
         }
+        photoCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 500, right: 0)
         picker.backgroundColor = .systemFill
         picker.delegate = self
         picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
@@ -103,14 +100,6 @@ class PhotosViewController: UIViewController {
         ])
     }
 
-    
-    func showLoadingScreen() {
-        let animation = GradientDirection.leftRight.slidingAnimation()
-        let gradient = SkeletonGradient(baseColor: .asbestos)
-        photoCollectionView.isSkeletonable = true
-        photoCollectionView.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
-    }
-    
    @objc func fetchPhotos() {
        print("FetchPhotos!!!!")
        guard !isFetching else {return}
@@ -118,9 +107,8 @@ class PhotosViewController: UIViewController {
         DispatchQueue.global(qos: .userInteractive).async {
             self.viewModel.fetchPhoto {
                 DispatchQueue.main.async {
-                    self.photoCollectionView.hideSkeleton()
-                    self.photoCollectionView.reloadData()
                     self.isFetching = false
+                    self.photoCollectionView.reloadData()
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {
                             self.photoCollectionView.collectionViewLayout.invalidateLayout()
@@ -141,11 +129,9 @@ class PhotosViewController: UIViewController {
     @objc func datePicked () {
         view.endEditing(true)
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -100), animated: false)
-        showLoadingScreen()
         DispatchQueue.global(qos: .userInteractive).async {
             self.viewModel.fetchPhoto {
                 DispatchQueue.main.async {
-                    self.photoCollectionView.hideSkeleton()
                     self.photoCollectionView.reloadData()
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {

@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		FC3EFB8528E6A75900704DE3 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8428E6A75900704DE3 /* SkeletonView */; };
-		FC3EFB8728E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB8628E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
@@ -35,7 +34,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FC3EFB8628E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+SkeletonView.swift"; sourceTree = "<group>"; };
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
@@ -110,7 +108,6 @@
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
 				FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */,
 				FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */,
-				FC3EFB8628E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift */,
 				FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */,
 				FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */,
 				FCB1DF2328DC214700160033 /* PlayerView.swift */,
@@ -225,7 +222,6 @@
 				FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
 				FC81130628E4E52C00112583 /* PhotosViewController+DatePicker.swift in Sources */,
-				FC3EFB8728E6A86F00704DE3 /* PhotosViewController+SkeletonView.swift in Sources */,
 				FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */,
 				FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */,
 				FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */,
