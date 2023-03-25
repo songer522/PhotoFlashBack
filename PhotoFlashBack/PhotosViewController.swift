@@ -26,9 +26,9 @@ class PhotosViewController: UIViewController {
         button.addTarget(self, action: #selector(settingsButtonTapped), for: .touchUpInside)
         return button
     }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-       // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
         setupViews()
         if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
@@ -61,19 +61,61 @@ class PhotosViewController: UIViewController {
         } else {
             fetchPhotos()
         }
-        
+       // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
 
-        // Do any additional setup after loading the view.
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
     
+    func showLoadingSpinner() {
+        let spinnerBackgroundView = UIView()
+        spinnerBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+        spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
+        spinnerBackgroundView.layer.cornerRadius = 10
+        spinnerBackgroundView.tag = 1001  // Use a unique tag to identify the spinner background view later when removing it.
+        
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.color = .white
+        spinner.startAnimating()
+        
+        spinnerBackgroundView.addSubview(spinner)
+        view.addSubview(spinnerBackgroundView)
+        
+        // Constraints for the spinner background view
+        NSLayoutConstraint.activate([
+            spinnerBackgroundView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spinnerBackgroundView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            spinnerBackgroundView.widthAnchor.constraint(equalToConstant: 100),
+            spinnerBackgroundView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+        
+        // Constraints for the spinner
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: spinnerBackgroundView.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: spinnerBackgroundView.centerYAnchor)
+        ])
+    }
+
+
+    func hideLoadingSpinner() {
+        if let spinnerBackgroundView = view.viewWithTag(1001) {
+            spinnerBackgroundView.removeFromSuperview()
+        }
+    }
+
+   
     func setupViews() {
         photoCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Header")
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -103,12 +145,14 @@ class PhotosViewController: UIViewController {
    @objc func fetchPhotos() {
        print("FetchPhotos!!!!")
        guard !isFetching else {return}
+       showLoadingSpinner()
        isFetching = true
         DispatchQueue.global(qos: .userInteractive).async {
             self.viewModel.fetchPhoto {
                 DispatchQueue.main.async {
                     self.isFetching = false
                     self.photoCollectionView.reloadData()
+                    self.hideLoadingSpinner()
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {
                             self.photoCollectionView.collectionViewLayout.invalidateLayout()
@@ -129,10 +173,12 @@ class PhotosViewController: UIViewController {
     @objc func datePicked () {
         view.endEditing(true)
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -100), animated: false)
+        showLoadingSpinner()
         DispatchQueue.global(qos: .userInteractive).async {
             self.viewModel.fetchPhoto {
                 DispatchQueue.main.async {
                     self.photoCollectionView.reloadData()
+                    self.hideLoadingSpinner()
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {
                             self.photoCollectionView.collectionViewLayout.invalidateLayout()

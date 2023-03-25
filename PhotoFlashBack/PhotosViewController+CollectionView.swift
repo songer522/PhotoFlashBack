@@ -27,14 +27,20 @@ extension PhotosViewController: UICollectionViewDelegate {
             return
         }
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController {
-                imageViewerVC.viewModel = viewModel
-                let currentIndex = viewModel.assetSequence.firstIndex(of: asset) ?? 0
-                imageViewerVC.currentIndex = currentIndex
-                imageViewerVC.modalPresentationStyle = .fullScreen
-                present(imageViewerVC, animated: true)
-            }
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController, let cell = collectionView.cellForItem(at: indexPath) {
+            imageViewerVC.viewModel = viewModel
+            let currentIndex = viewModel.assetSequence.lastIndex(of: asset) ?? 0
+            imageViewerVC.currentIndex = currentIndex
+            
+            imageViewerVC.modalPresentationStyle = .fullScreen
+            imageViewerVC.modalPresentationCapturesStatusBarAppearance = true
+            
+            let customTransitioningDelegate = CustomTransitioningDelegate(sourceView: cell)
+            imageViewerVC.transitioningDelegate = customTransitioningDelegate
+            
+            present(imageViewerVC, animated: true)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -125,7 +131,7 @@ extension PhotosViewController: UICollectionViewDataSource {
             
             collectionCell?.itemImageView.image = image
             collectionCell?.itemImageView.clipsToBounds = true
-            collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
+            collectionCell?.videoLengthLabel.isHidden = true
             if indexPath.section == 0 {
                 collectionCell?.itemImageView.layer.cornerRadius = 10
                 collectionCell?.yearLabel.isHidden = false
@@ -135,7 +141,8 @@ extension PhotosViewController: UICollectionViewDataSource {
                 collectionCell?.yearLabel.isHidden = true
                 collectionCell?.yearLabel.text = ""
             }
-            if asset.mediaType == .video {
+            if asset.mediaType == .video, indexPath.section != 0 {
+                collectionCell?.videoLengthLabel.isHidden = false
                 collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
                 
                 let options = PHVideoRequestOptions()
@@ -192,7 +199,7 @@ extension PhotosViewController {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnv) -> NSCollectionLayoutSection? in
             
             if sectionIndex == 0 {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.33), heightDimension: .fractionalHeight(1.0))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(Helper.isLandscape() ? 0.25 : 0.33333333333333333), heightDimension: .fractionalHeight(1.0))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10)
                 
@@ -268,7 +275,7 @@ extension PhotosViewController {
     }
     
     func configureHierarchy() {
-        photoCollectionView.collectionViewLayout = createLayout(size: view.bounds.size)
+        photoCollectionView.collectionViewLayout = createLayout(isLandscape: Helper.isLandscape(), size: view.bounds.size)
         photoCollectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         photoCollectionView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0) //warmAlmostBlack
 

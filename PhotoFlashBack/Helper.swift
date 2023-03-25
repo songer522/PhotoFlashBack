@@ -101,9 +101,11 @@ class Helper {
             label.text = "\(formattedDate)"
         }
     }
-
     
-    
+    class func isLandscape() -> Bool {
+        let bounds = UIScreen.main.bounds
+        return bounds.width > bounds.height
+    }
 }
 
 extension UIView {
