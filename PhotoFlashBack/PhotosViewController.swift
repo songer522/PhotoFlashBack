@@ -14,6 +14,7 @@ class PhotosViewController: UIViewController {
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var emptyStateLabel: UILabel!
     var isFetching = false
+    var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
     var picker = UIPickerView()
     
@@ -61,9 +62,17 @@ class PhotosViewController: UIViewController {
         } else {
             fetchPhotos()
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
        // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
 
     }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+
+    
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setNeedsStatusBarAppearanceUpdate()
@@ -121,7 +130,7 @@ class PhotosViewController: UIViewController {
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.sectionHeadersPinToVisibleBounds = true
         }
-        photoCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 500, right: 0)
+        photoCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 300, right: 0)
         picker.backgroundColor = .systemFill
         picker.delegate = self
         picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)

@@ -5,7 +5,6 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -172,7 +171,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="DUA-Nj-c8Y">
                                 <rect key="frame" x="0.0" y="59" width="393" height="759"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" red="0.10980392160000001" green="0.078431372550000003" blue="0.050980392159999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <viewLayoutGuide key="contentLayoutGuide" id="mIp-tj-VTP"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="b7F-AX-8q4"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" sectionInsetReference="safeArea" id="9bw-IR-Mvv">
@@ -214,12 +213,12 @@
                             </collectionView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="fux-NM-XJA"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" red="0.10980392160000001" green="0.078431372550000003" blue="0.050980392159999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="DUA-Nj-c8Y" secondAttribute="trailing" id="154-wW-CTB"/>
                             <constraint firstItem="DUA-Nj-c8Y" firstAttribute="top" secondItem="fux-NM-XJA" secondAttribute="top" id="BDD-hV-kvc"/>
                             <constraint firstItem="fux-NM-XJA" firstAttribute="bottom" secondItem="DUA-Nj-c8Y" secondAttribute="bottom" id="eJk-EG-fmS"/>
-                            <constraint firstItem="DUA-Nj-c8Y" firstAttribute="leading" secondItem="fux-NM-XJA" secondAttribute="leading" id="v06-3F-lvC"/>
-                            <constraint firstItem="DUA-Nj-c8Y" firstAttribute="trailing" secondItem="fux-NM-XJA" secondAttribute="trailing" id="vAy-ph-IMz"/>
+                            <constraint firstItem="DUA-Nj-c8Y" firstAttribute="leading" secondItem="j4S-00-Nsw" secondAttribute="leading" id="n8F-hQ-Ht7"/>
                         </constraints>
                     </view>
                     <connections>
@@ -231,9 +230,4 @@
             <point key="canvasLocation" x="1016.030534351145" y="-63.380281690140848"/>
         </scene>
     </scenes>
-    <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-    </resources>
 </document>

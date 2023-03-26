@@ -20,6 +20,7 @@
 		FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */; };
 		FC821D3029CACE2C00890051 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2F29CACE2C00890051 /* GradientView.swift */; };
 		FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */; };
+		FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3929D0270B00890051 /* CustomLayouts.swift */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
 		FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0328D9602A00160033 /* SceneDelegate.swift */; };
 		FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0528D9602A00160033 /* PhotosViewController.swift */; };
@@ -45,6 +46,7 @@
 		FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoViewController+PlayerDelegate.swift"; sourceTree = "<group>"; };
 		FC821D2F29CACE2C00890051 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitionAnimator.swift; sourceTree = "<group>"; };
+		FC821D3929D0270B00890051 /* CustomLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayouts.swift; sourceTree = "<group>"; };
 		FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoFlashBack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DF0128D9602A00160033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FCB1DF0328D9602A00160033 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 				FCB1DF0328D9602A00160033 /* SceneDelegate.swift */,
 				FCB1DF0528D9602A00160033 /* PhotosViewController.swift */,
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
+				FC821D3929D0270B00890051 /* CustomLayouts.swift */,
 				FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */,
 				FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */,
 				FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */,
@@ -212,6 +215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */,
 				FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */,
 				FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */,
 				FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */,
