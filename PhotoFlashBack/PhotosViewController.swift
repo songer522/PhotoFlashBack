@@ -9,14 +9,18 @@ import UIKit
 import Photos
 
 class PhotosViewController: UIViewController {
-
+    
     
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var emptyStateLabel: UILabel!
     var isFetching = false
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
-    var picker = UIPickerView()
+    
+    var picker: UIPickerView = {
+        let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 250))
+        return picker
+    }()
     
     private let settingsButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -25,6 +29,15 @@ class PhotosViewController: UIViewController {
             button.setImage(image, for: .normal)
         }
         button.addTarget(self, action: #selector(settingsButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private let editButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage( UIImage(systemName: "pencil"), for: .normal)
+        button.tintColor = .white
+        button.addTarget(self, action: #selector(selectDate), for: .touchUpInside)
+        button.backgroundColor = .lightGray
         return button
     }()
     
@@ -80,9 +93,9 @@ class PhotosViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-
+        
     }
-
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
@@ -116,15 +129,15 @@ class PhotosViewController: UIViewController {
             spinner.centerYAnchor.constraint(equalTo: spinnerBackgroundView.centerYAnchor)
         ])
     }
-
-
+    
+    
     func hideLoadingSpinner() {
         if let spinnerBackgroundView = view.viewWithTag(1001) {
             spinnerBackgroundView.removeFromSuperview()
         }
     }
-
-   
+    
+    
     func setupViews() {
         photoCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Header")
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -138,6 +151,7 @@ class PhotosViewController: UIViewController {
         configureHierarchy()
         photoCollectionView.reloadData()
         setupSettingsButton()
+        setupEditButton()
     }
     
     private func setupSettingsButton() {
@@ -150,12 +164,26 @@ class PhotosViewController: UIViewController {
             settingsButton.heightAnchor.constraint(equalToConstant: 31)
         ])
     }
-
-   @objc func fetchPhotos() {
-       print("FetchPhotos!!!!")
-       guard !isFetching else {return}
-       showLoadingSpinner()
-       isFetching = true
+    
+    private func setupEditButton() {
+        view.addSubview(editButton)
+        editButton.translatesAutoresizingMaskIntoConstraints = false
+        let buttonSize: CGFloat = 50
+        NSLayoutConstraint.activate([
+            editButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            editButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            editButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            editButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+        ])
+        editButton.imageView?.contentMode = .scaleAspectFill
+        editButton.layer.cornerRadius = buttonSize / 2
+    }
+    
+    @objc func fetchPhotos() {
+        print("FetchPhotos!!!!")
+        guard !isFetching else {return}
+        showLoadingSpinner()
+        isFetching = true
         DispatchQueue.global(qos: .userInteractive).async {
             self.viewModel.fetchPhoto {
                 DispatchQueue.main.async {
@@ -179,7 +207,26 @@ class PhotosViewController: UIViewController {
         }
     }
     
-    @objc func datePicked () {
+    func getTopVisibleSectionHeader() -> UICollectionReusableView? {
+        let headerKind = UICollectionView.elementKindSectionHeader
+        let visibleHeaderIndexPaths = photoCollectionView.indexPathsForVisibleSupplementaryElements(ofKind: headerKind)
+        
+        if !visibleHeaderIndexPaths.isEmpty {
+            let sortedIndexPaths = visibleHeaderIndexPaths.sorted { $0.section < $1.section }
+            let topHeaderIndexPath = sortedIndexPaths.first!
+            return photoCollectionView.supplementaryView(forElementKind: headerKind, at: topHeaderIndexPath)
+        } else {
+            return nil
+        }
+    }
+    
+    @objc func selectDate() {
+        if let header = getTopVisibleSectionHeader() as? PhotoCollectionHeaderView {
+            header.dateTextField.becomeFirstResponder()
+        }
+    }
+    
+    @objc func datePicked() {
         view.endEditing(true)
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -100), animated: false)
         showLoadingSpinner()
@@ -196,21 +243,19 @@ class PhotosViewController: UIViewController {
                 }
             }
         }
-
-        
     }
     
     @objc func dateCancelled () {
         view.endEditing(true)
     }
-
+    
     @objc func settingsButtonTapped() {
         let settingsViewController = SettingsViewController()
         let navigationController = UINavigationController(rootViewController: settingsViewController)
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: true, completion: nil)
     }
-
-
+    
+    
 }
 

@@ -10,12 +10,11 @@ import UIKit
 extension PhotosViewController: UITextFieldDelegate {
     internal func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         picker.reloadAllComponents()
-        textField.inputView = picker
-        textField.inputView?.backgroundColor = .black
+        setupInputView(textField: textField)
         let keyboardDoneButtonView = UIToolbar()
         keyboardDoneButtonView.sizeToFit()
-        keyboardDoneButtonView.backgroundColor = UIColor.init(red: 47.0/255.0, green: 198.0/255.0, blue: 107.0/255.0, alpha: 1)
-        keyboardDoneButtonView.barTintColor = UIColor.init(red: 47.0/255.0, green: 198.0/255.0, blue: 107.0/255.0, alpha: 1)
+        keyboardDoneButtonView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
+        keyboardDoneButtonView.barTintColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
         keyboardDoneButtonView.tintColor = UIColor.white
         let item = UIBarButtonItem(title: "Select", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.datePicked) )
         let item2 = UIBarButtonItem(title: "Cancel", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.dateCancelled) )
@@ -36,6 +35,36 @@ extension PhotosViewController: UITextFieldDelegate {
         keyboardDoneButtonView.setItems(toolbarButtons, animated: false)
         textField.inputAccessoryView = keyboardDoneButtonView
         return true
+    }
+    
+    func setupInputView(textField: UITextField) {
+        let customInputView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 250))
+            customInputView.translatesAutoresizingMaskIntoConstraints = false
+             let imageView = UIImageView()
+             imageView.translatesAutoresizingMaskIntoConstraints = false
+             imageView.contentMode = .scaleAspectFill
+             imageView.clipsToBounds = true
+             imageView.image = UIImage(named: "comsmic")
+             
+             customInputView.addSubview(imageView)
+             
+             NSLayoutConstraint.activate([
+                imageView.topAnchor.constraint(equalTo: customInputView.topAnchor),
+                imageView.leadingAnchor.constraint(equalTo: customInputView.leadingAnchor),
+                imageView.trailingAnchor.constraint(equalTo: customInputView.trailingAnchor),
+                imageView.bottomAnchor.constraint(equalTo: customInputView.bottomAnchor)
+             ])
+        picker.backgroundColor = .clear
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        customInputView.addSubview(picker)
+        NSLayoutConstraint.activate([
+            picker.topAnchor.constraint(equalTo: customInputView.topAnchor),
+            picker.leadingAnchor.constraint(equalTo: customInputView.leadingAnchor),
+            picker.trailingAnchor.constraint(equalTo: customInputView.trailingAnchor),
+            picker.bottomAnchor.constraint(equalTo: customInputView.bottomAnchor)
+        ])
+        textField.inputView = customInputView
+        
     }
 }
 

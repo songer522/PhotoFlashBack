@@ -7,7 +7,6 @@
 
 import UIKit
 import Photos
-//import SkeletonView
 
 extension PhotosViewController: UICollectionViewDelegate {
     
@@ -49,11 +48,9 @@ extension PhotosViewController: UICollectionViewDelegate {
         if let header = view as? PhotoCollectionHeaderView, viewModel.assetArray.count - 1 >= indexPath.section {
             let key = viewModel.assetArray[indexPath.section].0
             header.yearLabel.text = key
-           // header.dateLabel.isHidden = indexPath.section != 0
-            //header.dateLabel.text = viewModel.displayDate()
             header.dateTextField.delegate = self
             header.dateTextField.isHidden = indexPath.section != 0
-            header.dateTextField.text = viewModel.displayDate() + " ✐"
+            header.dateTextField.text = viewModel.displayDate()
             if let location = viewModel.locationDict[key] {
                 header.locationLabel.text = location
                 header.locationLabel.isHidden = indexPath.section != 0
@@ -61,11 +58,6 @@ extension PhotosViewController: UICollectionViewDelegate {
                 header.locationLabel.text = ""
             }
             return header
-        } else {
-//            let animation = GradientDirection.leftRight.slidingAnimation()
-//            let gradient = SkeletonGradient(baseColor: .asbestos)
-//            view.isSkeletonable = true
-//            view.showAnimatedGradientSkeleton(usingGradient: gradient, animation: animation)
         }
         
         return view
@@ -82,7 +74,6 @@ extension PhotosViewController: UICollectionViewDelegate {
             headers.sort {
                 $0.frame.origin.y < $1.frame.origin.y
             }
-           // headers.first?.dateLabel.isHidden = false
             headers.first?.dateTextField.isHidden = false
             headers.first?.locationLabel.isHidden = false
         }
@@ -94,11 +85,8 @@ extension PhotosViewController: UICollectionViewDelegate {
             headers.sort {
                 $0.frame.origin.y < $1.frame.origin.y
             }
-            
-            //headers.first?.dateLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
             headers.first?.dateTextField.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
             headers.first?.locationLabel.isHidden = headerView.frame.origin.y < (headers.first?.frame.origin.y)!
-           // headerView.dateLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
             headerView.dateTextField.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
             headerView.locationLabel.isHidden = headerView.frame.origin.y > (headers.first?.frame.origin.y)!
         }

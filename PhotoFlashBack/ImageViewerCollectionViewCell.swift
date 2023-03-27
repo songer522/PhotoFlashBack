@@ -34,6 +34,7 @@ class ImageViewerCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate 
     
     private func setupImageView() {
         itemImageView = UIImageView(frame: scrollView.bounds)
+        itemImageView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
         itemImageView.contentMode = .scaleAspectFit
         scrollView.addSubview(itemImageView)
     }

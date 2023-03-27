@@ -28,7 +28,8 @@ class PhotoViewController: UIViewController {
     
     private let assetInfoLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .white
+        label.textColor = UIColor(red: 235/255, green: 226/255, blue: 203/255, alpha: 1.0)
+        label.font = .preferredFont(forTextStyle: .body)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -72,6 +73,10 @@ class PhotoViewController: UIViewController {
         dismissVideo()
     }
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
+    
     private func setupShareButton() {
             view.addSubview(shareButton)
             shareButton.translatesAutoresizingMaskIntoConstraints = false
@@ -79,8 +84,8 @@ class PhotoViewController: UIViewController {
             NSLayoutConstraint.activate([
                 shareButton.widthAnchor.constraint(equalToConstant: buttonSize),
                 shareButton.heightAnchor.constraint(equalToConstant: buttonSize),
-                shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
-                shareButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8)
+                shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+                shareButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
             ])
             shareButton.imageView?.contentMode = .scaleAspectFill
             shareButton.layer.cornerRadius = buttonSize / 2

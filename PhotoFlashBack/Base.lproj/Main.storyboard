@@ -199,12 +199,14 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
+                                            <color key="backgroundColor" red="0.10980392160000001" green="0.078431372550000003" blue="0.050980392159999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             <constraints>
                                                 <constraint firstItem="RE1-f2-scf" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="aM8-io-irl" secondAttribute="leading" constant="20" symbolic="YES" id="CTp-HV-AfA"/>
                                                 <constraint firstAttribute="trailing" secondItem="RE1-f2-scf" secondAttribute="trailing" constant="16" id="e5c-1O-9hx"/>
                                                 <constraint firstAttribute="bottom" secondItem="RE1-f2-scf" secondAttribute="bottom" constant="50" id="uBY-8W-KC3"/>
                                             </constraints>
                                         </collectionViewCellContentView>
+                                        <color key="backgroundColor" red="0.10980392160000001" green="0.078431372550000003" blue="0.050980392159999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
                                             <outlet property="videoLengthLabel" destination="RE1-f2-scf" id="Fip-6u-MeQ"/>
                                         </connections>

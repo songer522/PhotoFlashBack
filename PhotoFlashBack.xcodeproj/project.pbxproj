@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FC3EFB8528E6A75900704DE3 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8428E6A75900704DE3 /* SkeletonView */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
@@ -68,7 +67,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FC3EFB8528E6A75900704DE3 /* SkeletonView in Frameworks */,
 				FC821D2729C6D48600890051 /* SwiftTipJar in Frameworks */,
 				FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */,
 				FC821D2A29C819EA00890051 /* StoreKit.framework in Frameworks */,
@@ -150,7 +148,6 @@
 			);
 			name = PhotoFlashBack;
 			packageProductDependencies = (
-				FC3EFB8428E6A75900704DE3 /* SkeletonView */,
 				FC3EFB8928E77D7000704DE3 /* Player */,
 				FC821D2629C6D48600890051 /* SwiftTipJar */,
 			);
@@ -183,7 +180,6 @@
 			);
 			mainGroup = FCB1DEF528D9602A00160033;
 			packageReferences = (
-				FC3EFB8328E6A75900704DE3 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 				FC3EFB8828E77D7000704DE3 /* XCRemoteSwiftPackageReference "Player" */,
 				FC821D2529C6D48600890051 /* XCRemoteSwiftPackageReference "SwiftTipJar" */,
 			);
@@ -462,14 +458,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FC3EFB8328E6A75900704DE3 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Juanpe/SkeletonView.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		FC3EFB8828E77D7000704DE3 /* XCRemoteSwiftPackageReference "Player" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/piemonte/Player.git";
@@ -489,11 +477,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FC3EFB8428E6A75900704DE3 /* SkeletonView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FC3EFB8328E6A75900704DE3 /* XCRemoteSwiftPackageReference "SkeletonView" */;
-			productName = SkeletonView;
-		};
 		FC3EFB8928E77D7000704DE3 /* Player */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FC3EFB8828E77D7000704DE3 /* XCRemoteSwiftPackageReference "Player" */;
