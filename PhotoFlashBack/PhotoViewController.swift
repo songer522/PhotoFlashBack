@@ -60,6 +60,8 @@ class PhotoViewController: UIViewController {
         photoCollectionView.reloadData()
         photoCollectionView.layoutIfNeeded()
         photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
+        let asset = viewModel.assetSequence[currentIndex]
+        Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
         photoCollectionView.isPagingEnabled = true
         setupShareButton()
         setupVideoPlayer()
@@ -261,13 +263,13 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageViewer", for: indexPath) as? ImageViewerCollectionViewCell
-        let targetSize = CGSize(width: collectionView.bounds.width, height: collectionView.bounds.height)
+        let targetSize = CGSize(width: collectionView.bounds.width * UIScreen.main.scale, height: collectionView.bounds.height * UIScreen.main.scale)
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
         options.version = .current
         options.deliveryMode = .opportunistic
+        options.resizeMode = .fast
         let asset =  viewModel.assetSequence[indexPath.row]
-        Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
         viewModel.assetManager.requestImage(for: asset,
                                             targetSize: targetSize,
                                             contentMode: .aspectFill,
@@ -332,6 +334,7 @@ extension PhotoViewController: UIScrollViewDelegate {
             setupPlayPauseButton()
             playVideo(asset)
         }
+        Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
     }
 }
 

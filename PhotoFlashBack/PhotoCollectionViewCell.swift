@@ -7,11 +7,15 @@
 
 import UIKit
 import AVFoundation
+import Photos
 
 class PhotoCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var videoLengthLabel: UILabel!
     @IBOutlet weak var yearLabel: UILabel!
+    var currentImageRequestID: PHImageRequestID?
+    var currentVideoRequestID: PHImageRequestID?
+    var identifier: String?
     
     var playerView: PlayerView = {
         var player = PlayerView()
@@ -21,6 +25,22 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     
     var videoPlayer = AVQueuePlayer()
     var playerLooper: NSObject?
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        itemImageView.image = nil
+        stopVideo()
+        playerView.removeFromSuperview()
+        
+        if let requestID = currentImageRequestID {
+            PHImageManager.default().cancelImageRequest(requestID)
+            currentImageRequestID = nil
+        }
+        if let videoRequestID = currentVideoRequestID {
+            PHImageManager.default().cancelImageRequest(videoRequestID)
+            currentVideoRequestID = nil
+        }
+    }
     
     func setupPlayerView() {
         addSubview(playerView)

@@ -34,7 +34,7 @@ class PhotosViewController: UIViewController {
     
     private let editButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage( UIImage(systemName: "pencil"), for: .normal)
+        button.setImage( UIImage(systemName: "clock"), for: .normal)
         button.tintColor = .white
         button.addTarget(self, action: #selector(selectDate), for: .touchUpInside)
         button.backgroundColor = .lightGray

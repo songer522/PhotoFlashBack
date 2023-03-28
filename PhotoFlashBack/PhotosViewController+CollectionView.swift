@@ -102,57 +102,66 @@ extension PhotosViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCollectionViewCell
-        collectionCell?.playerView.isHidden = true
-        collectionCell?.stopVideo()
-        collectionCell?.tag = 0
-        let targetSize = CGSize(width: 300, height: 300)
-        guard viewModel.assetArray.count - 1 >= indexPath.section, viewModel.assetArray[indexPath.section].1.count - 1 >= indexPath.row else {
-            return collectionCell!
-        }
-        let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
-        viewModel.assetManager.requestImage(for: asset,
-                                            targetSize: targetSize,
-                                            contentMode: .aspectFill,
-                                            options: nil,
-                                            resultHandler: { image, info in
-            
-            collectionCell?.itemImageView.image = image
-            collectionCell?.itemImageView.clipsToBounds = true
-            collectionCell?.videoLengthLabel.isHidden = true
-            if indexPath.section == 0 {
-                collectionCell?.itemImageView.layer.cornerRadius = 10
-                collectionCell?.yearLabel.isHidden = false
-                collectionCell?.yearLabel.text = Helper.getYear(from: asset)
-            } else {
-                collectionCell?.itemImageView.layer.cornerRadius = 0
-                collectionCell?.yearLabel.isHidden = true
-                collectionCell?.yearLabel.text = ""
+        if let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCollectionViewCell {
+            let targetSize = CGSize(width: collectionCell.bounds.width * 2, height: collectionCell.bounds.height * 2)
+            let options = PHImageRequestOptions()
+            options.isNetworkAccessAllowed = true
+            options.version = .current
+            options.deliveryMode = .opportunistic
+            options.resizeMode = .fast
+            print(targetSize)
+            guard viewModel.assetArray.count - 1 >= indexPath.section, viewModel.assetArray[indexPath.section].1.count - 1 >= indexPath.row else {
+                return collectionCell
             }
-            if asset.mediaType == .video, indexPath.section != 0 {
-                collectionCell?.videoLengthLabel.isHidden = false
-                collectionCell?.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
-                
-                let options = PHVideoRequestOptions()
-                options.version = .current
-                options.isNetworkAccessAllowed = true
-                options.deliveryMode = .fastFormat
-                let requestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
-                    DispatchQueue.main.async {
-                        if let playerItem = playerItem, let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber  {
-                            if requestResultID.intValue == collectionCell?.tag {
-                                collectionCell?.playerView.isHidden = false
-                                collectionCell?.setupPlayerView()
-                                collectionCell?.playVideo(playerItem: playerItem)
+            let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
+            collectionCell.identifier = asset.localIdentifier
+            collectionCell.currentImageRequestID = viewModel.assetManager.requestImage(for: asset,
+                                                targetSize: targetSize,
+                                                contentMode: .aspectFill,
+                                                options: options,
+                                                resultHandler: { image, info in
+                DispatchQueue.main.async {
+                    if collectionCell.identifier == asset.localIdentifier {
+                        collectionCell.itemImageView.image = image
+                        collectionCell.itemImageView.clipsToBounds = true
+                        collectionCell.videoLengthLabel.isHidden = true
+                        if indexPath.section == 0 {
+                            collectionCell.itemImageView.layer.cornerRadius = 10
+                            collectionCell.yearLabel.isHidden = false
+                            collectionCell.yearLabel.text = Helper.getYear(from: asset)
+                            collectionCell.stopVideo()
+                            collectionCell.playerView.removeFromSuperview()
+                        } else {
+                            collectionCell.itemImageView.layer.cornerRadius = 0
+                            collectionCell.yearLabel.isHidden = true
+                            collectionCell.yearLabel.text = ""
+                        }
+                        if asset.mediaType == .video, indexPath.section != 0 {
+                            collectionCell.videoLengthLabel.isHidden = false
+                            collectionCell.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
+                            
+                            let options = PHVideoRequestOptions()
+                            options.version = .current
+                            options.isNetworkAccessAllowed = true
+                            options.deliveryMode = .fastFormat
+                            collectionCell.currentVideoRequestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
+                                DispatchQueue.main.async {
+                                    if let playerItem = playerItem, let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber  {
+                                        if requestResultID.int32Value == collectionCell.currentVideoRequestID {
+                                            collectionCell.setupPlayerView()
+                                            collectionCell.playVideo(playerItem: playerItem)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                collectionCell?.tag = Int(requestID)
-            }
-            
-        })
-        return collectionCell!
+            })
+            return collectionCell
+        } else {
+            return UICollectionViewCell()
+        }
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
