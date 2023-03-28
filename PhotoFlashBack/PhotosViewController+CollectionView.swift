@@ -109,7 +109,6 @@ extension PhotosViewController: UICollectionViewDataSource {
             options.version = .current
             options.deliveryMode = .opportunistic
             options.resizeMode = .fast
-            print(targetSize)
             guard viewModel.assetArray.count - 1 >= indexPath.section, viewModel.assetArray[indexPath.section].1.count - 1 >= indexPath.row else {
                 return collectionCell
             }

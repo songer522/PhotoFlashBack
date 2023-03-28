@@ -108,21 +108,25 @@ class PhotoViewController: UIViewController {
     }
 
     func setupAssetInfoLabel() {
-        view.addSubview(assetInfoLabel)
+       
 
-        let gradientView = GradientView()
-        gradientView.translatesAutoresizingMaskIntoConstraints = false
-        view.insertSubview(gradientView, belowSubview: assetInfoLabel)
+        let blurEffect = UIBlurEffect(style: .dark) // Choose the blur effect style you prefer (.light, .dark, .extraLight, .extraDark, or .regular)
+        let visualEffectView = UIVisualEffectView(effect: blurEffect)
+        view.addSubview(visualEffectView)
+        view.addSubview(assetInfoLabel)
+        visualEffectView.translatesAutoresizingMaskIntoConstraints = false
+        visualEffectView.layer.masksToBounds = true
+
 
         NSLayoutConstraint.activate([
             assetInfoLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
             assetInfoLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 0),
             assetInfoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
             
-            gradientView.topAnchor.constraint(equalTo: assetInfoLabel.topAnchor),
-            gradientView.leadingAnchor.constraint(equalTo: assetInfoLabel.leadingAnchor),
-            gradientView.trailingAnchor.constraint(equalTo: assetInfoLabel.trailingAnchor),
-            gradientView.bottomAnchor.constraint(equalTo: assetInfoLabel.bottomAnchor)
+            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
+            visualEffectView.leadingAnchor.constraint(equalTo: assetInfoLabel.leadingAnchor),
+            visualEffectView.trailingAnchor.constraint(equalTo: assetInfoLabel.trailingAnchor),
+            visualEffectView.bottomAnchor.constraint(equalTo: assetInfoLabel.bottomAnchor, constant: 10)
         ])
     }
 
