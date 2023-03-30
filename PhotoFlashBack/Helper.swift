@@ -102,7 +102,22 @@ class Helper {
         }
     }
     
+    class func windowSize() -> CGSize? {
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let sceneDelegate = scene.delegate as? SceneDelegate,
+           let window = sceneDelegate.window {
+            return window.bounds.size
+        }
+        return nil
+    }
+    
     class func isLandscape() -> Bool {
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let sceneDelegate = scene.delegate as? SceneDelegate,
+           let window = sceneDelegate.window {
+            return window.bounds.width > window.bounds.height
+        }
+        
         let bounds = UIScreen.main.bounds
         return bounds.width > bounds.height
     }

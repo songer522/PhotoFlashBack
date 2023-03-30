@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import StoreKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -16,7 +16,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        self.window = UIWindow(windowScene: windowScene)
+        
+        // Instantiate the initial view controller from the storyboard
+        let storyboard = UIStoryboard(name: "Main", bundle: nil) // Replace "Main" with the name of your storyboard
+        let initialViewController = storyboard.instantiateInitialViewController()
+        
+        // Set the initial view controller as the root view controller of the window
+        self.window?.rootViewController = initialViewController
+        self.window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -29,6 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        requestAppRating()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -39,6 +50,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
+        
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
@@ -47,6 +59,49 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
+    func requestAppRating() {
+        let minimumLaunchCount = 20
+        let userDefaults = UserDefaults.standard
+        let launchCountKey = "launchCount"
+        
+        let currentLaunchCount = userDefaults.integer(forKey: launchCountKey)
+        userDefaults.set(currentLaunchCount + 1, forKey: launchCountKey)
+        if currentLaunchCount >= minimumLaunchCount {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                //SKStoreReviewController.requestReview(in: windowScene)
+            }
+            guard let topVC = topMostViewController() else { return }
+            IAPHelper.shared.setupTipJar(presentingVC: topVC)
+            userDefaults.set(0, forKey: launchCountKey)
+        }
+    }
+    
+    func topMostViewController() -> UIViewController? {
+        guard let rootViewController = UIApplication.shared.connectedScenes
+                .filter({$0.activationState == .foregroundActive})
+                .map({$0 as? UIWindowScene})
+                .compactMap({$0})
+                .first?.windows
+                .filter({$0.isKeyWindow}).first?.rootViewController else {
+            return nil
+        }
+
+        return topMostViewController(of: rootViewController)
+    }
+
+    private func topMostViewController(of viewController: UIViewController) -> UIViewController {
+        if let presentedViewController = viewController.presentedViewController {
+            return topMostViewController(of: presentedViewController)
+        } else if let navigationController = viewController as? UINavigationController,
+                  let visibleViewController = navigationController.visibleViewController {
+            return topMostViewController(of: visibleViewController)
+        } else if let tabBarController = viewController as? UITabBarController,
+                  let selectedViewController = tabBarController.selectedViewController {
+            return topMostViewController(of: selectedViewController)
+        } else {
+            return viewController
+        }
+    }
 
 }
 

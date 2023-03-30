@@ -53,6 +53,7 @@ class PhotoViewController: UIViewController {
         fullScreenFlowLayout.minimumLineSpacing = 0
         fullScreenFlowLayout.minimumInteritemSpacing = 0
         fullScreenFlowLayout.sectionInset = UIEdgeInsets.zero
+        fullScreenFlowLayout.itemSize = Helper.windowSize() ?? view.bounds.size
         photoCollectionView.setCollectionViewLayout(fullScreenFlowLayout, animated: false)
         
         photoCollectionView.isPagingEnabled = false
@@ -310,17 +311,18 @@ extension PhotoViewController: UICollectionViewDelegateFlowLayout {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+        let oldSize = view.bounds.size
+            let oldAspectRatio = oldSize.width / oldSize.height
+            let newAspectRatio = size.width / size.height
+
+            let aspectRatioDifference = abs(newAspectRatio - oldAspectRatio)
         
-        // Store the current indexPath
-        let currentIndexPath = photoCollectionView.indexPathsForVisibleItems.first
-        
+        guard aspectRatioDifference > 0.1 else { return }
         coordinator.animate(alongsideTransition: { _ in
             self.photoCollectionView.collectionViewLayout.invalidateLayout()
-            
-            if let indexPath = currentIndexPath {
+            let indexPath = IndexPath(row: self.currentIndex, section: 0)
                 // Scroll to the previously visible cell
-                self.photoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
-            }
+            self.photoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }, completion: nil)
     }
     

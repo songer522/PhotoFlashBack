@@ -20,6 +20,8 @@
 		FC821D3029CACE2C00890051 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2F29CACE2C00890051 /* GradientView.swift */; };
 		FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */; };
 		FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3929D0270B00890051 /* CustomLayouts.swift */; };
+		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
+		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
 		FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0328D9602A00160033 /* SceneDelegate.swift */; };
 		FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0528D9602A00160033 /* PhotosViewController.swift */; };
@@ -34,6 +36,19 @@
 		FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF2328DC214700160033 /* PlayerView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		FC9872E329D556CA006B8705 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -46,6 +61,9 @@
 		FC821D2F29CACE2C00890051 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitionAnimator.swift; sourceTree = "<group>"; };
 		FC821D3929D0270B00890051 /* CustomLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayouts.swift; sourceTree = "<group>"; };
+		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
+		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
+		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoFlashBack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DF0128D9602A00160033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FCB1DF0328D9602A00160033 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -80,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				FC821D2929C819EA00890051 /* StoreKit.framework */,
+				FC9872CE29D556C8006B8705 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -121,7 +140,9 @@
 				FC821D2129C6C50400890051 /* SettingsViewController.swift */,
 				FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */,
 				FCB1DF1F28DAB11000160033 /* Helper.swift */,
+				FC9872C329D40AF1006B8705 /* IAPHelper.swift */,
 				FC821D2F29CACE2C00890051 /* GradientView.swift */,
+				FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
@@ -141,6 +162,7 @@
 				FCB1DEFA28D9602A00160033 /* Sources */,
 				FCB1DEFB28D9602A00160033 /* Frameworks */,
 				FCB1DEFC28D9602A00160033 /* Resources */,
+				FC9872E329D556CA006B8705 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -162,7 +184,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1400;
+				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
 					FCB1DEFD28D9602A00160033 = {
@@ -222,6 +244,8 @@
 				FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
 				FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */,
+				FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */,
+				FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */,
 				FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */,
 				FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
@@ -371,6 +395,7 @@
 		FCB1DF1328D9602C00160033 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -404,6 +429,7 @@
 		FCB1DF1428D9602C00160033 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
