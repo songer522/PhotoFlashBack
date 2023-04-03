@@ -103,11 +103,7 @@ class PhotosViewModel {
                 day = 1
             }
         }
-        
-        //        let dayString = String(day)
-        //        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
-        //        titleTextField?.resignFirstResponder()
-        
+    
         fetchPhoto(completion: completion)
         
     }
@@ -124,10 +120,8 @@ class PhotosViewModel {
         }else {
             day = day - 1
         }
-        //        let dayString = String(day)
-        //        titleTextField?.text = String(monthArray[month - 1] + " " + dayString)
-        //        titleTextField?.resignFirstResponder()
-        
+
+    
         fetchPhoto(completion: completion)
         
     }

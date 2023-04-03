@@ -7,12 +7,14 @@
 
 import UIKit
 import Photos
+import WidgetKit
 
 class PhotosViewController: UIViewController {
     
     
     @IBOutlet weak var photoCollectionView: UICollectionView!
     @IBOutlet weak var emptyStateLabel: UILabel!
+    private let refreshControl = UIRefreshControl()
     var isFetching = false
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
@@ -74,6 +76,7 @@ class PhotosViewController: UIViewController {
             }
         } else {
             fetchPhotos()
+
         }
         NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: UIDevice.orientationDidChangeNotification, object: nil)
        // NotificationCenter.default.addObserver(self, selector: #selector(PhotosViewController.fetchPhotos), name: Notification.Name("AppToForeground"), object: nil)
@@ -140,6 +143,8 @@ class PhotosViewController: UIViewController {
     
     func setupViews() {
         photoCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Header")
+        photoCollectionView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         if let layout = photoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.sectionHeadersPinToVisibleBounds = true
         }
@@ -153,6 +158,12 @@ class PhotosViewController: UIViewController {
         setupSettingsButton()
         setupEditButton()
     }
+    
+    @objc private func handleRefresh() {
+        // Perform your data fetching or other tasks here
+        fetchPhotos()
+    }
+
     
     private func setupSettingsButton() {
         view.addSubview(settingsButton)

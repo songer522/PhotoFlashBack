@@ -7,6 +7,9 @@
 
 import UIKit
 import AVFAudio
+import BackgroundTasks
+import Photos
+import WidgetKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,9 +23,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }catch{//some meaningful exception handling
             
         }
+        
+        // Register the background task
+            BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.YangSong.PhotoFlashBack.fetch", using: nil) { task in
+                self.handleBackgroundFetch(task: task as! BGAppRefreshTask)
+            }
         // Override point for customization after application launch.
         return true
     }
+    
+    func scheduleBackgroundFetch() {
+        let fetchTask = BGAppRefreshTaskRequest(identifier: "com.your-app.bundle-id.fetch")
+        fetchTask.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60 * 24) // 15 minutes from now
+
+        do {
+            try BGTaskScheduler.shared.submit(fetchTask)
+        } catch {
+            print("Could not schedule background fetch: \(error)")
+        }
+    }
+    
+    func handleBackgroundFetch(task: BGAppRefreshTask) {
+        task.expirationHandler = {
+            // Cancel any operations or tasks that are running
+        }
+
+        // Perform your background fetch here
+        PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
+            if success {
+                // Asset fetched and stored successfully
+                task.setTaskCompleted(success: true)
+                WidgetCenter.shared.reloadAllTimelines()
+            } else {
+                // Failed to fetch or store the asset
+            }
+        }
+        // Call task.setTaskCompleted(success:) to indicate the task is completed.
+        // Replace `success` with `true` if the task completed successfully, or `false` otherwise
+        
+        // Schedule the next background fetch
+        self.scheduleBackgroundFetch()
+    }
+
+
 
     // MARK: UISceneSession Lifecycle
 
@@ -37,7 +80,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
-
 }
 

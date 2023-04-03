@@ -1,0 +1,14 @@
+{
+  "images" : [
+    {
+      "filename" : "songer522_large_flat_vector_app_icon_of_a_stop_clock_with_a_bea_3f5c13e0-c5a9-46bb-8041-a835855a5e83.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

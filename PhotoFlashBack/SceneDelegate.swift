@@ -7,6 +7,8 @@
 
 import UIKit
 import StoreKit
+import WidgetKit
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -40,6 +42,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         requestAppRating()
+        DispatchQueue.global(qos: .background).async {
+            PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
+                if success {
+                    // Asset fetched and stored successfully
+                } else {
+                    // Failed to fetch or store the asset
+                }
+            }
+        }
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -57,6 +68,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     func requestAppRating() {

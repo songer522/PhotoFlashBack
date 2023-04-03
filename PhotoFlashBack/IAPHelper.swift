@@ -74,6 +74,7 @@ class IAPHelper {
 
         let noThanksAction = UIAlertAction(title: "No, Thanks", style: .cancel) { _ in
             // Code to handle the no thanks action
+            GlobalActivityIndicator.shared.hide()
         }
 
         alertController.addAction(tipAction)

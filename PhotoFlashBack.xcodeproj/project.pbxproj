@@ -17,11 +17,20 @@
 		FC821D2A29C819EA00890051 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC821D2929C819EA00890051 /* StoreKit.framework */; };
 		FC821D2C29C81A7200890051 /* Rewind: Memories on This Day.storekit in Resources */ = {isa = PBXBuildFile; fileRef = FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */; };
 		FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */; };
-		FC821D3029CACE2C00890051 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2F29CACE2C00890051 /* GradientView.swift */; };
 		FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */; };
 		FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3929D0270B00890051 /* CustomLayouts.swift */; };
 		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
 		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
+		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
+		FC9872EB29D55C8C006B8705 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872CE29D556C8006B8705 /* SwiftUI.framework */; };
+		FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */; };
+		FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */; };
+		FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F129D55C8C006B8705 /* TodayWidget.swift */; };
+		FC9872F529D55C8D006B8705 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC9872F429D55C8D006B8705 /* Assets.xcassets */; };
+		FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */; };
+		FC9872F829D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */; };
+		FC9872FB29D55C8D006B8705 /* TodayWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FC98730229D68ECE006B8705 /* PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC98730129D68ECE006B8705 /* PhotoManager.swift */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
 		FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0328D9602A00160033 /* SceneDelegate.swift */; };
 		FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0528D9602A00160033 /* PhotosViewController.swift */; };
@@ -36,6 +45,16 @@
 		FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF2328DC214700160033 /* PlayerView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		FC9872F929D55C8D006B8705 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB1DEF628D9602A00160033 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FC9872E729D55C8C006B8705;
+			remoteInfo = TodayWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		FC9872E329D556CA006B8705 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -43,6 +62,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				FC9872FB29D55C8D006B8705 /* TodayWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -58,12 +78,22 @@
 		FC821D2929C819EA00890051 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Rewind: Memories on This Day.storekit"; sourceTree = "<group>"; };
 		FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoViewController+PlayerDelegate.swift"; sourceTree = "<group>"; };
-		FC821D2F29CACE2C00890051 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitionAnimator.swift; sourceTree = "<group>"; };
 		FC821D3929D0270B00890051 /* CustomLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayouts.swift; sourceTree = "<group>"; };
 		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
 		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TodayWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC9872E929D55C8C006B8705 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetBundle.swift; sourceTree = "<group>"; };
+		FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetLiveActivity.swift; sourceTree = "<group>"; };
+		FC9872F129D55C8C006B8705 /* TodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
+		FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = TodayWidget.intentdefinition; sourceTree = "<group>"; };
+		FC9872F429D55C8D006B8705 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FC9872F629D55C8D006B8705 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FC9872FF29D562FC006B8705 /* PhotoFlashBack.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PhotoFlashBack.entitlements; sourceTree = "<group>"; };
+		FC98730029D5631E006B8705 /* TodayWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TodayWidgetExtension.entitlements; sourceTree = "<group>"; };
+		FC98730129D68ECE006B8705 /* PhotoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManager.swift; sourceTree = "<group>"; };
 		FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotoFlashBack.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FCB1DF0128D9602A00160033 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FCB1DF0328D9602A00160033 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -81,6 +111,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FC9872E529D55C8C006B8705 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC9872EB29D55C8C006B8705 /* SwiftUI.framework in Frameworks */,
+				FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1DEFB28D9602A00160033 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -99,14 +138,30 @@
 			children = (
 				FC821D2929C819EA00890051 /* StoreKit.framework */,
 				FC9872CE29D556C8006B8705 /* SwiftUI.framework */,
+				FC9872E929D55C8C006B8705 /* WidgetKit.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FC9872EC29D55C8C006B8705 /* TodayWidget */ = {
+			isa = PBXGroup;
+			children = (
+				FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */,
+				FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */,
+				FC9872F129D55C8C006B8705 /* TodayWidget.swift */,
+				FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */,
+				FC9872F429D55C8D006B8705 /* Assets.xcassets */,
+				FC9872F629D55C8D006B8705 /* Info.plist */,
+			);
+			path = TodayWidget;
 			sourceTree = "<group>";
 		};
 		FCB1DEF528D9602A00160033 = {
 			isa = PBXGroup;
 			children = (
+				FC98730029D5631E006B8705 /* TodayWidgetExtension.entitlements */,
 				FCB1DF0028D9602A00160033 /* PhotoFlashBack */,
+				FC9872EC29D55C8C006B8705 /* TodayWidget */,
 				FCB1DEFF28D9602A00160033 /* Products */,
 				FC821D2829C819EA00890051 /* Frameworks */,
 			);
@@ -116,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */,
+				FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -123,6 +179,7 @@
 		FCB1DF0028D9602A00160033 /* PhotoFlashBack */ = {
 			isa = PBXGroup;
 			children = (
+				FC9872FF29D562FC006B8705 /* PhotoFlashBack.entitlements */,
 				FCB1DF0128D9602A00160033 /* AppDelegate.swift */,
 				FCB1DF0328D9602A00160033 /* SceneDelegate.swift */,
 				FCB1DF0528D9602A00160033 /* PhotosViewController.swift */,
@@ -141,8 +198,8 @@
 				FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */,
 				FCB1DF1F28DAB11000160033 /* Helper.swift */,
 				FC9872C329D40AF1006B8705 /* IAPHelper.swift */,
-				FC821D2F29CACE2C00890051 /* GradientView.swift */,
 				FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */,
+				FC98730129D68ECE006B8705 /* PhotoManager.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
 				FCB1DF0A28D9602C00160033 /* Assets.xcassets */,
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
@@ -155,6 +212,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FC9872E729D55C8C006B8705 /* TodayWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC9872FC29D55C8D006B8705 /* Build configuration list for PBXNativeTarget "TodayWidgetExtension" */;
+			buildPhases = (
+				FC9872E429D55C8C006B8705 /* Sources */,
+				FC9872E529D55C8C006B8705 /* Frameworks */,
+				FC9872E629D55C8C006B8705 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TodayWidgetExtension;
+			productName = TodayWidgetExtension;
+			productReference = FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		FCB1DEFD28D9602A00160033 /* PhotoFlashBack */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FCB1DF1228D9602C00160033 /* Build configuration list for PBXNativeTarget "PhotoFlashBack" */;
@@ -167,6 +241,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FC9872FA29D55C8D006B8705 /* PBXTargetDependency */,
 			);
 			name = PhotoFlashBack;
 			packageProductDependencies = (
@@ -187,6 +262,9 @@
 				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
+					FC9872E729D55C8C006B8705 = {
+						CreatedOnToolsVersion = 14.2;
+					};
 					FCB1DEFD28D9602A00160033 = {
 						CreatedOnToolsVersion = 14.0;
 					};
@@ -210,11 +288,20 @@
 			projectRoot = "";
 			targets = (
 				FCB1DEFD28D9602A00160033 /* PhotoFlashBack */,
+				FC9872E729D55C8C006B8705 /* TodayWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FC9872E629D55C8C006B8705 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC9872F529D55C8D006B8705 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1DEFC28D9602A00160033 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -229,18 +316,30 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FC9872E429D55C8C006B8705 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
+				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
+				FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
+				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FCB1DEFA28D9602A00160033 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */,
 				FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */,
+				FC98730229D68ECE006B8705 /* PhotoManager.swift in Sources */,
 				FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */,
 				FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */,
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
 				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
-				FC821D3029CACE2C00890051 /* GradientView.swift in Sources */,
+				FC9872F829D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
 				FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
 				FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */,
@@ -257,6 +356,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FC9872FA29D55C8D006B8705 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FC9872E729D55C8C006B8705 /* TodayWidgetExtension */;
+			targetProxy = FC9872F929D55C8D006B8705 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		FCB1DF0728D9602A00160033 /* Main.storyboard */ = {
@@ -278,6 +385,64 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		FC9872FD29D55C8D006B8705 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TodayWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4UXP3NANFN;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TodayWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TodayWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.TodayWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FC9872FE29D55C8D006B8705 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TodayWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4UXP3NANFN;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TodayWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TodayWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.TodayWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		FCB1DF1028D9602C00160033 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -398,6 +563,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PhotoFlashBack/PhotoFlashBack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
@@ -432,6 +598,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PhotoFlashBack/PhotoFlashBack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
@@ -463,6 +630,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FC9872FC29D55C8D006B8705 /* Build configuration list for PBXNativeTarget "TodayWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC9872FD29D55C8D006B8705 /* Debug */,
+				FC9872FE29D55C8D006B8705 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FCB1DEF928D9602A00160033 /* Build configuration list for PBXProject "PhotoFlashBack" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
