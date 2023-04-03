@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC19B9E229DB5BD300B97689 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC19B9E129DB5BD300B97689 /* Configuration.swift */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
@@ -70,6 +71,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FC19B9E129DB5BD300B97689 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 		FCB1DEF528D9602A00160033 = {
 			isa = PBXGroup;
 			children = (
+				FC19B9E129DB5BD300B97689 /* Configuration.swift */,
 				FC98730029D5631E006B8705 /* TodayWidgetExtension.entitlements */,
 				FCB1DF0028D9602A00160033 /* PhotoFlashBack */,
 				FC9872EC29D55C8C006B8705 /* TodayWidget */,
@@ -259,7 +262,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
 					FC9872E729D55C8C006B8705 = {
@@ -321,6 +324,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
+				FC19B9E229DB5BD300B97689 /* Configuration.swift in Sources */,
 				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
 				FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
 				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
