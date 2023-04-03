@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "player",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/piemonte/Player.git",
+      "state" : {
+        "revision" : "d6a6c266e80f90fa93430371076964c196a1d2ec",
+        "version" : "0.14.0"
+      }
+    },
+    {
+      "identity" : "swifttipjar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dkasaj/SwiftTipJar.git",
+      "state" : {
+        "revision" : "03a98386da39ebd38a190b3ea5e5909e4bb3a0b7",
+        "version" : "1.1.0"
+      }
+    }
+  ],
+  "version" : 2
+}
