@@ -7,6 +7,7 @@
 
 import SwiftTipJar
 import UIKit
+import StoreKit
 
 class IAPHelper {
     static let shared = IAPHelper()
@@ -75,6 +76,7 @@ class IAPHelper {
         let noThanksAction = UIAlertAction(title: "No, Thanks", style: .cancel) { _ in
             // Code to handle the no thanks action
             GlobalActivityIndicator.shared.hide()
+            self.promptForRating()
         }
 
         alertController.addAction(tipAction)
@@ -84,6 +86,27 @@ class IAPHelper {
         presenter?.present(alertController, animated: true, completion: nil)
 
     }
+    
+    func promptForRating() {
+        let alertTitle = "Rate Rewind"
+        let alertMessage = "If you're enjoying the app, please consider rating it on the App Store. Your feedback helps us improve!"
+        
+        let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
+        
+        let rateAction = UIAlertAction(title: "Rate App", style: .default) { _ in
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                SKStoreReviewController.requestReview(in: windowScene)
+            }
+        }
+        
+        let laterAction = UIAlertAction(title: "Maybe Later", style: .default, handler: nil)
+        
+        alertController.addAction(rateAction)
+        alertController.addAction(laterAction)
+        
+        presenter?.present(alertController, animated: true, completion: nil)
+    }
+
     
     
     private func showThankYou() {

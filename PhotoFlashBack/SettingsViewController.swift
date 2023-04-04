@@ -14,7 +14,8 @@ class SettingsViewController: UITableViewController {
     private let options = [
         "Rate the App",
         "Provide Feedback",
-        "Send Tips"
+        "Send Tips",
+        "Share with Friends"
     ]
     
     let tipJar = SwiftTipJar(tipsIdentifiers: Set([
@@ -109,6 +110,10 @@ class SettingsViewController: UITableViewController {
                 }
             }
         }
+        
+        if indexPath.row == 3 {
+            shareApp()
+        }
     }
     
     func email() {
@@ -130,6 +135,16 @@ class SettingsViewController: UITableViewController {
         }
         
     }
+
+    func shareApp() {
+        let yourAppID = "1137168287"
+        let appStoreURL = "https://apps.apple.com/app/id\(yourAppID)"
+        let shareText = "Check out this amazing app I've been using:"
+        
+        let activityViewController = UIActivityViewController(activityItems: [shareText, appStoreURL], applicationActivities: nil)
+        self.present(activityViewController, animated: true, completion: nil)
+    }
+
     
     func showPurchaseConfirmationAlert(for tip: Tip, completion: @escaping (Bool) -> Void) {
         let alertController = UIAlertController(title: "Send Tip", message: "Would you like to send a $0.99 Tip?", preferredStyle: .alert)

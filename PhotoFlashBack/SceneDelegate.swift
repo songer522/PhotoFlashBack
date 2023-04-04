@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import StoreKit
+
 import WidgetKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -72,16 +72,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func requestAppRating() {
-        let minimumLaunchCount = 20
+        let minimumLaunchCount = 25
         let userDefaults = UserDefaults.standard
         let launchCountKey = "launchCount"
         
         let currentLaunchCount = userDefaults.integer(forKey: launchCountKey)
         userDefaults.set(currentLaunchCount + 1, forKey: launchCountKey)
         if currentLaunchCount >= minimumLaunchCount {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                //SKStoreReviewController.requestReview(in: windowScene)
-            }
+           
             guard let topVC = topMostViewController() else { return }
             IAPHelper.shared.setupTipJar(presentingVC: topVC)
             userDefaults.set(0, forKey: launchCountKey)
