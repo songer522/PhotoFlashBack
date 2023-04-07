@@ -80,7 +80,7 @@ class PhotoManager {
         sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
             guard let creationDate = asset.creationDate else { return }
             let assetDateComponents = calendar.dateComponents([.day, .month, .year], from: creationDate)
-            if assetDateComponents.day == todayComponents.day, assetDateComponents.month == todayComponents.month {
+            if assetDateComponents.day == todayComponents.day, assetDateComponents.month == todayComponents.month, assetDateComponents.year != todayComponents.year {
                 let year = assetDateComponents.year!
                 if assetsByYear[year] == nil {
                     assetsByYear[year] = []

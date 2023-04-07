@@ -201,6 +201,7 @@ class PhotosViewController: UIViewController {
                     self.isFetching = false
                     self.photoCollectionView.reloadData()
                     self.hideLoadingSpinner()
+                    self.refreshControl.endRefreshing()
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {
                             self.photoCollectionView.collectionViewLayout.invalidateLayout()

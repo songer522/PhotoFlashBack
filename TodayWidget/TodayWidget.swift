@@ -79,7 +79,7 @@ struct TodayWidgetEntryView : View {
                             .font(.system(size: 20, weight: .semibold, design: .serif))
                             .foregroundColor(.white)
                             .shadow(color: .black, radius: 3, x: 0, y: 0)
-                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 28, trailing: 0))
+                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 38, trailing: 0))
                             .position(x: geometry.size.width / 2, y: geometry.size.height - 20)
                             .multilineTextAlignment(.center)
                     }
