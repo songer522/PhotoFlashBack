@@ -34,6 +34,16 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
+    private let layoutButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.tintColor = .white
+        if let image = UIImage(systemName: "rectangle.grid.3x2") {
+            button.setImage(image, for: .normal)
+        }
+        button.addTarget(self, action: #selector(changLayoutButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private let editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "clock"), for: .normal)
@@ -106,7 +116,7 @@ class PhotosViewController: UIViewController {
     func showLoadingSpinner() {
         let spinnerBackgroundView = UIView()
         spinnerBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
+        //spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
         spinnerBackgroundView.layer.cornerRadius = 10
         spinnerBackgroundView.tag = 1001  // Use a unique tag to identify the spinner background view later when removing it.
         
@@ -156,6 +166,7 @@ class PhotosViewController: UIViewController {
         configureHierarchy()
         photoCollectionView.reloadData()
         setupSettingsButton()
+        setupLayoutButton()
         setupEditButton()
     }
     
@@ -173,6 +184,17 @@ class PhotosViewController: UIViewController {
             settingsButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             settingsButton.widthAnchor.constraint(equalToConstant: 31),
             settingsButton.heightAnchor.constraint(equalToConstant: 31)
+        ])
+    }
+    
+    private func setupLayoutButton() {
+        view.addSubview(layoutButton)
+        layoutButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            layoutButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            layoutButton.trailingAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.leadingAnchor, constant: -10),
+            layoutButton.widthAnchor.constraint(equalToConstant: 31),
+            layoutButton.heightAnchor.constraint(equalToConstant: 31)
         ])
     }
     
@@ -266,6 +288,11 @@ class PhotosViewController: UIViewController {
         let navigationController = UINavigationController(rootViewController: settingsViewController)
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: true, completion: nil)
+    }
+    
+    @objc func changLayoutButtonTapped() {
+        Helper.changeLayout()
+        photoCollectionView.reloadData()
     }
     
     

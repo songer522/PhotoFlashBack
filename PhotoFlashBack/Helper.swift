@@ -121,6 +121,15 @@ class Helper {
         let bounds = UIScreen.main.bounds
         return bounds.width > bounds.height
     }
+    
+    class func isClassicLayout() -> Bool {
+        UserDefaults.standard.bool(forKey: "isClassicLayout")
+    }
+    
+    class func changeLayout() {
+        let isClassicLayout = isClassicLayout()
+        UserDefaults.standard.set(!isClassicLayout, forKey: "isClassicLayout")
+    }
 }
 
 extension UIView {

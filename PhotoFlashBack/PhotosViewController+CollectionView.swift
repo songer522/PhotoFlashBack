@@ -184,28 +184,14 @@ extension PhotosViewController {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnv) -> NSCollectionLayoutSection? in
             
             if sectionIndex == 0 {
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(Helper.isLandscape() ? 0.25 : 1/3), heightDimension: .fractionalHeight(1.0))
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
-                
-                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(150.0))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-                
-                let section = NSCollectionLayoutSection(group: group)
-                let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                              heightDimension: .absolute(50.0))
-                let header = NSCollectionLayoutBoundarySupplementaryItem(
-                    layoutSize: footerHeaderSize,
-                    elementKind: UICollectionView.elementKindSectionHeader,
-                    alignment: .top)
-                header.pinToVisibleBounds = true
-                section.boundarySupplementaryItems = [header]
-                section.orthogonalScrollingBehavior = .continuous
-                
-                return section
+                return CustomLayouts.headerLayout()
             } else {
-                
-                return isLandscape ? CustomLayouts.layoutB(size: size) : CustomLayouts.layoutA(size: size)
+                if Helper.isClassicLayout() {
+                    return isLandscape ? CustomLayouts.layoutB(itemSizeFraction: 0.20) : CustomLayouts.layoutB(itemSizeFraction: 0.25)
+                    
+                } else {
+                    return isLandscape ? CustomLayouts.layoutALandscape(size: size) : CustomLayouts.layoutAPotrait(size: size)
+                }
     
             }
         }

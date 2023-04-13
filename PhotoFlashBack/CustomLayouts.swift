@@ -9,7 +9,7 @@ import UIKit
 
 class CustomLayouts {
     
-    class func layoutA(size: CGSize) -> NSCollectionLayoutSection {
+    class func layoutAPotrait(size: CGSize) -> NSCollectionLayoutSection {
         let largeItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                    heightDimension:.fractionalHeight(1.0))
         let mediumItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(2/3),
@@ -73,7 +73,7 @@ class CustomLayouts {
         return section
     }
     
-    class func layoutB(size: CGSize) -> NSCollectionLayoutSection {
+    class func layoutALandscape(size: CGSize) -> NSCollectionLayoutSection {
         let largeItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(2/3),
                                                    heightDimension:.fractionalHeight(1.0))
         let mediumItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/3),
@@ -135,6 +135,58 @@ class CustomLayouts {
             alignment: .top)
         header.pinToVisibleBounds = true
         section.boundarySupplementaryItems = [header]
+        return section
+    }
+    
+    class func layoutB(itemSizeFraction: CGFloat) -> NSCollectionLayoutSection {
+        let edgeInsets: CGFloat = 1
+        let count = Int(1/itemSizeFraction)
+
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemSizeFraction),
+                                              heightDimension: .fractionalWidth(itemSizeFraction))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .fractionalWidth(itemSizeFraction))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: count)
+        group.interItemSpacing = .fixed(edgeInsets)
+
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = edgeInsets
+        section.contentInsets = NSDirectionalEdgeInsets(top: edgeInsets, leading: edgeInsets, bottom: edgeInsets, trailing: edgeInsets)
+        let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                      heightDimension: .absolute(50.0))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: footerHeaderSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top)
+        header.pinToVisibleBounds = true
+        section.boundarySupplementaryItems = [header]
+        
+        return section
+        
+    }
+        
+    class func headerLayout() -> NSCollectionLayoutSection {
+        //let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(Helper.isLandscape() ? 0.25 : 1/3), heightDimension: .fractionalHeight(1.0))
+        let itemSize = NSCollectionLayoutSize(widthDimension: .absolute(120.0), heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(360.0), heightDimension: .absolute(170.0))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        let footerHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                      heightDimension: .absolute(50.0))
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: footerHeaderSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top)
+        header.pinToVisibleBounds = true
+        section.boundarySupplementaryItems = [header]
+        section.orthogonalScrollingBehavior = .continuous
+        
         return section
     }
     
