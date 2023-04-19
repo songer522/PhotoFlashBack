@@ -19,6 +19,11 @@ extension PhotosViewController: UICollectionViewDelegate {
         collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
     }
     
+    func scrollToItem(_ section: Int, row: Int, collectionView: UICollectionView) {
+        let indexPath = IndexPath(item: row, section: section)
+        collectionView.scrollToItem(at: indexPath, at: .top, animated: true)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
             let section = viewModel.assetArray.count - 1 - indexPath.row

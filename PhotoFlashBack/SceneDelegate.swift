@@ -41,6 +41,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        guard let topVC = topMostViewController() as? PhotosViewController else { return }
+        if UserDefaults.standard.bool(forKey: "ShouldRefresh") {
+            topVC.refreshIfNotToday()
+            UserDefaults.standard.set(false, forKey: "ShouldRefresh")
+            
+        }
         requestAppRating()
         DispatchQueue.global(qos: .background).async {
             PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
@@ -69,6 +75,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
         WidgetCenter.shared.reloadAllTimelines()
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url, url.scheme == "openToday" {
+            // Handle the URL and perform the required action.
+            UserDefaults.standard.setValue(true, forKey: "ShouldRefresh")
+            if let metaData =  UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")?.value(forKey: "randomAssetMetadata") as? [String: Any] {
+                UserDefaults.standard.set(metaData, forKey: "ItemToGo")
+            }
+        }
     }
 
     func requestAppRating() {

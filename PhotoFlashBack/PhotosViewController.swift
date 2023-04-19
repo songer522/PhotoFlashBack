@@ -93,6 +93,18 @@ class PhotosViewController: UIViewController {
 
     }
     
+    func refreshIfNotToday() {
+        if !viewModel.isToday() {
+            viewModel.day = Calendar.current.component(.day, from: Date())
+            viewModel.month = Calendar.current.component(.month, from: Date())
+            picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
+            picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
+            fetchPhotos()
+        } else {
+            scrollToItemIfNeeded()
+        }
+    }
+    
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
     }
@@ -106,7 +118,6 @@ class PhotosViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -227,10 +238,32 @@ class PhotosViewController: UIViewController {
                     self.viewModel.findLocations {
                         DispatchQueue.main.async {
                             self.photoCollectionView.collectionViewLayout.invalidateLayout()
+                            self.scrollToItemIfNeeded()
                         }
                     }
                 }
             }
+        }
+    }
+    
+    func scrollToItemIfNeeded() {
+        if let itemToGo = UserDefaults.standard.object(forKey: "ItemToGo") as? [String: Any], let assetId = itemToGo["localIdentifier"] as? String, let date = itemToGo["creationDate"] as? Date  {
+            let calendar = Calendar.current
+            let year = calendar.component(.year, from: date)
+            let yearString = String(year)
+            
+            let filteredArrayWithIndex = viewModel.assetArray.enumerated().compactMap { index, yearArray -> (Int, (String, [PHAsset]))? in
+                return yearArray.0 == yearString ? (index, yearArray) : nil
+            }
+            
+            let filteredItemWithIndex = filteredArrayWithIndex.first?.1.1.enumerated().compactMap {index, asset -> (Int, PHAsset)? in
+                return asset.localIdentifier == assetId ? (index, asset) : nil
+            }
+            if let section = filteredArrayWithIndex.first?.0, let row = filteredItemWithIndex?.first?.0 {
+                scrollToItem(section, row: row, collectionView: photoCollectionView)
+            }
+            UserDefaults.standard.set(nil, forKey: "ItemToGo")
+            
         }
     }
     

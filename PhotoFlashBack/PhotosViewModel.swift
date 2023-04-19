@@ -28,6 +28,10 @@ class PhotosViewModel {
         return String(monthArray[month - 1] + " " + String(day))
     }
     
+    func isToday() -> Bool {
+        return day == Calendar.current.component(.day, from: Date()) && month == Calendar.current.component(.month, from: Date())
+    }
+    
     func fetchPhoto(completion: () -> Void){
         
         locationDict.removeAll()

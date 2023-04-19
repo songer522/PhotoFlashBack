@@ -89,6 +89,7 @@ struct TodayWidgetEntryView : View {
             .onAppear {
                 loadImageFromUserDefaults()
             }
+            .widgetURL(URL(string: "openToday://widget"))
         }
     }
     
