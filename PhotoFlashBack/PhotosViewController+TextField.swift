@@ -44,7 +44,6 @@ extension PhotosViewController: UITextFieldDelegate {
              imageView.translatesAutoresizingMaskIntoConstraints = false
              imageView.contentMode = .scaleAspectFill
              imageView.clipsToBounds = true
-             imageView.image = UIImage(named: "comsmic")
              
              customInputView.addSubview(imageView)
              
