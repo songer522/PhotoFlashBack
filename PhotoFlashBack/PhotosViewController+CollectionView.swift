@@ -30,9 +30,13 @@ extension PhotosViewController: UICollectionViewDelegate {
             scrollToSection(section, collectionView: collectionView)
             return
         }
+        itemTappedAt(indexPath: indexPath)
+    }
+    
+    func itemTappedAt(indexPath: IndexPath) {
         let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController, let cell = collectionView.cellForItem(at: indexPath) {
+        if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController, let cell = photoCollectionView.cellForItem(at: indexPath) {
             imageViewerVC.viewModel = viewModel
             let currentIndex = viewModel.assetSequence.lastIndex(of: asset) ?? 0
             imageViewerVC.currentIndex = currentIndex

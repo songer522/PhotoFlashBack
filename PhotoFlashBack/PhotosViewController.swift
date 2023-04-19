@@ -261,9 +261,14 @@ class PhotosViewController: UIViewController {
             }
             if let section = filteredArrayWithIndex.first?.0, let row = filteredItemWithIndex?.first?.0 {
                 scrollToItem(section, row: row, collectionView: photoCollectionView)
+                let delayInSeconds: TimeInterval = 0.5 // Delay of 5 seconds
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
+                    self.itemTappedAt(indexPath: IndexPath(item: row, section: section))
+                }
+                
             }
             UserDefaults.standard.set(nil, forKey: "ItemToGo")
-            
         }
     }
     

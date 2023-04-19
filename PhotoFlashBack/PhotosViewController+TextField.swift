@@ -40,19 +40,12 @@ extension PhotosViewController: UITextFieldDelegate {
     func setupInputView(textField: UITextField) {
         let customInputView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 250))
             customInputView.translatesAutoresizingMaskIntoConstraints = false
-             let imageView = UIImageView()
-             imageView.translatesAutoresizingMaskIntoConstraints = false
-             imageView.contentMode = .scaleAspectFill
-             imageView.clipsToBounds = true
-             
-             customInputView.addSubview(imageView)
-             
-             NSLayoutConstraint.activate([
-                imageView.topAnchor.constraint(equalTo: customInputView.topAnchor),
-                imageView.leadingAnchor.constraint(equalTo: customInputView.leadingAnchor),
-                imageView.trailingAnchor.constraint(equalTo: customInputView.trailingAnchor),
-                imageView.bottomAnchor.constraint(equalTo: customInputView.bottomAnchor)
-             ])
+        customInputView.backgroundColor = .clear
+        let blurEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+        let visualEffectView = UIVisualEffectView(effect: blurEffect)
+        customInputView.addSubview(visualEffectView)
+        visualEffectView.frame = customInputView.bounds
+        visualEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         picker.backgroundColor = .clear
         picker.translatesAutoresizingMaskIntoConstraints = false
         customInputView.addSubview(picker)
