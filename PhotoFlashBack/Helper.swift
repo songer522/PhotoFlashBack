@@ -130,6 +130,15 @@ class Helper {
         let isClassicLayout = isClassicLayout()
         UserDefaults.standard.set(!isClassicLayout, forKey: "isClassicLayout")
     }
+    
+    class func isAscendingOrder() -> Bool {
+        UserDefaults.standard.bool(forKey: "isAscendingOrder")
+    }
+    
+    class func changeSortingOrder() {
+        let isAscendingOrder = isAscendingOrder()
+        UserDefaults.standard.set(!isAscendingOrder, forKey: "isAscendingOrder")
+    }
 }
 
 extension UIView {

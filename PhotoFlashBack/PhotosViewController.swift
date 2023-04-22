@@ -44,6 +44,16 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
+    private let sortingButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.tintColor = .white
+        if let image = UIImage(systemName: "arrow.up.arrow.down") {
+            button.setImage(image, for: .normal)
+        }
+        button.addTarget(self, action: #selector(changSortingOrderTapped), for: .touchUpInside)
+        return button
+    }()
+    
     private let editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "clock"), for: .normal)
@@ -178,6 +188,7 @@ class PhotosViewController: UIViewController {
         photoCollectionView.reloadData()
         setupSettingsButton()
         setupLayoutButton()
+        setupSortingButton()
         setupEditButton()
     }
     
@@ -206,6 +217,17 @@ class PhotosViewController: UIViewController {
             layoutButton.trailingAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.leadingAnchor, constant: -10),
             layoutButton.widthAnchor.constraint(equalToConstant: 31),
             layoutButton.heightAnchor.constraint(equalToConstant: 31)
+        ])
+    }
+    
+    private func setupSortingButton() {
+        view.addSubview(sortingButton)
+        sortingButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            sortingButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            sortingButton.trailingAnchor.constraint(equalTo: layoutButton.safeAreaLayoutGuide.leadingAnchor, constant: -10),
+            sortingButton.widthAnchor.constraint(equalToConstant: 31),
+            sortingButton.heightAnchor.constraint(equalToConstant: 31)
         ])
     }
     
@@ -331,6 +353,16 @@ class PhotosViewController: UIViewController {
     @objc func changLayoutButtonTapped() {
         Helper.changeLayout()
         photoCollectionView.reloadData()
+        photoCollectionView.setContentOffset(CGPoint(x: 0, y: -photoCollectionView.contentInset.top), animated: true)
+
+    }
+    
+    @objc func changSortingOrderTapped() {
+        Helper.changeSortingOrder()
+        viewModel.sortAssetArray()
+        photoCollectionView.reloadData()
+        photoCollectionView.setContentOffset(CGPoint(x: 0, y: -photoCollectionView.contentInset.top), animated: true)
+
     }
     
     

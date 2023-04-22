@@ -62,13 +62,21 @@ class PhotosViewModel {
                     }else {
                         self.assetDict.updateValue([asset], forKey: String(assetYear))
                     }
-                    
-                    
                 }
             }
         })
         
-        assetArray = self.assetDict.sorted { $0.0 > $1.0 }
+        sortAssetArray()
+        completion()
+    }
+    
+    func sortAssetArray() {
+        if Helper.isAscendingOrder() {
+            assetArray = self.assetDict.sorted { $0.0 < $1.0 }
+        } else {
+            assetArray = self.assetDict.sorted { $0.0 > $1.0 }
+        }
+        
         if assetArray.count > 0 {
             //noPhotoLabel.isHidden = true
         } else {
@@ -91,7 +99,6 @@ class PhotosViewModel {
             }
             
         }
-        completion()
     }
     
     func nextDay(completion: () -> Void) {
