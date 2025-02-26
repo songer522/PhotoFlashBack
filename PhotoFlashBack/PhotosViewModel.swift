@@ -16,7 +16,7 @@ class PhotosViewModel {
     let assetManager = PHImageManager.default()
     var month = 1
     var day = 1
-    var monthArray = ["January", "Feburay", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    var monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     var yearIndex = 0
     
     init() {
