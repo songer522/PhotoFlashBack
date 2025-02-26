@@ -16,6 +16,7 @@ class PhotoViewController: UIViewController {
     var viewModel = PhotosViewModel()
     var currentIndex: Int = 0
     var player = Player()
+    var shouldRefresh = false
     
     private let shareButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -65,10 +66,19 @@ class PhotoViewController: UIViewController {
         Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
         photoCollectionView.isPagingEnabled = true
         setupShareButton()
+        setupDeleteButton()
         setupVideoPlayer()
         setupAssetInfoLabel()
         showVideoIfNeeded()
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let photosVC = self.presentingViewController as? PhotosViewController, shouldRefresh {
+            photosVC.fetchPhotos()
+        }
+        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -169,6 +179,69 @@ class PhotoViewController: UIViewController {
         }
     }
 
+    // Add a new delete button similar to your share button
+    private let deleteButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .lightGray
+        button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    // In viewDidLoad, call a setup function for the delete button:
+    private func setupDeleteButton() {
+        view.addSubview(deleteButton)
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        let buttonSize: CGFloat = 50
+        NSLayoutConstraint.activate([
+            deleteButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            deleteButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            deleteButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
+        ])
+        deleteButton.layer.cornerRadius = buttonSize / 2
+    }
+
+    // Then, implement the deletion with user confirmation:
+    @objc func deleteButtonTapped() {
+        let alert = UIAlertController(title: "Delete Photo", message: "Are you sure you want to delete this photo?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            self.performDeletion()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+
+    func performDeletion() {
+        // Get the current asset from the viewModel
+        let assetToDelete = viewModel.assetSequence[currentIndex]
+        
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.deleteAssets([assetToDelete] as NSArray)
+        }) { success, error in
+            DispatchQueue.main.async {
+                if success {
+                    // Remove asset from your data source and update the collection view.
+                    self.viewModel.assetSequence.remove(at: self.currentIndex)
+                    self.photoCollectionView.deleteItems(at: [IndexPath(item: self.currentIndex, section: 0)])
+                    
+                    // Adjust currentIndex if needed.
+                    if self.currentIndex >= self.viewModel.assetSequence.count, self.currentIndex > 0 {
+                        self.currentIndex -= 1
+                    }
+                    self.photoCollectionView.reloadData()
+                    self.shouldRefresh = true
+                } else {
+                    // Handle error (e.g., show an alert)
+                    let errorAlert = UIAlertController(title: "Error", message: "Failed to delete photo: \(error?.localizedDescription ?? "Unknown error")", preferredStyle: .alert)
+                    errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.present(errorAlert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
     
     func setupVideoPlayer() {
         player.playerDelegate = self
