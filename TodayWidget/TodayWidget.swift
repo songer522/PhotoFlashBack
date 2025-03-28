@@ -38,77 +38,54 @@ struct SimpleEntry: TimelineEntry {
     let date: Date
 }
 
-struct TodayWidgetEntryView : View {
+struct TodayWidgetEntryView: View {
     var entry: Provider.Entry
     @State private var image: UIImage? = nil
     @State private var year: String? = nil
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                if let image = image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .clipped()
-                } else {
-                    Text("No image available")
-                }
-                
-//                VStack(spacing: 0) {
-//                    if let year = year {
-//                        Text("On this day")
-//                            .font(.system(size: 20, weight: .bold))
-//                            .foregroundColor(.white)
-//                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-//                        Text(year)
-//                            .font(.system(size: 16, weight: .regular))
-//                            .foregroundColor(.white)
-//                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-//                    }
-//                            }
-//                            .multilineTextAlignment(.center)
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-//                            .padding(.bottom, 4)
-                
-//
-                VStack {
-                    Spacer()
-                    if let year = year {
-                        Text(year)
-                            .font(.system(size: 20, weight: .semibold, design: .serif))
-                            .foregroundColor(.white)
-                            .shadow(color: .black, radius: 3, x: 0, y: 0)
-                            .padding(EdgeInsets(top: 0, leading: 0, bottom: 38, trailing: 0))
-                            .position(x: geometry.size.width / 2, y: geometry.size.height - 20)
-                            .multilineTextAlignment(.center)
-                    }
+        ZStack {
+            // Overlay the label on top of the background image
+            VStack {
+                Spacer()
+                if let year = year {
+                    Text(year)
+                        .font(.system(size: 20, weight: .semibold, design: .serif))
+                        .foregroundColor(.white)
+                        .shadow(color: .black, radius: 3, x: 0, y: 0)
+                        .padding(.bottom, 20)
+                        .multilineTextAlignment(.center)
                 }
             }
-            .edgesIgnoringSafeArea(.all)
-            .onAppear {
-                loadImageFromUserDefaults()
-            }
-            .widgetURL(URL(string: "openToday://widget"))
         }
+        .ignoresSafeArea() // Extend the content view
+        .containerBackground(for: .widget) {
+            // Set the background image (or fallback color) edge-to-edge
+            if let image = image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Color.gray
+            }
+        }
+        .onAppear(perform: loadImageFromUserDefaults)
+        .widgetURL(URL(string: "openToday://widget"))
     }
     
     func loadImageFromUserDefaults() {
         let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
         if let imageData = sharedDefaults?.data(forKey: "randomAssetImageData") {
-                image = UIImage(data: imageData)
-            }
-        if let metadata = sharedDefaults?.dictionary(forKey: "randomAssetMetadata") as? [String: Any],
-                   let creationDate = metadata["creationDate"] as? Date {
-                    let calendar = Calendar.current
-                    let components = calendar.dateComponents([.year], from: creationDate)
-                    if let year = components.year {
-                        self.year = "On this day\n " + String(year)
-                    }
-                }
+            image = UIImage(data: imageData)
         }
-    
-    
+        if let metadata = sharedDefaults?.dictionary(forKey: "randomAssetMetadata") as? [String: Any],
+           let creationDate = metadata["creationDate"] as? Date {
+            let components = Calendar.current.dateComponents([.year], from: creationDate)
+            if let year = components.year {
+                self.year = "On this day\n\(year)"
+            }
+        }
+    }
 }
 
 struct TodayWidget: Widget {
