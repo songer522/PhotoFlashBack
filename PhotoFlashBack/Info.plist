@@ -25,5 +25,9 @@
 	<array>
 		<string>fetch</string>
 	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.YangSong.PhotoFlashBack.fetch</string>
+	</array>
 </dict>
 </plist>

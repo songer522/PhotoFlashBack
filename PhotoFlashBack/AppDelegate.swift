@@ -13,8 +13,9 @@ import WidgetKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
+    
+    // Background task identifier - must match Info.plist
+    static let backgroundTaskIdentifier = "com.YangSong.PhotoFlashBack.fetch"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         do{
@@ -25,44 +26,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         // Register the background task
-            BGTaskScheduler.shared.register(forTaskWithIdentifier: "com.YangSong.PhotoFlashBack.fetch", using: nil) { task in
-                self.handleBackgroundFetch(task: task as! BGAppRefreshTask)
-            }
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { task in
+            self.handleBackgroundFetch(task: task as! BGAppRefreshTask)
+        }
         // Override point for customization after application launch.
         return true
     }
     
     func scheduleBackgroundFetch() {
-        let fetchTask = BGAppRefreshTaskRequest(identifier: "com.your-app.bundle-id.fetch")
-        fetchTask.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60 * 24) // 15 minutes from now
+        let fetchTask = BGAppRefreshTaskRequest(identifier: AppDelegate.backgroundTaskIdentifier)
+        fetchTask.earliestBeginDate = Date(timeIntervalSinceNow: 60 * 60 * 24) // 24 hours from now
 
         do {
             try BGTaskScheduler.shared.submit(fetchTask)
         } catch {
-            print("Could not schedule background fetch: \(error)")
+            print("Could not schedule background fetch: \(error.localizedDescription)")
         }
     }
     
     func handleBackgroundFetch(task: BGAppRefreshTask) {
+        // Set expiration handler to cancel operations if task expires
         task.expirationHandler = {
-            // Cancel any operations or tasks that are running
+            task.setTaskCompleted(success: false)
         }
 
         // Perform your background fetch here
         PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
             if success {
                 // Asset fetched and stored successfully
-                task.setTaskCompleted(success: true)
                 WidgetCenter.shared.reloadAllTimelines()
+                task.setTaskCompleted(success: true)
             } else {
                 // Failed to fetch or store the asset
+                task.setTaskCompleted(success: false)
             }
+            
+            // Schedule the next background fetch
+            self.scheduleBackgroundFetch()
         }
-        // Call task.setTaskCompleted(success:) to indicate the task is completed.
-        // Replace `success` with `true` if the task completed successfully, or `false` otherwise
-        
-        // Schedule the next background fetch
-        self.scheduleBackgroundFetch()
     }
 
 

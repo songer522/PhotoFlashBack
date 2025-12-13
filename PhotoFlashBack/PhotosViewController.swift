@@ -135,39 +135,45 @@ class PhotosViewController: UIViewController {
     }
     
     func showLoadingSpinner() {
-        let spinnerBackgroundView = UIView()
-        spinnerBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        //spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
-        spinnerBackgroundView.layer.cornerRadius = 10
-        spinnerBackgroundView.tag = 1001  // Use a unique tag to identify the spinner background view later when removing it.
-        
-        let spinner = UIActivityIndicatorView(style: .large)
-        spinner.translatesAutoresizingMaskIntoConstraints = false
-        spinner.color = .white
-        spinner.startAnimating()
-        
-        spinnerBackgroundView.addSubview(spinner)
-        view.addSubview(spinnerBackgroundView)
-        
-        // Constraints for the spinner background view
-        NSLayoutConstraint.activate([
-            spinnerBackgroundView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            spinnerBackgroundView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            spinnerBackgroundView.widthAnchor.constraint(equalToConstant: 100),
-            spinnerBackgroundView.heightAnchor.constraint(equalToConstant: 100)
-        ])
-        
-        // Constraints for the spinner
-        NSLayoutConstraint.activate([
-            spinner.centerXAnchor.constraint(equalTo: spinnerBackgroundView.centerXAnchor),
-            spinner.centerYAnchor.constraint(equalTo: spinnerBackgroundView.centerYAnchor)
-        ])
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let spinnerBackgroundView = UIView()
+            spinnerBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+            //spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
+            spinnerBackgroundView.layer.cornerRadius = 10
+            spinnerBackgroundView.tag = 1001  // Use a unique tag to identify the spinner background view later when removing it.
+            
+            let spinner = UIActivityIndicatorView(style: .large)
+            spinner.translatesAutoresizingMaskIntoConstraints = false
+            spinner.color = .white
+            spinner.startAnimating()
+            
+            spinnerBackgroundView.addSubview(spinner)
+            self.view.addSubview(spinnerBackgroundView)
+            
+            // Constraints for the spinner background view
+            NSLayoutConstraint.activate([
+                spinnerBackgroundView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+                spinnerBackgroundView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
+                spinnerBackgroundView.widthAnchor.constraint(equalToConstant: 100),
+                spinnerBackgroundView.heightAnchor.constraint(equalToConstant: 100)
+            ])
+            
+            // Constraints for the spinner
+            NSLayoutConstraint.activate([
+                spinner.centerXAnchor.constraint(equalTo: spinnerBackgroundView.centerXAnchor),
+                spinner.centerYAnchor.constraint(equalTo: spinnerBackgroundView.centerYAnchor)
+            ])
+        }
     }
     
     
     func hideLoadingSpinner() {
-        if let spinnerBackgroundView = view.viewWithTag(1001) {
-            spinnerBackgroundView.removeFromSuperview()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if let spinnerBackgroundView = self.view.viewWithTag(1001) {
+                spinnerBackgroundView.removeFromSuperview()
+            }
         }
     }
     
