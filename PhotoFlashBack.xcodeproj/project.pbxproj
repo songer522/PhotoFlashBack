@@ -11,6 +11,7 @@
 		FC3ED4912EED2A2500E5435C /* PhotoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4902EED2A2500E5435C /* PhotoError.swift */; };
 		FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */; };
 		FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4942EED35A400E5435C /* PhotoViewController.swift */; };
+		FC3ED4972EED3DBD00E5435C /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
@@ -78,6 +79,7 @@
 		FC3ED4902EED2A2500E5435C /* PhotoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoError.swift; sourceTree = "<group>"; };
 		FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoadingManager.swift; sourceTree = "<group>"; };
 		FC3ED4942EED35A400E5435C /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
+		FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */,
 				FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */,
 				FCB1DF1928D96E6700160033 /* PhotoCollectionViewCell.swift */,
+				FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */,
 				FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */,
 				FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */,
 				FC3ED4942EED35A400E5435C /* PhotoViewController.swift */,
@@ -350,6 +353,7 @@
 				FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */,
 				FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */,
 				FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */,
+				FC3ED4972EED3DBD00E5435C /* SkeletonView.swift in Sources */,
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
 				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
