@@ -29,11 +29,12 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         itemImageView.image = nil
+        itemImageView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
         stopVideo()
         playerView.removeFromSuperview()
         
         if let requestID = currentImageRequestID {
-            PHImageManager.default().cancelImageRequest(requestID)
+            ImageLoadingManager.shared.cancelRequest(requestID)
             currentImageRequestID = nil
         }
         if let videoRequestID = currentVideoRequestID {
