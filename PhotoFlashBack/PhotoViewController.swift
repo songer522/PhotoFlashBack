@@ -89,6 +89,13 @@ class PhotoViewController: UIViewController {
         dismissVideo()
         // 停止所有缓存以释放内存
         imageLoadingManager.stopCachingAll()
+        prefetchRange = 0..<0
+    }
+    
+    deinit {
+        // 确保在 deinit 时释放所有资源
+        imageLoadingManager.stopCachingAll()
+        dismissVideo()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -285,7 +292,8 @@ class PhotoViewController: UIViewController {
         player.didMove(toParent: self)
         player.view.autoLayoutFullScreen(parentView: view)
         player.playerView.isHidden = false
-        viewModel.assetManager.requestAVAsset(forVideo: asset, options: options) { avAsset, adudioMix, info in
+        viewModel.assetManager.requestAVAsset(forVideo: asset, options: options) { [weak self] avAsset, adudioMix, info in
+            guard let self = self else { return }
             if let urlAsset = avAsset as? AVURLAsset {
                 DispatchQueue.main.async {
                     self.player.url = urlAsset.url
@@ -382,9 +390,14 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
                                    targetSize: targetSize,
                                    contentMode: .aspectFit, // 使用 aspectFit 保持完整图片，不裁切
                                    options: options,
-                                   resultHandler: { [weak collectionCell] image, info in
+                                   resultHandler: { [weak collectionCell, weak self] image, info in
             DispatchQueue.main.async {
-                guard let cell = collectionCell else { return }
+                guard let cell = collectionCell,
+                      let self = self,
+                      indexPath.row < self.viewModel.assetSequence.count,
+                      self.viewModel.assetSequence[indexPath.row].localIdentifier == asset.localIdentifier else {
+                    return
+                }
                 // 渐进式加载：先显示低质量图片，再更新为高质量
                 if let image = image {
                     let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false

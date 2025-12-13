@@ -151,40 +151,45 @@ extension PhotosViewController: UICollectionViewDataSource {
                                                 targetSize: targetSize,
                                                 contentMode: .aspectFill,
                                                 options: options,
-                                                resultHandler: { image, info in
-                DispatchQueue.main.async {
-                    if collectionCell.identifier == asset.localIdentifier {
-                        collectionCell.itemImageView.image = image
-                        collectionCell.itemImageView.clipsToBounds = true
-                        collectionCell.videoLengthLabel.isHidden = true
-                        if indexPath.section == 0 {
-                            collectionCell.itemImageView.layer.cornerRadius = 10
-                            collectionCell.yearLabel.isHidden = false
-                            collectionCell.yearLabel.text = Helper.getYear(from: asset)
-                            collectionCell.stopVideo()
-                            collectionCell.playerView.removeFromSuperview()
-                        } else {
-                            collectionCell.itemImageView.layer.cornerRadius = 0
-                            collectionCell.yearLabel.isHidden = true
-                            collectionCell.yearLabel.text = ""
-                        }
-                        if asset.mediaType == .video, indexPath.section != 0 {
-                            collectionCell.videoLengthLabel.isHidden = false
-                            collectionCell.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
-                            
-                            let options = PHVideoRequestOptions()
-                            options.version = .current
-                            options.isNetworkAccessAllowed = true
-                            options.deliveryMode = .fastFormat
-                            collectionCell.currentVideoRequestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { playerItem, info in
-                                DispatchQueue.main.async {
-                                    if let playerItem = playerItem, let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber  {
-                                        if requestResultID.int32Value == collectionCell.currentVideoRequestID {
-                                            collectionCell.setupPlayerView()
-                                            collectionCell.playVideo(playerItem: playerItem)
-                                        }
-                                    }
+                                                resultHandler: { [weak collectionCell] image, info in
+                DispatchQueue.main.async { [weak collectionCell, weak self] in
+                    guard let cell = collectionCell,
+                          let self = self,
+                          cell.identifier == asset.localIdentifier else {
+                        return
+                    }
+                    cell.itemImageView.image = image
+                    cell.itemImageView.clipsToBounds = true
+                    cell.videoLengthLabel.isHidden = true
+                    if indexPath.section == 0 {
+                        cell.itemImageView.layer.cornerRadius = 10
+                        cell.yearLabel.isHidden = false
+                        cell.yearLabel.text = Helper.getYear(from: asset)
+                        cell.stopVideo()
+                        cell.playerView.removeFromSuperview()
+                    } else {
+                        cell.itemImageView.layer.cornerRadius = 0
+                        cell.yearLabel.isHidden = true
+                        cell.yearLabel.text = ""
+                    }
+                    if asset.mediaType == .video, indexPath.section != 0 {
+                        cell.videoLengthLabel.isHidden = false
+                        cell.videoLengthLabel.text = Helper.durationFormatter(duration: asset.duration)
+                        
+                        let options = PHVideoRequestOptions()
+                        options.version = .current
+                        options.isNetworkAccessAllowed = true
+                        options.deliveryMode = .fastFormat
+                        cell.currentVideoRequestID = self.viewModel.assetManager.requestPlayerItem(forVideo: asset, options: options) { [weak cell] playerItem, info in
+                            DispatchQueue.main.async {
+                                guard let cell = cell,
+                                      let playerItem = playerItem,
+                                      let requestResultID = info?["PHImageResultRequestIDKey"] as? NSNumber,
+                                      requestResultID.int32Value == cell.currentVideoRequestID else {
+                                    return
                                 }
+                                cell.setupPlayerView()
+                                cell.playVideo(playerItem: playerItem)
                             }
                         }
                     }

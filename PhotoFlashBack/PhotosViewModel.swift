@@ -189,9 +189,11 @@ class PhotosViewModel {
         if currentIndex <= assetArray.count - 1 {
             let asset = assetArray[currentIndex]
             if let location = asset.location {
-                geocoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
+                geocoder.reverseGeocodeLocation(location, completionHandler: { [weak self] (placemarks, error) -> Void in
+                    guard let self = self else { return }
                     // Place details
-                    DispatchQueue.main.async {
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
                         guard error == nil else {
                             // Handle geocoding error gracefully
                             self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)

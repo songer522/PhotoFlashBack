@@ -26,7 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         // Register the background task
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { task in
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { [weak self] task in
+            guard let self = self else { return }
             guard let refreshTask = task as? BGAppRefreshTask else {
                 print("Error: Background task is not a BGAppRefreshTask")
                 return

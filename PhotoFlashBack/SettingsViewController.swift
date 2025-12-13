@@ -44,9 +44,15 @@ class SettingsViewController: UITableViewController {
         navigationItem.leftBarButtonItem = closeButton
         setupLoadingSpinner()
         tipJar.startObservingPaymentQueue()
-        tipJar.productsReceivedBlock = allowTip
-        tipJar.transactionSuccessfulBlock = showThankYou
-        tipJar.transactionFailedBlock = tipCancelled
+        tipJar.productsReceivedBlock = { [weak self] in
+            self?.allowTip()
+        }
+        tipJar.transactionSuccessfulBlock = { [weak self] in
+            self?.showThankYou()
+        }
+        tipJar.transactionFailedBlock = { [weak self] in
+            self?.tipCancelled()
+        }
         tipJar.productsRequest?.start()
     }
     
@@ -100,7 +106,8 @@ class SettingsViewController: UITableViewController {
         if indexPath.row == 2 { // Assuming "Send Tips" is the third option
             guard isIAPAvailable else { return }
             if let tip = tipJar.tips.first {
-                showPurchaseConfirmationAlert(for: tip) { confirmed in
+                showPurchaseConfirmationAlert(for: tip) { [weak self] confirmed in
+                    guard let self = self else { return }
                     if confirmed {
                         self.activityIndicator.startAnimating()
                         self.tipJar.initiatePurchase(productIdentifier: tip.identifier)
