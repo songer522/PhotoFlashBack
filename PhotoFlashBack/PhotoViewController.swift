@@ -17,6 +17,8 @@ class PhotoViewController: UIViewController {
     var currentIndex: Int = 0
     var player = Player()
     var shouldRefresh = false
+    private let imageLoadingManager = ImageLoadingManager.shared
+    private var prefetchRange: Range<Int> = 0..<0
     
     private let shareButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -70,6 +72,7 @@ class PhotoViewController: UIViewController {
         setupVideoPlayer()
         setupAssetInfoLabel()
         showVideoIfNeeded()
+        prefetchAdjacentImages()
         // Do any additional setup after loading the view.
     }
     
@@ -84,6 +87,8 @@ class PhotoViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         dismissVideo()
+        // 停止所有缓存以释放内存
+        imageLoadingManager.stopCachingAll()
     }
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -365,24 +370,34 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
             return collectionCell
         }
         
+        // 保持全屏尺寸不变
         let targetSize = CGSize(width: collectionView.bounds.width * UIScreen.main.scale, height: collectionView.bounds.height * UIScreen.main.scale)
-        let options = PHImageRequestOptions()
-        options.isNetworkAccessAllowed = true
-        options.version = .current
-        options.deliveryMode = .opportunistic
-        options.resizeMode = .fast
         let asset = viewModel.assetSequence[indexPath.row]
-        viewModel.assetManager.requestImage(for: asset,
-                                            targetSize: targetSize,
-                                            contentMode: .aspectFill,
-                                            options: options,
-                                            resultHandler: { image, info in
+        
+        // 使用优化的图片加载管理器，支持渐进式加载
+        let loadingManager = ImageLoadingManager.shared
+        let options = ImageLoadingManager.fullScreenOptions()
+        
+        loadingManager.requestImage(for: asset,
+                                   targetSize: targetSize,
+                                   contentMode: .aspectFit, // 使用 aspectFit 保持完整图片，不裁切
+                                   options: options,
+                                   resultHandler: { [weak collectionCell] image, info in
             DispatchQueue.main.async {
-                collectionCell.itemImageView.image = image
-                collectionCell.videoLengthLabel.isHidden = asset.mediaType != .video
-                collectionCell.layoutSubviews()
+                guard let cell = collectionCell else { return }
+                // 渐进式加载：先显示低质量图片，再更新为高质量
+                if let image = image {
+                    let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
+                    if !isDegraded || cell.itemImageView.image == nil {
+                        // 如果是高质量图片，或者还没有图片，则更新
+                        cell.itemImageView.image = image
+                        cell.videoLengthLabel.isHidden = asset.mediaType != .video
+                        cell.layoutSubviews()
+                    }
+                }
             }
         })
+        
         return collectionCell
     }
     
@@ -443,6 +458,54 @@ extension PhotoViewController: UIScrollViewDelegate {
             playVideo(asset)
         }
         Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
+        prefetchAdjacentImages()
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // 开始滚动时预加载相邻图片
+        prefetchAdjacentImages()
+    }
+}
+
+// MARK: - Image Prefetching
+extension PhotoViewController {
+    private func prefetchAdjacentImages() {
+        guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
+            return
+        }
+        
+        // 预加载前后各2张图片
+        let prefetchCount = 2
+        let startIndex = max(0, currentIndex - prefetchCount)
+        let endIndex = min(viewModel.assetSequence.count - 1, currentIndex + prefetchCount)
+        
+        let newRange = startIndex..<(endIndex + 1)
+        
+        // 停止不再需要的缓存
+        if !prefetchRange.isEmpty {
+            let assetsToStop = viewModel.assetSequence.enumerated()
+                .filter { !newRange.contains($0.offset) && prefetchRange.contains($0.offset) }
+                .map { $0.element }
+            
+            if !assetsToStop.isEmpty {
+                let targetSize = CGSize(width: photoCollectionView.bounds.width * UIScreen.main.scale,
+                                      height: photoCollectionView.bounds.height * UIScreen.main.scale)
+                imageLoadingManager.stopCachingFullScreen(assets: assetsToStop, targetSize: targetSize)
+            }
+        }
+        
+        // 开始缓存需要的图片
+        let assetsToCache = viewModel.assetSequence.enumerated()
+            .filter { newRange.contains($0.offset) && !prefetchRange.contains($0.offset) }
+            .map { $0.element }
+        
+        if !assetsToCache.isEmpty {
+            let targetSize = CGSize(width: photoCollectionView.bounds.width * UIScreen.main.scale,
+                                  height: photoCollectionView.bounds.height * UIScreen.main.scale)
+            imageLoadingManager.startCachingFullScreen(assets: assetsToCache, targetSize: targetSize, contentMode: .aspectFit)
+        }
+        
+        prefetchRange = newRange
     }
 }
 

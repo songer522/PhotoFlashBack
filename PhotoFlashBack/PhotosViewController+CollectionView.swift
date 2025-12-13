@@ -137,17 +137,17 @@ extension PhotosViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath) as? PhotoCollectionViewCell {
             let targetSize = CGSize(width: collectionCell.bounds.width * 2, height: collectionCell.bounds.height * 2)
-            let options = PHImageRequestOptions()
-            options.isNetworkAccessAllowed = true
-            options.version = .current
-            options.deliveryMode = .opportunistic
-            options.resizeMode = .fast
             guard viewModel.assetArray.count - 1 >= indexPath.section, viewModel.assetArray[indexPath.section].1.count - 1 >= indexPath.row else {
                 return collectionCell
             }
-            let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
+            let asset = viewModel.assetArray[indexPath.section].1[indexPath.row]
             collectionCell.identifier = asset.localIdentifier
-            collectionCell.currentImageRequestID = viewModel.assetManager.requestImage(for: asset,
+            
+            // 使用优化的图片加载管理器
+            let loadingManager = ImageLoadingManager.shared
+            let options = ImageLoadingManager.thumbnailOptions()
+            
+            collectionCell.currentImageRequestID = loadingManager.requestImage(for: asset,
                                                 targetSize: targetSize,
                                                 contentMode: .aspectFill,
                                                 options: options,
@@ -198,6 +198,52 @@ extension PhotosViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return viewModel.assetArray.count
+    }
+}
+
+// MARK: - Prefetching Support
+extension PhotosViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        let loadingManager = ImageLoadingManager.shared
+        var assetsToPrefetch: [PHAsset] = []
+        
+        for indexPath in indexPaths {
+            guard indexPath.section >= 0 && indexPath.section < viewModel.assetArray.count else {
+                continue
+            }
+            guard indexPath.row >= 0 && indexPath.row < viewModel.assetArray[indexPath.section].1.count else {
+                continue
+            }
+            let asset = viewModel.assetArray[indexPath.section].1[indexPath.row]
+            assetsToPrefetch.append(asset)
+        }
+        
+        if !assetsToPrefetch.isEmpty {
+            // 预加载缩略图
+            let thumbnailSize = CGSize(width: 200 * 2, height: 200 * 2) // 2x scale for retina
+            loadingManager.startCaching(assets: assetsToPrefetch, targetSize: thumbnailSize)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+        let loadingManager = ImageLoadingManager.shared
+        var assetsToCancel: [PHAsset] = []
+        
+        for indexPath in indexPaths {
+            guard indexPath.section >= 0 && indexPath.section < viewModel.assetArray.count else {
+                continue
+            }
+            guard indexPath.row >= 0 && indexPath.row < viewModel.assetArray[indexPath.section].1.count else {
+                continue
+            }
+            let asset = viewModel.assetArray[indexPath.section].1[indexPath.row]
+            assetsToCancel.append(asset)
+        }
+        
+        if !assetsToCancel.isEmpty {
+            let thumbnailSize = CGSize(width: 200 * 2, height: 200 * 2)
+            loadingManager.stopCaching(assets: assetsToCancel, targetSize: thumbnailSize)
+        }
     }
 }
 
