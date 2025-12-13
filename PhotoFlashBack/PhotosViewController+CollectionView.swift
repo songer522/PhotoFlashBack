@@ -25,8 +25,15 @@ extension PhotosViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard indexPath.section >= 0 && indexPath.section < viewModel.assetArray.count else {
+            return
+        }
+        
         if indexPath.section == 0 {
             let section = viewModel.assetArray.count - 1 - indexPath.row
+            guard section >= 0 && section < viewModel.assetArray.count else {
+                return
+            }
             scrollToSection(section, collectionView: collectionView)
             return
         }
@@ -34,11 +41,21 @@ extension PhotosViewController: UICollectionViewDelegate {
     }
     
     func itemTappedAt(indexPath: IndexPath) {
-        let asset =  viewModel.assetArray[indexPath.section].1[indexPath.row]
+        guard indexPath.section >= 0 && indexPath.section < viewModel.assetArray.count else {
+            return
+        }
+        guard indexPath.row >= 0 && indexPath.row < viewModel.assetArray[indexPath.section].1.count else {
+            return
+        }
+        
+        let asset = viewModel.assetArray[indexPath.section].1[indexPath.row]
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController, let cell = photoCollectionView.cellForItem(at: indexPath) {
             imageViewerVC.viewModel = viewModel
             let currentIndex = viewModel.assetSequence.lastIndex(of: asset) ?? 0
+            guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
+                return
+            }
             imageViewerVC.currentIndex = currentIndex
             
             imageViewerVC.modalPresentationStyle = .fullScreen
@@ -54,7 +71,11 @@ extension PhotosViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Header", for: indexPath)
-        if let header = view as? PhotoCollectionHeaderView, viewModel.assetArray.count - 1 >= indexPath.section {
+        guard indexPath.section >= 0 && indexPath.section < viewModel.assetArray.count else {
+            return view
+        }
+        
+        if let header = view as? PhotoCollectionHeaderView {
             let key = viewModel.assetArray[indexPath.section].0
             header.yearLabel.text = key
             header.dateTextField.delegate = self
@@ -107,6 +128,9 @@ extension PhotosViewController: UICollectionViewDelegate {
 
 extension PhotosViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard section >= 0 && section < viewModel.assetArray.count else {
+            return 0
+        }
         return viewModel.assetArray[section].1.count
     }
     

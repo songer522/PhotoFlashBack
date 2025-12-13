@@ -25,6 +25,9 @@ class PhotosViewModel {
     }
     
     func displayDate() -> String {
+        guard month >= 1 && month <= 12 else {
+            return "Invalid Date"
+        }
         return String(monthArray[month - 1] + " " + String(day))
     }
     
@@ -51,10 +54,13 @@ class PhotosViewModel {
         let assetsFetchResults = PHAsset.fetchAssets(with: options)
         assetsFetchResults.enumerateObjects({ [self] (object: AnyObject, count: Int, stop: UnsafeMutablePointer<ObjCBool>) in
             if let asset = object as? PHAsset {
+                guard let creationDate = asset.creationDate else {
+                    return // Skip assets without creation date
+                }
                 
-                let assetDay = Calendar.current.component(.day, from: asset.creationDate!)
-                let assetMonth = Calendar.current.component(.month, from: asset.creationDate!)
-                let assetYear = Calendar.current.component(.year, from: asset.creationDate!)
+                let assetDay = Calendar.current.component(.day, from: creationDate)
+                let assetMonth = Calendar.current.component(.month, from: creationDate)
+                let assetYear = Calendar.current.component(.year, from: creationDate)
                 if assetDay == self.day && assetMonth == self.month {
                     if var assetArray = self.assetDict[String(assetYear)] {
                         assetArray.append(asset)
@@ -152,9 +158,16 @@ class PhotosViewModel {
         guard assetDict.keys.count > 0 else {
             completion()
             return
-            
         }
-        let key = Array(assetDict.keys)[yearIndex]
+        
+        let keys = Array(assetDict.keys)
+        guard yearIndex >= 0 && yearIndex < keys.count else {
+            yearIndex = 0
+            completion()
+            return
+        }
+        
+        let key = keys[yearIndex]
         if let value = assetDict[key] {
             findLocation(year: key, assetArray: value, currentIndex: 0) {
                 if self.assetDict.keys.count - 1 > self.yearIndex {
@@ -165,6 +178,8 @@ class PhotosViewModel {
                     completion()
                 }
             }
+        } else {
+            completion()
         }
     }
     
@@ -177,38 +192,42 @@ class PhotosViewModel {
                 geocoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) -> Void in
                     // Place details
                     DispatchQueue.main.async {
-                        var placeMark: CLPlacemark!
-                        placeMark = placemarks?[0]
+                        guard error == nil else {
+                            // Handle geocoding error gracefully
+                            self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
+                            return
+                        }
                         
+                        guard let placemarks = placemarks, !placemarks.isEmpty else {
+                            self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
+                            return
+                        }
+                        
+                        let placeMark = placemarks[0]
                         var array : [String] = []
-                        if let placeMark = placeMark {
-                            if let subCity = placeMark.subLocality {
-                                array.append(subCity)
-                            } else if let city = placeMark.locality {
-                                array.append(city)
-                            } else if let state = placeMark.administrativeArea {
-                                array.append(state)
-                            } else if let country = placeMark.country {
-                                array.append(country)
-                            }
-                            
-                            if array.count > 0 {
-                                if let location = self.locationDict[year], let secondLocation = array.first,  location != secondLocation {
-                                    //too expensive to do this
-                                    let newLocation = location + " & " + secondLocation
-                                    self.locationDict[year] = newLocation
+                        if let subCity = placeMark.subLocality {
+                            array.append(subCity)
+                        } else if let city = placeMark.locality {
+                            array.append(city)
+                        } else if let state = placeMark.administrativeArea {
+                            array.append(state)
+                        } else if let country = placeMark.country {
+                            array.append(country)
+                        }
+                        
+                        if array.count > 0 {
+                            if let location = self.locationDict[year], let secondLocation = array.first, location != secondLocation {
+                                //too expensive to do this
+                                let newLocation = location + " & " + secondLocation
+                                self.locationDict[year] = newLocation
+                                completion()
+                            } else {
+                                self.locationDict[year] = array.first
+                                if currentIndex == assetArray.count - 1 {
                                     completion()
                                 } else {
-                                    self.locationDict[year] = array.first
-                                    if currentIndex == assetArray.count - 1 {
-                                        completion()
-                                    } else {
-                                        self.findLocation(year: year, assetArray: assetArray, currentIndex: assetArray.count - 1, completion: completion)
-                                    }
+                                    self.findLocation(year: year, assetArray: assetArray, currentIndex: assetArray.count - 1, completion: completion)
                                 }
-                                
-                            } else {
-                                self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)
                             }
                         } else {
                             self.findLocation(year: year, assetArray: assetArray, currentIndex: currentIndex + 1, completion: completion)

@@ -27,7 +27,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Register the background task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { task in
-            self.handleBackgroundFetch(task: task as! BGAppRefreshTask)
+            guard let refreshTask = task as? BGAppRefreshTask else {
+                print("Error: Background task is not a BGAppRefreshTask")
+                return
+            }
+            self.handleBackgroundFetch(task: refreshTask)
         }
         // Override point for customization after application launch.
         return true
@@ -58,6 +62,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 task.setTaskCompleted(success: true)
             } else {
                 // Failed to fetch or store the asset
+                print("Background fetch failed: Unable to fetch or store random asset")
                 task.setTaskCompleted(success: false)
             }
             

@@ -215,6 +215,12 @@ class PhotoViewController: UIViewController {
 
     func performDeletion() {
         // Get the current asset from the viewModel
+        guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
+            let errorAlert = UIAlertController(title: "错误", message: "无法删除：索引无效", preferredStyle: .alert)
+            errorAlert.addAction(UIAlertAction(title: "确定", style: .default, handler: nil))
+            present(errorAlert, animated: true, completion: nil)
+            return
+        }
         let assetToDelete = viewModel.assetSequence[currentIndex]
         
         PHPhotoLibrary.shared().performChanges({
@@ -299,20 +305,28 @@ class PhotoViewController: UIViewController {
     }
     
     @objc func swipeLeft() {
-        guard currentIndex < viewModel.assetSequence.count - 1 else {
+        guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count - 1 else {
             return
         }
         currentIndex = currentIndex + 1
-        photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
+        let indexPath = IndexPath(item: currentIndex, section: 0)
+        guard indexPath.item < photoCollectionView.numberOfItems(inSection: 0) else {
+            return
+        }
+        photoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         showVideoIfNeeded()
     }
     
     @objc func swipeRight() {
-        guard currentIndex > 0 else {
+        guard currentIndex > 0 && currentIndex < viewModel.assetSequence.count else {
             return
         }
         currentIndex = currentIndex - 1
-        photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
+        let indexPath = IndexPath(item: currentIndex, section: 0)
+        guard indexPath.item >= 0 && indexPath.item < photoCollectionView.numberOfItems(inSection: 0) else {
+            return
+        }
+        photoCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         showVideoIfNeeded()
     }
     
@@ -322,7 +336,10 @@ class PhotoViewController: UIViewController {
     
     func showVideoIfNeeded() {
         dismissVideo()
-        let asset =  viewModel.assetSequence[currentIndex]
+        guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
+            return
+        }
+        let asset = viewModel.assetSequence[currentIndex]
         if asset.mediaType == .video {
             setupPlayPauseButton()
             playVideo(asset)
@@ -340,24 +357,33 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageViewer", for: indexPath) as? ImageViewerCollectionViewCell
+        guard let collectionCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageViewer", for: indexPath) as? ImageViewerCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        guard indexPath.row >= 0 && indexPath.row < viewModel.assetSequence.count else {
+            return collectionCell
+        }
+        
         let targetSize = CGSize(width: collectionView.bounds.width * UIScreen.main.scale, height: collectionView.bounds.height * UIScreen.main.scale)
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
         options.version = .current
         options.deliveryMode = .opportunistic
         options.resizeMode = .fast
-        let asset =  viewModel.assetSequence[indexPath.row]
+        let asset = viewModel.assetSequence[indexPath.row]
         viewModel.assetManager.requestImage(for: asset,
                                             targetSize: targetSize,
                                             contentMode: .aspectFill,
                                             options: options,
                                             resultHandler: { image, info in
-            collectionCell?.itemImageView.image = image
-            collectionCell?.videoLengthLabel.isHidden = asset.mediaType != .video
-            collectionCell?.layoutSubviews()
+            DispatchQueue.main.async {
+                collectionCell.itemImageView.image = image
+                collectionCell.videoLengthLabel.isHidden = asset.mediaType != .video
+                collectionCell.layoutSubviews()
+            }
         })
-        return collectionCell!
+        return collectionCell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -407,8 +433,11 @@ extension PhotoViewController: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         dismissVideo()
         let pageIndex = Int(scrollView.contentOffset.x / photoCollectionView.bounds.width)
+        guard pageIndex >= 0 && pageIndex < viewModel.assetSequence.count else {
+            return
+        }
         currentIndex = pageIndex
-        let asset =  viewModel.assetSequence[pageIndex]
+        let asset = viewModel.assetSequence[pageIndex]
         if asset.mediaType == .video {
             setupPlayPauseButton()
             playVideo(asset)

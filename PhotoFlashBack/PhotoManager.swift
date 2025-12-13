@@ -21,7 +21,9 @@ class PhotoManager {
             case .denied, .restricted, .notDetermined:
                 completion(false)
             @unknown default:
-                fatalError("Unexpected status for photo library access.")
+                // Log the unknown status instead of crashing
+                print("Warning: Unknown photo library authorization status")
+                completion(false)
             }
         }
     }
@@ -43,8 +45,13 @@ class PhotoManager {
         let calendar = Calendar.current
         let todayComponents = calendar.dateComponents([.day, .month], from: today)
         
+        guard let day = todayComponents.day, let month = todayComponents.month else {
+            completion(nil)
+            return
+        }
+        
         let fetchOptions = PHFetchOptions()
-        let predicates = Helper.compoundPredicateFrom(day: todayComponents.day!, month: todayComponents.month!)
+        let predicates = Helper.compoundPredicateFrom(day: day, month: month)
         let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
         let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
         let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1,predicate2])
@@ -80,13 +87,19 @@ class PhotoManager {
         sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
             guard let creationDate = asset.creationDate else { return }
             let assetDateComponents = calendar.dateComponents([.day, .month, .year], from: creationDate)
-            if assetDateComponents.day == todayComponents.day, assetDateComponents.month == todayComponents.month, assetDateComponents.year != todayComponents.year {
-                let year = assetDateComponents.year!
-                if assetsByYear[year] == nil {
-                    assetsByYear[year] = []
-                }
-                assetsByYear[year]?.append(asset)
+            guard let assetDay = assetDateComponents.day,
+                  let assetMonth = assetDateComponents.month,
+                  let assetYear = assetDateComponents.year,
+                  assetDay == day,
+                  assetMonth == month,
+                  assetYear != todayComponents.year else {
+                return
             }
+            
+            if assetsByYear[assetYear] == nil {
+                assetsByYear[assetYear] = []
+            }
+            assetsByYear[assetYear]?.append(asset)
         }
         
         if let randomYear = assetsByYear.keys.randomElement(), let randomAsset = assetsByYear[randomYear]?.randomElement() {
