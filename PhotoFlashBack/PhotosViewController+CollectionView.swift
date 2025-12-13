@@ -147,6 +147,9 @@ extension PhotosViewController: UICollectionViewDataSource {
             let loadingManager = ImageLoadingManager.shared
             let options = ImageLoadingManager.thumbnailOptions()
             
+            // 显示骨架屏
+            collectionCell.showSkeleton()
+            
             collectionCell.currentImageRequestID = loadingManager.requestImage(for: asset,
                                                 targetSize: targetSize,
                                                 contentMode: .aspectFill,
@@ -158,6 +161,10 @@ extension PhotosViewController: UICollectionViewDataSource {
                           cell.identifier == asset.localIdentifier else {
                         return
                     }
+                    
+                    // 隐藏骨架屏
+                    cell.hideSkeleton()
+                    
                     cell.itemImageView.image = image
                     cell.itemImageView.clipsToBounds = true
                     cell.videoLengthLabel.isHidden = true

@@ -19,6 +19,21 @@ class PhotosViewController: UIViewController {
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
     
+    // 加载进度视图
+    private lazy var loadingProgressView: LoadingProgressView = {
+        let view = LoadingProgressView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    // 空状态视图
+    private lazy var emptyStateView: EmptyStateView = {
+        let view = EmptyStateView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
+    }()
+    
     var picker: UIPickerView = {
         let picker = UIPickerView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 250))
         return picker
@@ -67,31 +82,27 @@ class PhotosViewController: UIViewController {
         super.viewDidLoad()
         setupViews()
         if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
-            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
+                guard let self = self else { return }
                 switch status {
                 case .notDetermined:
-                    self.showEmptyState()
-                    break
+                    self.showEmptyState(type: .noPermission)
                     // The user hasn't determined this app's access.
                 case .restricted:
-                    self.showEmptyState()
-                    break
+                    self.showEmptyState(type: .noPermission)
                     // The system restricted this app's access.
                 case .denied:
-                    self.showEmptyState()
-                    break
+                    self.showEmptyState(type: .noPermission)
                     // The user explicitly denied this app's access.
                 case .authorized:
                     self.fetchPhotos()
-                    break
                     // The user authorized this app to access Photos data.
                 case .limited:
-                    self.showEmptyState()
-                    break
+                    // 有限访问权限也可以使用
+                    self.fetchPhotos()
                     // The user authorized this app for limited Photos access.
                 @unknown default:
-                    self.showEmptyState()
-                    fatalError()
+                    self.showEmptyState(type: .noPermission)
                 }
             }
         } else {
@@ -134,46 +145,64 @@ class PhotosViewController: UIViewController {
         .lightContent
     }
     
-    func showLoadingSpinner() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-        let spinnerBackgroundView = UIView()
-        spinnerBackgroundView.translatesAutoresizingMaskIntoConstraints = false
-        //spinnerBackgroundView.backgroundColor = UIColor(white: 0.8, alpha: 0.8)
-        spinnerBackgroundView.layer.cornerRadius = 10
-        spinnerBackgroundView.tag = 1001  // Use a unique tag to identify the spinner background view later when removing it.
-        
-        let spinner = UIActivityIndicatorView(style: .large)
-        spinner.translatesAutoresizingMaskIntoConstraints = false
-        spinner.color = .white
-        spinner.startAnimating()
-        
-        spinnerBackgroundView.addSubview(spinner)
-            self.view.addSubview(spinnerBackgroundView)
-        
-        // Constraints for the spinner background view
+    func setupLoadingAndEmptyStateViews() {
+        // 添加加载进度视图
+        view.addSubview(loadingProgressView)
         NSLayoutConstraint.activate([
-                spinnerBackgroundView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-                spinnerBackgroundView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
-            spinnerBackgroundView.widthAnchor.constraint(equalToConstant: 100),
-            spinnerBackgroundView.heightAnchor.constraint(equalToConstant: 100)
+            loadingProgressView.topAnchor.constraint(equalTo: view.topAnchor),
+            loadingProgressView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            loadingProgressView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            loadingProgressView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        // Constraints for the spinner
+        // 添加空状态视图
+        view.addSubview(emptyStateView)
         NSLayoutConstraint.activate([
-            spinner.centerXAnchor.constraint(equalTo: spinnerBackgroundView.centerXAnchor),
-            spinner.centerYAnchor.constraint(equalTo: spinnerBackgroundView.centerYAnchor)
+            emptyStateView.topAnchor.constraint(equalTo: view.topAnchor),
+            emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        // 设置空状态视图的操作回调
+        emptyStateView.onActionTapped = { [weak self] in
+            self?.handleEmptyStateAction()
         }
     }
     
+    private func handleEmptyStateAction() {
+        // 检查当前空状态类型并执行相应操作
+        if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
+            // 前往设置
+            if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(settingsUrl)
+            }
+        } else {
+            // 选择日期
+            selectDate()
+        }
+    }
+    
+    func showLoadingSpinner() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.emptyStateView.isHidden = true
+            self.loadingProgressView.show(title: "Searching for memories...")
+        }
+    }
+    
+    func updateLoadingProgress(_ progress: Float, loaded: Int, total: Int) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let detail = "Found \(loaded) photos"
+            self.loadingProgressView.updateProgress(progress, detail: detail)
+        }
+    }
     
     func hideLoadingSpinner() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            if let spinnerBackgroundView = self.view.viewWithTag(1001) {
-            spinnerBackgroundView.removeFromSuperview()
-            }
+            self.loadingProgressView.hide()
         }
     }
     
@@ -200,6 +229,7 @@ class PhotosViewController: UIViewController {
         setupLayoutButton()
         setupSortingButton()
         setupEditButton()
+        setupLoadingAndEmptyStateViews()
     }
     
     @objc private func handleRefresh() {
@@ -257,21 +287,42 @@ class PhotosViewController: UIViewController {
     
     @objc func fetchPhotos() {
         print("FetchPhotos!!!!")
-        guard !isFetching else {return}
+        guard !isFetching else { return }
         showLoadingSpinner()
+        hideEmptyState()
         isFetching = true
-        DispatchQueue.global(qos: .userInteractive).async {
+        
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else { return }
+            
             self.viewModel.fetchPhoto {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     self.isFetching = false
-                    self.photoCollectionView.reloadData()
                     self.hideLoadingSpinner()
                     self.refreshControl.endRefreshing()
-                    self.viewModel.findLocations {
-                        DispatchQueue.main.async {
-                            self.photoCollectionView.collectionViewLayout.invalidateLayout()
-                            self.scrollToItemIfNeeded()
+                    
+                    // 检查是否有照片
+                    let hasPhotos = self.viewModel.assetSequence.count > 0
+                    
+                    if hasPhotos {
+                        self.hideEmptyState()
+                        self.photoCollectionView.reloadData()
+                        
+                        // 更新加载进度
+                        let totalPhotos = self.viewModel.assetSequence.count
+                        self.updateLoadingProgress(1.0, loaded: totalPhotos, total: totalPhotos)
+                        
+                        self.viewModel.findLocations { [weak self] in
+                            DispatchQueue.main.async {
+                                guard let self = self else { return }
+                                self.photoCollectionView.collectionViewLayout.invalidateLayout()
+                                self.scrollToItemIfNeeded()
+                            }
                         }
+                    } else {
+                        // 显示空状态
+                        self.showEmptyState(type: .noPhotosForDate(self.viewModel.displayDate()))
                     }
                 }
             }
@@ -304,10 +355,32 @@ class PhotosViewController: UIViewController {
         }
     }
     
-    func showEmptyState() {
-        DispatchQueue.main.async {
+    func showEmptyState(type: EmptyStateView.EmptyStateType? = nil) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.photoCollectionView.isHidden = true
-            self.emptyStateLabel.isHidden = false
+            self.emptyStateLabel.isHidden = true // 隐藏旧的空状态标签
+            self.emptyStateView.isHidden = false
+            
+            // 根据类型配置空状态视图
+            let stateType: EmptyStateView.EmptyStateType
+            if let type = type {
+                stateType = type
+            } else if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
+                stateType = .noPermission
+            } else {
+                stateType = .noPhotosForDate(self.viewModel.displayDate())
+            }
+            self.emptyStateView.configure(for: stateType)
+        }
+    }
+    
+    func hideEmptyState() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.photoCollectionView.isHidden = false
+            self.emptyStateLabel.isHidden = true
+            self.emptyStateView.isHidden = true
         }
     }
     
@@ -334,15 +407,30 @@ class PhotosViewController: UIViewController {
         view.endEditing(true)
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -100), animated: false)
         showLoadingSpinner()
-        DispatchQueue.global(qos: .userInteractive).async {
+        hideEmptyState()
+        
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else { return }
+            
             self.viewModel.fetchPhoto {
-                DispatchQueue.main.async {
-                    self.photoCollectionView.reloadData()
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
                     self.hideLoadingSpinner()
-                    self.viewModel.findLocations {
-                        DispatchQueue.main.async {
-                            self.photoCollectionView.collectionViewLayout.invalidateLayout()
+                    
+                    // 检查是否有照片
+                    let hasPhotos = self.viewModel.assetSequence.count > 0
+                    
+                    if hasPhotos {
+                        self.hideEmptyState()
+                        self.photoCollectionView.reloadData()
+                        
+                        self.viewModel.findLocations { [weak self] in
+                            DispatchQueue.main.async {
+                                self?.photoCollectionView.collectionViewLayout.invalidateLayout()
+                            }
                         }
+                    } else {
+                        self.showEmptyState(type: .noPhotosForDate(self.viewModel.displayDate()))
                     }
                 }
             }

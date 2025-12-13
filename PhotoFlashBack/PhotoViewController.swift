@@ -228,8 +228,8 @@ class PhotoViewController: UIViewController {
     func performDeletion() {
         // Get the current asset from the viewModel
         guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
-            let errorAlert = UIAlertController(title: "错误", message: "无法删除：索引无效", preferredStyle: .alert)
-            errorAlert.addAction(UIAlertAction(title: "确定", style: .default, handler: nil))
+            let errorAlert = UIAlertController(title: "Error", message: "Unable to delete: Invalid index", preferredStyle: .alert)
+            errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(errorAlert, animated: true, completion: nil)
             return
         }
