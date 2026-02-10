@@ -37,15 +37,33 @@ actor PhotoManager {
         
         return await storeAsset(asset)
     }
+    
+    /// Fetches and stores multiple random assets for widget (for medium/large widgets)
+    func fetchAndStoreMultipleAssets(count: Int = 6) async -> Bool {
+        let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: count)
+        
+        guard !assets.isEmpty else {
+            print("No matching assets found.")
+            return false
+        }
+        
+        return await storeMultipleAssets(assets)
+    }
 
     func fetchRandomAssetFromSameDayInPast() async -> PHAsset? {
+        let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: 1)
+        return assets.first
+    }
+    
+    /// Fetches multiple random assets from different years
+    func fetchMultipleRandomAssetsFromSameDayInPast(count: Int) async -> [PHAsset] {
         return await Task.detached(priority: .userInitiated) {
             let today = Date()
             let calendar = Calendar.current
             let todayComponents = calendar.dateComponents([.day, .month, .year], from: today)
             
             guard let day = todayComponents.day, let month = todayComponents.month, let currentYear = todayComponents.year else {
-                return nil
+                return []
             }
             
             let fetchOptions = PHFetchOptions()
@@ -77,18 +95,26 @@ actor PhotoManager {
                 assetsByYear[assetYear]?.append(asset)
             }
             
-            if let randomYear = assetsByYear.keys.randomElement(), 
-               let randomAsset = assetsByYear[randomYear]?.randomElement() {
-                return randomAsset
+            // Select random assets from different years
+            var selectedAssets: [PHAsset] = []
+            let sortedYears = assetsByYear.keys.sorted(by: >) // Recent years first
+            
+            for year in sortedYears {
+                guard selectedAssets.count < count else { break }
+                
+                if let assetsInYear = assetsByYear[year],
+                   let randomAsset = assetsInYear.randomElement() {
+                    selectedAssets.append(randomAsset)
+                }
             }
             
-            return nil
+            return selectedAssets
         }.value
     }
 
 
 
-    private func storeAsset(_ asset: PHAsset) async -> Bool {
+    private func storeAsset(_ asset: PHAsset, index: Int = 0) async -> Bool {
         await withCheckedContinuation { continuation in
             let options = PHImageRequestOptions()
             options.isSynchronous = false
@@ -113,7 +139,7 @@ actor PhotoManager {
                 guard !isDegraded else { return }
                 
                 guard let image = image,
-                      let imageData = image.jpegData(compressionQuality: 1.0) else {
+                      let imageData = image.jpegData(compressionQuality: 0.8) else {
                     continuation.resume(returning: false)
                     return
                 }
@@ -126,12 +152,29 @@ actor PhotoManager {
                 ]
                 
                 let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
-                sharedDefaults?.set(imageData, forKey: "randomAssetImageData")
-                sharedDefaults?.set(metadata, forKey: "randomAssetMetadata")
+                let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
+                let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
+                
+                sharedDefaults?.set(imageData, forKey: imageKey)
+                sharedDefaults?.set(metadata, forKey: metadataKey)
                 
                 continuation.resume(returning: true)
             }
         }
+    }
+    
+    private func storeMultipleAssets(_ assets: [PHAsset]) async -> Bool {
+        var success = true
+        
+        // Store assets with different keys for each
+        for (index, asset) in assets.enumerated() {
+            let result = await storeAsset(asset, index: index)
+            if !result {
+                success = false
+            }
+        }
+        
+        return success
     }
 }
 

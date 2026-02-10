@@ -60,16 +60,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 task.setTaskCompleted(success: false)
             }
 
-            // Perform background fetch
-            let success = await PhotoManager.shared.fetchAndStoreRandomAsset()
+            // Perform background fetch - fetch multiple assets for widget
+            let success = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
             
             if success {
-                // Asset fetched and stored successfully
+                // Assets fetched and stored successfully
                 WidgetCenter.shared.reloadAllTimelines()
                 task.setTaskCompleted(success: true)
             } else {
-                // Failed to fetch or store the asset
-                print("Background fetch failed: Unable to fetch or store random asset")
+                // Failed to fetch or store the assets
+                print("Background fetch failed: Unable to fetch or store random assets")
                 task.setTaskCompleted(success: false)
             }
             

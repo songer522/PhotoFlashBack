@@ -44,7 +44,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         requestAppRating()
         
         Task.detached(priority: .background) {
-            _ = await PhotoManager.shared.fetchAndStoreRandomAsset()
+            // Fetch multiple assets for widget (supports large widgets)
+            _ = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
         }
         
         guard let topVC = topMostViewController() as? PhotosViewController else {
