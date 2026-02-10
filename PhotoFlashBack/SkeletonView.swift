@@ -216,24 +216,38 @@ class LoadingProgressView: UIView {
         spinner.startAnimating()
         isHidden = false
         alpha = 0
-        UIView.animate(withDuration: 0.2) {
+        containerView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        
+        // Spring animation for appearance
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .curveEaseOut) {
             self.alpha = 1
+            self.containerView.transform = .identity
         }
     }
     
     func updateProgress(_ progress: Float, detail: String? = nil) {
-        progressView.setProgress(progress, animated: true)
-        if let detail = detail {
-            detailLabel.text = detail
+        // Smooth spring animation for progress bar
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction]) {
+            self.progressView.setProgress(progress, animated: true)
+        }
+        
+        // Animate detail label changes with fade transition
+        if let detail = detail, detail != detailLabel.text {
+            UIView.transition(with: detailLabel, duration: 0.3, options: .transitionCrossDissolve) {
+                self.detailLabel.text = detail
+            }
         }
     }
     
     func hide() {
-        UIView.animate(withDuration: 0.2) {
+        // Spring animation for disappearance
+        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.3, options: .curveEaseIn) {
             self.alpha = 0
+            self.containerView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
         } completion: { _ in
             self.isHidden = true
             self.spinner.stopAnimating()
+            self.containerView.transform = .identity
         }
     }
 }

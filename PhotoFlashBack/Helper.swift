@@ -77,6 +77,14 @@ class Helper {
         }
         
         Task {
+            // Check cache first
+            if let cachedLocation = await LocationCache.shared.getCachedLocation(for: location) {
+                await MainActor.run {
+                    label.text = "\(cachedLocation)\n\(formattedDate)"
+                }
+                return
+            }
+            
             do {
                 let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
                 
@@ -98,6 +106,11 @@ class Helper {
                         locationName += ", "
                     }
                     locationName += state
+                }
+                
+                // Cache the result
+                if !locationName.isEmpty {
+                    await LocationCache.shared.cacheLocation(locationName, for: location)
                 }
                 
                 await MainActor.run {

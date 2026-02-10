@@ -79,9 +79,14 @@ class PhotoViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let photosVC = self.presentingViewController as? PhotosViewController, shouldRefresh {
-            photosVC.fetchPhotos()
+            // Reload the collection view with animation
+            // The viewModel is shared, so the data is already updated
+            UIView.transition(with: photosVC.photoCollectionView, 
+                            duration: 0.3, 
+                            options: .transitionCrossDissolve) {
+                photosVC.photoCollectionView.reloadData()
+            }
         }
-        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -238,26 +243,73 @@ class PhotoViewController: UIViewController {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.deleteAssets([assetToDelete] as NSArray)
         }) { success, error in
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                
                 if success {
-                    // Remove asset from your data source and update the collection view.
-                    self.viewModel.assetSequence.remove(at: self.currentIndex)
+                    // Update the shared viewModel's data structures
+                    self.removeAssetFromViewModel(assetToDelete)
+                    
+                    // Update this view controller's collection view
                     self.photoCollectionView.deleteItems(at: [IndexPath(item: self.currentIndex, section: 0)])
                     
-                    // Adjust currentIndex if needed.
+                    // Adjust currentIndex if needed
                     if self.currentIndex >= self.viewModel.assetSequence.count, self.currentIndex > 0 {
                         self.currentIndex -= 1
                     }
+                    
+                    // Reload to update UI
                     self.photoCollectionView.reloadData()
+                    
+                    // Show haptic feedback for deletion
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+                    
+                    // Mark that we should refresh the main view
                     self.shouldRefresh = true
+                    
+                    // If no more photos, dismiss
+                    if self.viewModel.assetSequence.isEmpty {
+                        self.dismiss(animated: true)
+                    }
                 } else {
-                    // Handle error (e.g., show an alert)
+                    // Handle error
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.error)
+                    
                     let errorAlert = UIAlertController(title: "Error", message: "Failed to delete photo: \(error?.localizedDescription ?? "Unknown error")", preferredStyle: .alert)
                     errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                     self.present(errorAlert, animated: true, completion: nil)
                 }
             }
         }
+    }
+    
+    private func removeAssetFromViewModel(_ asset: PHAsset) {
+        // Remove from assetSequence
+        if let index = viewModel.assetSequence.firstIndex(of: asset) {
+            viewModel.assetSequence.remove(at: index)
+        }
+        
+        // Get the year of the asset
+        guard let creationDate = asset.creationDate else { return }
+        let year = String(Calendar.current.component(.year, from: creationDate))
+        
+        // Remove from assetDict
+        if var assets = viewModel.assetDict[year] {
+            assets.removeAll { $0.localIdentifier == asset.localIdentifier }
+            
+            if assets.isEmpty {
+                // Remove the year entirely if no more assets
+                viewModel.assetDict.removeValue(forKey: year)
+                viewModel.locationDict.removeValue(forKey: year)
+            } else {
+                viewModel.assetDict[year] = assets
+            }
+        }
+        
+        // Rebuild assetArray
+        viewModel.sortAssetArray()
     }
     
     

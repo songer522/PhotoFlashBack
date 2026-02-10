@@ -302,20 +302,38 @@ class PhotosViewController: UIViewController {
                     updateLoadingProgress(Float(progress.overallProgress), loaded: current, total: total)
                     
                 case .groupingByYear:
+                    // Subtle haptic for phase transition
+                    let generator = UIImpactFeedbackGenerator(style: .soft)
+                    generator.impactOccurred(intensity: 0.5)
+                    
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
                     
                 case .fetchingLocations(let year, let current, let total):
+                    // Subtle haptic when starting location fetch
+                    if current == 1 {
+                        let generator = UIImpactFeedbackGenerator(style: .soft)
+                        generator.impactOccurred(intensity: 0.5)
+                    }
+                    
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
                     
                 case .completed:
                     let hasPhotos = viewModel.assetSequence.count > 0
                     
                     if hasPhotos {
+                        // Haptic feedback on successful completion
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.success)
+                        
                         hideEmptyState()
                         photoCollectionView.reloadData()
                         photoCollectionView.collectionViewLayout.invalidateLayout()
                         scrollToItemIfNeeded()
                     } else {
+                        // Light haptic for empty result
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
+                        
                         showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
                     }
                     
@@ -431,10 +449,18 @@ class PhotosViewController: UIViewController {
                     let hasPhotos = viewModel.assetSequence.count > 0
                     
                     if hasPhotos {
+                        // Haptic feedback on successful completion
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.success)
+                        
                         hideEmptyState()
                         photoCollectionView.reloadData()
                         photoCollectionView.collectionViewLayout.invalidateLayout()
                     } else {
+                        // Light haptic for empty result
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
+                        
                         showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
                     }
                     

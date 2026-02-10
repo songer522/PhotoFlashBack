@@ -16,6 +16,7 @@
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
 		FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */; };
 		FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */; };
+		FC5FBD272F3AF858006A5356 /* LocationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5FBD262F3AF858006A5356 /* LocationCache.swift */; };
 		FC81130628E4E52C00112583 /* PhotosViewController+DatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */; };
 		FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2129C6C50400890051 /* SettingsViewController.swift */; };
 		FC821D2729C6D48600890051 /* SwiftTipJar in Frameworks */ = {isa = PBXBuildFile; productRef = FC821D2629C6D48600890051 /* SwiftTipJar */; };
@@ -83,6 +84,7 @@
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
 		FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+TextField.swift"; sourceTree = "<group>"; };
+		FC5FBD262F3AF858006A5356 /* LocationCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCache.swift; sourceTree = "<group>"; };
 		FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+DatePicker.swift"; sourceTree = "<group>"; };
 		FC821D2129C6C50400890051 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		FC821D2929C819EA00890051 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
@@ -220,6 +222,7 @@
 				FCB1DF0C28D9602C00160033 /* LaunchScreen.storyboard */,
 				FCB1DF0F28D9602C00160033 /* Info.plist */,
 				FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */,
+				FC5FBD262F3AF858006A5356 /* LocationCache.swift */,
 			);
 			path = PhotoFlashBack;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */,
 				FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */,
 				FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */,
+				FC5FBD272F3AF858006A5356 /* LocationCache.swift in Sources */,
 				FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */,
 				FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */,
 				FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */,
