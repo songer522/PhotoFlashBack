@@ -81,7 +81,7 @@ struct TodayWidgetEntryView: View {
            let creationDate = metadata["creationDate"] as? Date {
             let components = Calendar.current.dateComponents([.year], from: creationDate)
             if let year = components.year {
-                self.year = "On this day\n\(year)"
+                self.year = "\(year)"
             }
         }
     }
