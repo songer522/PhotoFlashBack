@@ -8,143 +8,129 @@
 import UIKit
 import Photos
 
-class PhotoManager {
+actor PhotoManager {
     static let shared = PhotoManager()
 
     private init() {}
 
-    func requestPhotoLibraryAuthorization(completion: @escaping (Bool) -> Void) {
-        PHPhotoLibrary.requestAuthorization { (status) in
-            switch status {
-            case .authorized:
-                completion(true)
-            case .denied, .restricted, .notDetermined:
-                completion(false)
-            @unknown default:
-                // Log the unknown status instead of crashing
-                print("Warning: Unknown photo library authorization status")
-                completion(false)
+    func requestPhotoLibraryAuthorization() async -> Bool {
+        await withCheckedContinuation { continuation in
+            PHPhotoLibrary.requestAuthorization { status in
+                switch status {
+                case .authorized, .limited:
+                    continuation.resume(returning: true)
+                case .denied, .restricted, .notDetermined:
+                    continuation.resume(returning: false)
+                @unknown default:
+                    print("Warning: Unknown photo library authorization status")
+                    continuation.resume(returning: false)
+                }
             }
         }
     }
 
-    func fetchAndStoreRandomAsset(completion: @escaping (Bool) -> Void) {
-        fetchRandomAssetFromSameDayInPast { (asset) in
-            guard let asset = asset else {
-                print("No matching asset found.")
-                completion(false)
-                return
-            }
-            
-            self.storeAsset(asset, completion: completion)
+    func fetchAndStoreRandomAsset() async -> Bool {
+        guard let asset = await fetchRandomAssetFromSameDayInPast() else {
+            print("No matching asset found.")
+            return false
         }
+        
+        return await storeAsset(asset)
     }
 
-    func fetchRandomAssetFromSameDayInPast(completion: @escaping (PHAsset?) -> Void) {
-        let today = Date()
-        let calendar = Calendar.current
-        let todayComponents = calendar.dateComponents([.day, .month], from: today)
-        
-        guard let day = todayComponents.day, let month = todayComponents.month else {
-            completion(nil)
-            return
-        }
-        
-        let fetchOptions = PHFetchOptions()
-        let predicates = Helper.compoundPredicateFrom(day: day, month: month)
-        let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-        let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
-        let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1,predicate2])
-        
-        
-        fetchOptions.predicate = compoundPredicate3
-        
-        let sameDayAndMonthPhotos = PHAsset.fetchAssets(with: fetchOptions)
-        
-        var matchingAssets: [PHAsset] = []
-        
-//        sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
-//            let creationDate = asset.creationDate
-//
-//            guard let creationDate = creationDate else { return }
-//
-//            let creationDateComponents = calendar.dateComponents([.year], from: creationDate)
-//            let todayComponents = calendar.dateComponents([.year], from: today)
-//
-//            if creationDateComponents.year != todayComponents.year {
-//                matchingAssets.append(asset)
-//            }
-//        }
-//
-//        if matchingAssets.isEmpty {
-//            completion(nil)
-//        } else {
-//            let randomIndex = Int(arc4random_uniform(UInt32(matchingAssets.count)))
-//            completion(matchingAssets[randomIndex])
-//        }
-        
-        var assetsByYear: [Int: [PHAsset]] = [:]
-        sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
-            guard let creationDate = asset.creationDate else { return }
-            let assetDateComponents = calendar.dateComponents([.day, .month, .year], from: creationDate)
-            guard let assetDay = assetDateComponents.day,
-                  let assetMonth = assetDateComponents.month,
-                  let assetYear = assetDateComponents.year,
-                  assetDay == day,
-                  assetMonth == month,
-                  assetYear != todayComponents.year else {
-                return
+    func fetchRandomAssetFromSameDayInPast() async -> PHAsset? {
+        return await Task.detached(priority: .userInitiated) {
+            let today = Date()
+            let calendar = Calendar.current
+            let todayComponents = calendar.dateComponents([.day, .month, .year], from: today)
+            
+            guard let day = todayComponents.day, let month = todayComponents.month, let currentYear = todayComponents.year else {
+                return nil
             }
             
-            if assetsByYear[assetYear] == nil {
-                assetsByYear[assetYear] = []
+            let fetchOptions = PHFetchOptions()
+            let predicates = Helper.compoundPredicateFrom(day: day, month: month)
+            let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
+            let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1, predicate2])
+            
+            fetchOptions.predicate = compoundPredicate3
+            
+            let sameDayAndMonthPhotos = PHAsset.fetchAssets(with: fetchOptions)
+            
+            var assetsByYear: [Int: [PHAsset]] = [:]
+            sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
+                guard let creationDate = asset.creationDate else { return }
+                let assetDateComponents = calendar.dateComponents([.day, .month, .year], from: creationDate)
+                guard let assetDay = assetDateComponents.day,
+                      let assetMonth = assetDateComponents.month,
+                      let assetYear = assetDateComponents.year,
+                      assetDay == day,
+                      assetMonth == month,
+                      assetYear != currentYear else {
+                    return
+                }
+                
+                if assetsByYear[assetYear] == nil {
+                    assetsByYear[assetYear] = []
+                }
+                assetsByYear[assetYear]?.append(asset)
             }
-            assetsByYear[assetYear]?.append(asset)
-        }
-        
-        if let randomYear = assetsByYear.keys.randomElement(), let randomAsset = assetsByYear[randomYear]?.randomElement() {
-            completion(randomAsset)
-        } else {
-            completion(nil)
-        }
+            
+            if let randomYear = assetsByYear.keys.randomElement(), 
+               let randomAsset = assetsByYear[randomYear]?.randomElement() {
+                return randomAsset
+            }
+            
+            return nil
+        }.value
     }
 
 
 
-    private func storeAsset(_ asset: PHAsset, completion: @escaping (Bool) -> Void) {
-        let options = PHImageRequestOptions()
-        options.isSynchronous = false
-        options.isNetworkAccessAllowed = true
-        options.version = .current
-        options.deliveryMode = .opportunistic
-        options.resizeMode = .fast
+    private func storeAsset(_ asset: PHAsset) async -> Bool {
+        await withCheckedContinuation { continuation in
+            let options = PHImageRequestOptions()
+            options.isSynchronous = false
+            options.isNetworkAccessAllowed = true
+            options.version = .current
+            options.deliveryMode = .highQualityFormat
+            options.resizeMode = .fast
 
-        let targetSize = CGSize(width: 500, height: 500)
-        PHImageManager.default().requestImage(for: asset,
-                                              targetSize: targetSize,
-                                              contentMode: .aspectFill,
-                                              options: options) { (image, info) in
-            guard let info = info else { return }
-            let isDegraded = (info[PHImageResultIsDegradedKey] as? Bool) ?? false
+            let targetSize = CGSize(width: 500, height: 500)
+            PHImageManager.default().requestImage(
+                for: asset,
+                targetSize: targetSize,
+                contentMode: .aspectFill,
+                options: options
+            ) { (image, info) in
+                guard let info = info else {
+                    continuation.resume(returning: false)
+                    return
+                }
+                
+                let isDegraded = (info[PHImageResultIsDegradedKey] as? Bool) ?? false
+                guard !isDegraded else { return }
+                
+                guard let image = image,
+                      let imageData = image.jpegData(compressionQuality: 1.0) else {
+                    continuation.resume(returning: false)
+                    return
+                }
 
-            guard !isDegraded else {return}
-            
-            guard let image = image,
-                  let imageData = image.jpegData(compressionQuality: 1.0) else {
-                completion(false)
-                return
+                let metadata: [String: Any] = [
+                    "creationDate": asset.creationDate ?? Date(),
+                    "localIdentifier": asset.localIdentifier,
+                    "pixelWidth": asset.pixelWidth,
+                    "pixelHeight": asset.pixelHeight
+                ]
+                
+                let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
+                sharedDefaults?.set(imageData, forKey: "randomAssetImageData")
+                sharedDefaults?.set(metadata, forKey: "randomAssetMetadata")
+                
+                continuation.resume(returning: true)
             }
-
-            let metadata: [String: Any] = [
-                "creationDate": asset.creationDate ?? Date(),
-                "localIdentifier": asset.localIdentifier,
-                "pixelWidth": asset.pixelWidth,
-                "pixelHeight": asset.pixelHeight
-            ]
-            let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
-            sharedDefaults?.set(imageData, forKey: "randomAssetImageData")
-            sharedDefaults?.set(metadata, forKey: "randomAssetMetadata")
-            completion(true)
         }
     }
 }

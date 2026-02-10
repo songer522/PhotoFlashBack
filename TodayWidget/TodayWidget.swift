@@ -42,7 +42,6 @@ struct TodayWidgetEntryView: View {
     var entry: Provider.Entry
     @State private var image: UIImage? = nil
     @State private var year: String? = nil
-
     var body: some View {
         ZStack {
             // Overlay the label on top of the background image
@@ -106,3 +105,4 @@ struct TodayWidget_Previews: PreviewProvider {
             .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
+

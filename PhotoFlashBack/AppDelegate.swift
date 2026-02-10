@@ -50,13 +50,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func handleBackgroundFetch(task: BGAppRefreshTask) {
-        // Set expiration handler to cancel operations if task expires
-        task.expirationHandler = {
-            task.setTaskCompleted(success: false)
-        }
+        // Create a background task to handle the fetch
+        var backgroundTask: Task<Void, Never>?
+        
+        backgroundTask = Task {
+            // Set expiration handler to cancel task if it expires
+            task.expirationHandler = {
+                backgroundTask?.cancel()
+                task.setTaskCompleted(success: false)
+            }
 
-        // Perform your background fetch here
-        PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
+            // Perform background fetch
+            let success = await PhotoManager.shared.fetchAndStoreRandomAsset()
+            
             if success {
                 // Asset fetched and stored successfully
                 WidgetCenter.shared.reloadAllTimelines()
@@ -68,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
             // Schedule the next background fetch
-            self.scheduleBackgroundFetch()
+            scheduleBackgroundFetch()
         }
     }
 

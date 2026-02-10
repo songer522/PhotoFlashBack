@@ -42,23 +42,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         requestAppRating()
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            PhotoManager.shared.fetchAndStoreRandomAsset { (success) in
-                if success {
-                    // Asset fetched and stored successfully
-                } else {
-                    // Failed to fetch or store the asset
-                }
-            }
+        
+        Task.detached(priority: .background) {
+            _ = await PhotoManager.shared.fetchAndStoreRandomAsset()
         }
+        
         guard let topVC = topMostViewController() as? PhotosViewController else {
             UserDefaults.standard.set(nil, forKey: "ItemToGo")
             return
         }
+        
         if UserDefaults.standard.bool(forKey: "ShouldRefresh") {
             topVC.refreshIfNotToday()
             UserDefaults.standard.set(false, forKey: "ShouldRefresh")
-            
         }
     }
 

@@ -71,34 +71,47 @@ class Helper {
         let creationDate = asset.creationDate ?? Date()
         let formattedDate = Helper.formatDateAndTime(creationDate)
         
-        if let location = asset.location {
-            let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(location) { placemarks, error in
-                if let placemark = placemarks?.first {
-                    var locationName = ""
-                    
-                    if let city = placemark.locality {
-                        locationName += city
+        guard let location = asset.location else {
+            label.text = "\(formattedDate)"
+            return
+        }
+        
+        Task {
+            do {
+                let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+                
+                guard let placemark = placemarks.first else {
+                    await MainActor.run {
+                        label.text = "\(formattedDate)"
                     }
-                    
-                    if let state = placemark.administrativeArea {
-                        if !locationName.isEmpty {
-                            locationName += ", "
-                        }
-                        locationName += state
+                    return
+                }
+                
+                var locationName = ""
+                
+                if let city = placemark.locality {
+                    locationName += city
+                }
+                
+                if let state = placemark.administrativeArea {
+                    if !locationName.isEmpty {
+                        locationName += ", "
                     }
-                    
+                    locationName += state
+                }
+                
+                await MainActor.run {
                     if !locationName.isEmpty {
                         label.text = "\(locationName)\n\(formattedDate)"
                     } else {
                         label.text = "\(formattedDate)"
                     }
-                } else {
+                }
+            } catch {
+                await MainActor.run {
                     label.text = "\(formattedDate)"
                 }
             }
-        } else {
-            label.text = "\(formattedDate)"
         }
     }
     

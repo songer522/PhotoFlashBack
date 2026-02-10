@@ -288,42 +288,47 @@ class PhotosViewController: UIViewController {
     @objc func fetchPhotos() {
         print("FetchPhotos!!!!")
         guard !isFetching else { return }
+        
+        isFetching = true
         showLoadingSpinner()
         hideEmptyState()
-        isFetching = true
         
-        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-            guard let self = self else { return }
-            
-            self.viewModel.fetchPhoto {
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.isFetching = false
-                    self.hideLoadingSpinner()
-                    self.refreshControl.endRefreshing()
+        Task {
+            // Use progress tracking version
+            for await progress in viewModel.fetchPhotoWithProgress() {
+                // Update UI based on progress
+                switch progress.phase {
+                case .fetchingPhotos(let current, let total):
+                    updateLoadingProgress(Float(progress.overallProgress), loaded: current, total: total)
                     
-                    // 检查是否有照片
-                    let hasPhotos = self.viewModel.assetSequence.count > 0
+                case .groupingByYear:
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
+                    
+                case .fetchingLocations(let year, let current, let total):
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
+                    
+                case .completed:
+                    let hasPhotos = viewModel.assetSequence.count > 0
                     
                     if hasPhotos {
-                        self.hideEmptyState()
-                        self.photoCollectionView.reloadData()
-                        
-                        // 更新加载进度
-                        let totalPhotos = self.viewModel.assetSequence.count
-                        self.updateLoadingProgress(1.0, loaded: totalPhotos, total: totalPhotos)
-                        
-                        self.viewModel.findLocations { [weak self] in
-                            DispatchQueue.main.async {
-                                guard let self = self else { return }
-                                self.photoCollectionView.collectionViewLayout.invalidateLayout()
-                                self.scrollToItemIfNeeded()
-                            }
-                        }
+                        hideEmptyState()
+                        photoCollectionView.reloadData()
+                        photoCollectionView.collectionViewLayout.invalidateLayout()
+                        scrollToItemIfNeeded()
                     } else {
-                        // 显示空状态
-                        self.showEmptyState(type: .noPhotosForDate(self.viewModel.displayDate()))
+                        showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
                     }
+                    
+                    isFetching = false
+                    hideLoadingSpinner()
+                    refreshControl.endRefreshing()
+                    
+                case .failed(let error):
+                    print("Fetch failed: \(error)")
+                    showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                    isFetching = false
+                    hideLoadingSpinner()
+                    refreshControl.endRefreshing()
                 }
             }
         }
@@ -409,29 +414,36 @@ class PhotosViewController: UIViewController {
         showLoadingSpinner()
         hideEmptyState()
         
-        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
-            guard let self = self else { return }
-            
-            self.viewModel.fetchPhoto {
-                DispatchQueue.main.async { [weak self] in
-                    guard let self = self else { return }
-                    self.hideLoadingSpinner()
+        Task {
+            // Use progress tracking for date picker as well
+            for await progress in viewModel.fetchPhotoWithProgress() {
+                switch progress.phase {
+                case .fetchingPhotos(let current, let total):
+                    updateLoadingProgress(Float(progress.overallProgress), loaded: current, total: total)
                     
-                    // 检查是否有照片
-                    let hasPhotos = self.viewModel.assetSequence.count > 0
+                case .groupingByYear:
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
+                    
+                case .fetchingLocations(let year, let current, let total):
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
+                    
+                case .completed:
+                    let hasPhotos = viewModel.assetSequence.count > 0
                     
                     if hasPhotos {
-                        self.hideEmptyState()
-                        self.photoCollectionView.reloadData()
-                        
-                        self.viewModel.findLocations { [weak self] in
-                            DispatchQueue.main.async {
-                                self?.photoCollectionView.collectionViewLayout.invalidateLayout()
-                            }
-                        }
+                        hideEmptyState()
+                        photoCollectionView.reloadData()
+                        photoCollectionView.collectionViewLayout.invalidateLayout()
                     } else {
-                        self.showEmptyState(type: .noPhotosForDate(self.viewModel.displayDate()))
+                        showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
                     }
+                    
+                    hideLoadingSpinner()
+                    
+                case .failed(let error):
+                    print("Fetch failed: \(error)")
+                    showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                    hideLoadingSpinner()
                 }
             }
         }
