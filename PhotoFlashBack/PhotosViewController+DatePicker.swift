@@ -12,7 +12,11 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView
     {
         let pickerLabel = UILabel()
-        pickerLabel.textColor = UIColor.white
+        
+        // Use dynamic label color that adapts to light/dark mode
+        pickerLabel.textColor = .label
+        pickerLabel.font = .systemFont(ofSize: 20, weight: .regular)
+        
         switch component {
         case 0:
             pickerLabel.text = viewModel.monthArray[row]
@@ -21,7 +25,7 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         default:
             pickerLabel.text = ""
         }
-        pickerLabel.textAlignment = NSTextAlignment.center
+        pickerLabel.textAlignment = .center
         return pickerLabel
     }
     

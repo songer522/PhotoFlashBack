@@ -13,24 +13,19 @@ extension PhotosViewController: UITextFieldDelegate {
         setupInputView(textField: textField)
         let keyboardDoneButtonView = UIToolbar()
         keyboardDoneButtonView.sizeToFit()
-        keyboardDoneButtonView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
-        keyboardDoneButtonView.barTintColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
-        keyboardDoneButtonView.tintColor = UIColor.white
-        let item = UIBarButtonItem(title: "Select", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.datePicked) )
-        let item2 = UIBarButtonItem(title: "Cancel", style: UIBarButtonItem.Style.plain, target: self, action: #selector(PhotosViewController.dateCancelled) )
-        let font = UIFont.preferredFont(forTextStyle: .body)
-            item.setTitleTextAttributes([NSAttributedString.Key.font: font], for: UIControl.State())
-            item2.setTitleTextAttributes([NSAttributedString.Key.font: font], for: UIControl.State())
-        let title = UILabel.init(frame: CGRect(x: 0, y: 0, width: 120, height: 30))
-        title.text = "Memory Lane"
-        title.textAlignment = .center
-        title.textColor = UIColor.white
-        title.font = font
-        let item3 = UIBarButtonItem.init(customView: title)
         
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        // Modern iOS 18 style - use system background with subtle blur
+        let blurEffect = UIBlurEffect(style: .systemMaterial)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = keyboardDoneButtonView.bounds
+        blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        keyboardDoneButtonView.insertSubview(blurView, at: 0)
         
-        let toolbarButtons = [item2,flexSpace,item3,flexSpace,item]
+        let item = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(PhotosViewController.datePicked))
+        let item2 = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(PhotosViewController.dateCancelled))
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let toolbarButtons = [item2, flexSpace, item]
         
         keyboardDoneButtonView.setItems(toolbarButtons, animated: false)
         textField.inputAccessoryView = keyboardDoneButtonView
@@ -39,24 +34,27 @@ extension PhotosViewController: UITextFieldDelegate {
     
     func setupInputView(textField: UITextField) {
         let customInputView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 250))
-            customInputView.translatesAutoresizingMaskIntoConstraints = false
-        customInputView.backgroundColor = .clear
-        let blurEffect = UIBlurEffect(style: .systemChromeMaterialDark)
+        customInputView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Modern light blur effect
+        let blurEffect = UIBlurEffect(style: .systemMaterial)
         let visualEffectView = UIVisualEffectView(effect: blurEffect)
         customInputView.addSubview(visualEffectView)
         visualEffectView.frame = customInputView.bounds
         visualEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
         picker.backgroundColor = .clear
         picker.translatesAutoresizingMaskIntoConstraints = false
         customInputView.addSubview(picker)
+        
         NSLayoutConstraint.activate([
             picker.topAnchor.constraint(equalTo: customInputView.topAnchor),
             picker.leadingAnchor.constraint(equalTo: customInputView.leadingAnchor),
             picker.trailingAnchor.constraint(equalTo: customInputView.trailingAnchor),
             picker.bottomAnchor.constraint(equalTo: customInputView.bottomAnchor)
         ])
-        textField.inputView = customInputView
         
+        textField.inputView = customInputView
     }
 }
 
