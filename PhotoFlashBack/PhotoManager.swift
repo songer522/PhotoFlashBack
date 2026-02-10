@@ -95,11 +95,14 @@ actor PhotoManager {
                 assetsByYear[assetYear]?.append(asset)
             }
             
-            // Select random assets from different years
+            // Select random assets from randomly selected years
             var selectedAssets: [PHAsset] = []
-            let sortedYears = assetsByYear.keys.sorted(by: >) // Recent years first
+            var availableYears = Array(assetsByYear.keys)
             
-            for year in sortedYears {
+            // Randomly shuffle the years to get variety
+            availableYears.shuffle()
+            
+            for year in availableYears {
                 guard selectedAssets.count < count else { break }
                 
                 if let assetsInYear = assetsByYear[year],
