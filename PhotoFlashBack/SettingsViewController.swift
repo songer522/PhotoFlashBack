@@ -149,6 +149,22 @@ class SettingsViewController: UITableViewController {
         let shareText = "Check out this amazing app I've been using:"
         
         let activityViewController = UIActivityViewController(activityItems: [shareText, appStoreURL], applicationActivities: nil)
+        
+        // Configure popover for iPad
+        if let popoverController = activityViewController.popoverPresentationController {
+            // Find the cell for "Share with Friends" (index 3)
+            let indexPath = IndexPath(row: 3, section: 0)
+            if let cell = tableView.cellForRow(at: indexPath) {
+                popoverController.sourceView = cell
+                popoverController.sourceRect = cell.bounds
+            } else {
+                // Fallback to table view center
+                popoverController.sourceView = tableView
+                popoverController.sourceRect = CGRect(x: tableView.bounds.midX, y: tableView.bounds.midY, width: 0, height: 0)
+            }
+            popoverController.permittedArrowDirections = [.up, .down]
+        }
+        
         self.present(activityViewController, animated: true, completion: nil)
     }
 
