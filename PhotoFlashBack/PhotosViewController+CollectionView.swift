@@ -81,6 +81,10 @@ extension PhotosViewController: UICollectionViewDelegate {
             header.dateTextField.delegate = self
             header.dateTextField.isHidden = indexPath.section != 0
             header.dateTextField.text = viewModel.displayDate()
+            
+            // Hide undo/redo/paste bar on iPad
+            header.dateTextField.inputAssistantItem.leadingBarButtonGroups = []
+            header.dateTextField.inputAssistantItem.trailingBarButtonGroups = []
             if let location = viewModel.locationDict[key] {
                 header.locationLabel.text = location
                 header.locationLabel.isHidden = indexPath.section != 0

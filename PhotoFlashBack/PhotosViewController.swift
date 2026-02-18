@@ -39,6 +39,19 @@ class PhotosViewController: UIViewController {
         return picker
     }()
     
+    // Hidden text field for triggering date picker when collection view is empty
+    private lazy var hiddenDateTextField: UITextField = {
+        let textField = UITextField()
+        textField.isHidden = true
+        textField.delegate = self
+        
+        // Hide undo/redo/paste bar on iPad
+        textField.inputAssistantItem.leadingBarButtonGroups = []
+        textField.inputAssistantItem.trailingBarButtonGroups = []
+        
+        return textField
+    }()
+    
     private let settingsButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
@@ -163,6 +176,9 @@ class PhotosViewController: UIViewController {
             emptyStateView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             emptyStateView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        // Add hidden date text field for empty state date picker
+        view.addSubview(hiddenDateTextField)
         
         // 设置空状态视图的操作回调
         emptyStateView.onActionTapped = { [weak self] in
@@ -423,6 +439,9 @@ class PhotosViewController: UIViewController {
     @objc func selectDate() {
         if let header = getTopVisibleSectionHeader() as? PhotoCollectionHeaderView {
             header.dateTextField.becomeFirstResponder()
+        } else {
+            // Use hidden text field when no headers are visible (empty state)
+            hiddenDateTextField.becomeFirstResponder()
         }
     }
     
