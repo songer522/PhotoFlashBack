@@ -352,6 +352,7 @@ class EmptyStateView: UIView {
     enum EmptyStateType {
         case noPhotos
         case noPhotosForDate(String)
+        case noItemsForFilters(String)
         case noPermission
         case loading
         case error(String)
@@ -369,6 +370,13 @@ class EmptyStateView: UIView {
             iconImageView.image = UIImage(systemName: "calendar.badge.clock")
             titleLabel.text = "No Photos on This Day"
             messageLabel.text = "No photos found for \(date)\nTry selecting a different date"
+            actionButton.setTitle("Select Date", for: .normal)
+            actionButton.isHidden = false
+
+        case .noItemsForFilters(let date):
+            iconImageView.image = UIImage(systemName: "line.3.horizontal.decrease.circle")
+            titleLabel.text = "Nothing Matches Your Filters"
+            messageLabel.text = "No items match the current filters for \(date)\nTry turning more types on"
             actionButton.setTitle("Select Date", for: .normal)
             actionButton.isHidden = false
             
