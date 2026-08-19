@@ -108,8 +108,8 @@
 		FC8A11110000000000000003 /* ToolbarDropdownViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarDropdownViews.swift; sourceTree = "<group>"; };
 		FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+Toolbar.swift"; sourceTree = "<group>"; };
 		FC8A11110000000000000007 /* MediaFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilterTests.swift; sourceTree = "<group>"; };
-		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
 		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
 		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
 		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -542,7 +542,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = TodayWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodayWidget/Info.plist;
@@ -554,7 +554,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.8;
+				MARKETING_VERSION = 2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.TodayWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -571,7 +571,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = TodayWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TodayWidget/Info.plist;
@@ -583,7 +583,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.8;
+				MARKETING_VERSION = 2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.TodayWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -715,7 +715,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PhotoFlashBack/PhotoFlashBack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PhotoFlashBack/Info.plist;
@@ -733,7 +733,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.8;
+				MARKETING_VERSION = 2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -750,7 +750,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PhotoFlashBack/PhotoFlashBack.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 4UXP3NANFN;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PhotoFlashBack/Info.plist;
@@ -768,7 +768,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.8;
+				MARKETING_VERSION = 2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
