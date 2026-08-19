@@ -115,6 +115,20 @@ class ImageLoadingManager {
     func cancelRequest(_ requestID: PHImageRequestID) {
         imageManager.cancelImageRequest(requestID)
     }
+
+    /// Full-screen cells are reused while PHImageManager callbacks are still in flight.
+    /// Only apply a result if the cell still represents the asset that started the request.
+    static func shouldApplyResult(to cellIdentifier: String?,
+                                  requestedIdentifier: String,
+                                  info: [AnyHashable: Any]?) -> Bool {
+        if (info?[PHImageCancelledKey] as? Bool) == true {
+            return false
+        }
+        guard let cellIdentifier else {
+            return false
+        }
+        return cellIdentifier == requestedIdentifier
+    }
     
     // MARK: - Thumbnail Cache
     

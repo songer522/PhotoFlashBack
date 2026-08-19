@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Photos
 
 class ImageViewerCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate {
     var scrollView: UIScrollView!
@@ -80,8 +81,18 @@ class ImageViewerCollectionViewCell: UICollectionViewCell, UIScrollViewDelegate 
         scrollView.contentSize = itemImageView.bounds.size
     }
     
+    var currentImageRequestID: PHImageRequestID?
+    var representedAssetIdentifier: String?
+
     override func prepareForReuse() {
         super.prepareForReuse()
         scrollView.setZoomScale(1.0, animated: false)
+        if let requestID = currentImageRequestID {
+            ImageLoadingManager.shared.cancelRequest(requestID)
+            currentImageRequestID = nil
+        }
+        representedAssetIdentifier = nil
+        itemImageView.image = nil
+        videoLengthLabel.isHidden = true
     }
 }

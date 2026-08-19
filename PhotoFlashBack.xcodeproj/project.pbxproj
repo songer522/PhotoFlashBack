@@ -29,6 +29,7 @@
 		FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000003 /* ToolbarDropdownViews.swift */; };
 		FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */; };
 		FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000007 /* MediaFilterTests.swift */; };
+		FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */; };
 		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
 		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
 		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
@@ -107,6 +108,7 @@
 		FC8A11110000000000000003 /* ToolbarDropdownViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarDropdownViews.swift; sourceTree = "<group>"; };
 		FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+Toolbar.swift"; sourceTree = "<group>"; };
 		FC8A11110000000000000007 /* MediaFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilterTests.swift; sourceTree = "<group>"; };
+		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
 		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				FC8A11110000000000000007 /* MediaFilterTests.swift */,
+				FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */,
 			);
 			path = PhotoFlashBackTests;
 			sourceTree = "<group>";
@@ -397,6 +400,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */,
+				FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

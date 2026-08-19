@@ -433,21 +433,29 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
         // 保持全屏尺寸不变
         let targetSize = CGSize(width: collectionView.bounds.width * UIScreen.main.scale, height: collectionView.bounds.height * UIScreen.main.scale)
         let asset = viewModel.assetSequence[indexPath.row]
-        
+        collectionCell.representedAssetIdentifier = asset.localIdentifier
+
+        if let requestID = collectionCell.currentImageRequestID {
+            ImageLoadingManager.shared.cancelRequest(requestID)
+            collectionCell.currentImageRequestID = nil
+        }
+
         // 使用优化的图片加载管理器，支持渐进式加载
         let loadingManager = ImageLoadingManager.shared
         let options = ImageLoadingManager.fullScreenOptions()
-        
-        loadingManager.requestImage(for: asset,
+
+        collectionCell.currentImageRequestID = loadingManager.requestImage(for: asset,
                                    targetSize: targetSize,
                                    contentMode: .aspectFit, // 使用 aspectFit 保持完整图片，不裁切
                                    options: options,
-                                   resultHandler: { [weak collectionCell, weak self] image, info in
+                                   resultHandler: { [weak collectionCell] image, info in
             DispatchQueue.main.async {
                 guard let cell = collectionCell,
-                      let self = self,
-                      indexPath.row < self.viewModel.assetSequence.count,
-                      self.viewModel.assetSequence[indexPath.row].localIdentifier == asset.localIdentifier else {
+                      ImageLoadingManager.shouldApplyResult(
+                        to: cell.representedAssetIdentifier,
+                        requestedIdentifier: asset.localIdentifier,
+                        info: info
+                      ) else {
                     return
                 }
                 // 渐进式加载：先显示低质量图片，再更新为高质量
