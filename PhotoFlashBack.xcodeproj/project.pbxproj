@@ -25,6 +25,10 @@
 		FC821D2E29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */; };
 		FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */; };
 		FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3929D0270B00890051 /* CustomLayouts.swift */; };
+		FC8A11110000000000000002 /* MediaFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000001 /* MediaFilter.swift */; };
+		FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000003 /* ToolbarDropdownViews.swift */; };
+		FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */; };
+		FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000007 /* MediaFilterTests.swift */; };
 		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
 		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
 		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
@@ -52,6 +56,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		FC8A11110000000000000011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FCB1DEF628D9602A00160033 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FCB1DEFD28D9602A00160033;
+			remoteInfo = PhotoFlashBack;
+		};
 		FC9872F929D55C8D006B8705 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FCB1DEF628D9602A00160033 /* Project object */;
@@ -92,6 +103,11 @@
 		FC821D2D29CAB3CF00890051 /* PhotoViewController+PlayerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotoViewController+PlayerDelegate.swift"; sourceTree = "<group>"; };
 		FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitionAnimator.swift; sourceTree = "<group>"; };
 		FC821D3929D0270B00890051 /* CustomLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayouts.swift; sourceTree = "<group>"; };
+		FC8A11110000000000000001 /* MediaFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilter.swift; sourceTree = "<group>"; };
+		FC8A11110000000000000003 /* ToolbarDropdownViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarDropdownViews.swift; sourceTree = "<group>"; };
+		FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+Toolbar.swift"; sourceTree = "<group>"; };
+		FC8A11110000000000000007 /* MediaFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilterTests.swift; sourceTree = "<group>"; };
+		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
 		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -123,6 +139,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FC8A1111000000000000000D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC9872E529D55C8C006B8705 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -155,6 +178,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FC8A11110000000000000013 /* PhotoFlashBackTests */ = {
+			isa = PBXGroup;
+			children = (
+				FC8A11110000000000000007 /* MediaFilterTests.swift */,
+			);
+			path = PhotoFlashBackTests;
+			sourceTree = "<group>";
+		};
 		FC9872EC29D55C8C006B8705 /* TodayWidget */ = {
 			isa = PBXGroup;
 			children = (
@@ -175,6 +206,7 @@
 				FC98730029D5631E006B8705 /* TodayWidgetExtension.entitlements */,
 				FCB1DF0028D9602A00160033 /* PhotoFlashBack */,
 				FC9872EC29D55C8C006B8705 /* TodayWidget */,
+				FC8A11110000000000000013 /* PhotoFlashBackTests */,
 				FCB1DEFF28D9602A00160033 /* Products */,
 				FC821D2829C819EA00890051 /* Frameworks */,
 			);
@@ -185,6 +217,7 @@
 			children = (
 				FCB1DEFE28D9602A00160033 /* PhotoFlashBack.app */,
 				FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */,
+				FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -197,6 +230,9 @@
 				FCB1DF0328D9602A00160033 /* SceneDelegate.swift */,
 				FCB1DF0528D9602A00160033 /* PhotosViewController.swift */,
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
+				FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */,
+				FC8A11110000000000000001 /* MediaFilter.swift */,
+				FC8A11110000000000000003 /* ToolbarDropdownViews.swift */,
 				FC821D3929D0270B00890051 /* CustomLayouts.swift */,
 				FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */,
 				FC59623228E54B5B006AB3E9 /* PhotosViewController+TextField.swift */,
@@ -230,6 +266,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FC8A1111000000000000000B /* PhotoFlashBackTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FC8A11110000000000000010 /* Build configuration list for PBXNativeTarget "PhotoFlashBackTests" */;
+			buildPhases = (
+				FC8A1111000000000000000C /* Sources */,
+				FC8A1111000000000000000D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FC8A11110000000000000012 /* PBXTargetDependency */,
+			);
+			name = PhotoFlashBackTests;
+			productName = PhotoFlashBackTests;
+			productReference = FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		FC9872E729D55C8C006B8705 /* TodayWidgetExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FC9872FC29D55C8D006B8705 /* Build configuration list for PBXNativeTarget "TodayWidgetExtension" */;
@@ -280,6 +333,10 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
+					FC8A1111000000000000000B = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = FCB1DEFD28D9602A00160033;
+					};
 					FC9872E729D55C8C006B8705 = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -307,6 +364,7 @@
 			targets = (
 				FCB1DEFD28D9602A00160033 /* PhotoFlashBack */,
 				FC9872E729D55C8C006B8705 /* TodayWidgetExtension */,
+				FC8A1111000000000000000B /* PhotoFlashBackTests */,
 			);
 		};
 /* End PBXProject section */
@@ -334,6 +392,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FC8A1111000000000000000C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FC9872E429D55C8C006B8705 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -376,12 +442,20 @@
 				FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */,
 				FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */,
 				FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */,
+				FC8A11110000000000000002 /* MediaFilter.swift in Sources */,
+				FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */,
+				FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		FC8A11110000000000000012 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FCB1DEFD28D9602A00160033 /* PhotoFlashBack */;
+			targetProxy = FC8A11110000000000000011 /* PBXContainerItemProxy */;
+		};
 		FC9872FA29D55C8D006B8705 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FC9872E729D55C8C006B8705 /* TodayWidgetExtension */;
@@ -409,6 +483,54 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		FC8A1111000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4UXP3NANFN;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoFlashBack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoFlashBack";
+			};
+			name = Debug;
+		};
+		FC8A1111000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4UXP3NANFN;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.YangSong.PhotoFlashBack.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PhotoFlashBack.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PhotoFlashBack";
+			};
+			name = Release;
+		};
 		FC9872FD29D55C8D006B8705 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -654,6 +776,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FC8A11110000000000000010 /* Build configuration list for PBXNativeTarget "PhotoFlashBackTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FC8A1111000000000000000E /* Debug */,
+				FC8A1111000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FC9872FC29D55C8D006B8705 /* Build configuration list for PBXNativeTarget "TodayWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

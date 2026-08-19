@@ -87,6 +87,7 @@ class PhotosViewModel {
     var assetDict : [String: [PHAsset]] = [:]
     var locationDict : [String: String] = [:]
     let assetManager = PHImageManager.default()
+    var lastAppliedFilter = MediaFilter(photos: true, videos: true, screenshots: true)
     var month = 1
     var day = 1
     var monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -114,7 +115,8 @@ class PhotosViewModel {
         assetSequence.removeAll()
         
         // Perform fetch on background thread to avoid blocking UI
-        let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month] in
+        let filter = MediaFilterStore.load()
+        let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month, filter] in
             let options = PHFetchOptions()
             options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             
@@ -140,6 +142,7 @@ class PhotosViewModel {
                     let assetYear = Calendar.current.component(.year, from: creationDate)
                     
                     if assetDay == day && assetMonth == month {
+                        guard filter.includes(asset) else { return }
                         if var assetArray = tempAssetDict[String(assetYear)] {
                             assetArray.append(asset)
                             tempAssetDict[String(assetYear)] = assetArray
@@ -152,6 +155,8 @@ class PhotosViewModel {
             
             return tempAssetDict
         }.value
+        
+        self.lastAppliedFilter = filter.normalizedForFetch()
         
         self.assetDict = newAssetDict
         sortAssetArray()
@@ -168,7 +173,8 @@ class PhotosViewModel {
                     assetSequence.removeAll()
                     
                     // Phase 1: Fetch photos
-                    let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month] in
+                    let filter = MediaFilterStore.load()
+                    let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month, filter] in
                         let options = PHFetchOptions()
                         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
                         
@@ -188,6 +194,10 @@ class PhotosViewModel {
                         assetsFetchResults.enumerateObjects { (object: AnyObject, count: Int, stop: UnsafeMutablePointer<ObjCBool>) in
                             if let asset = object as? PHAsset {
                                 guard let creationDate = asset.creationDate else {
+                                    processedCount += 1
+                                    if processedCount % 10 == 0 || processedCount == totalCount {
+                                        continuation.yield(.fetchingPhotos(current: processedCount, total: totalCount))
+                                    }
                                     return
                                 }
                                 
@@ -195,7 +205,7 @@ class PhotosViewModel {
                                 let assetMonth = Calendar.current.component(.month, from: creationDate)
                                 let assetYear = Calendar.current.component(.year, from: creationDate)
                                 
-                                if assetDay == day && assetMonth == month {
+                                if assetDay == day && assetMonth == month, filter.includes(asset) {
                                     if var assetArray = tempAssetDict[String(assetYear)] {
                                         assetArray.append(asset)
                                         tempAssetDict[String(assetYear)] = assetArray
@@ -214,6 +224,8 @@ class PhotosViewModel {
                         
                         return tempAssetDict
                     }.value
+                    
+                    self.lastAppliedFilter = filter.normalizedForFetch()
                     
                     // Phase 2: Group by year
                     continuation.yield(.groupingByYear())

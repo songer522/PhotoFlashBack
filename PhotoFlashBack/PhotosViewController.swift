@@ -52,7 +52,7 @@ class PhotosViewController: UIViewController {
         return textField
     }()
     
-    private let settingsButton: UIButton = {
+    let settingsButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "gearshape") {
@@ -62,7 +62,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    private let layoutButton: UIButton = {
+    let layoutButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "rectangle.grid.3x2") {
@@ -72,7 +72,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    private let sortingButton: UIButton = {
+    let sortingButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "arrow.up.arrow.down") {
@@ -81,8 +81,32 @@ class PhotosViewController: UIViewController {
         button.addTarget(self, action: #selector(changSortingOrderTapped), for: .touchUpInside)
         return button
     }()
+
+    let overflowButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.tintColor = .white
+        if let image = UIImage(systemName: "ellipsis") {
+            button.setImage(image, for: .normal)
+        }
+        button.addTarget(self, action: #selector(overflowButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    let filterButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.tintColor = .white
+        if let image = UIImage(systemName: "line.3.horizontal.decrease") {
+            button.setImage(image, for: .normal)
+        }
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
+    let dimmerView = DropdownDimmerView()
+    let overflowDropdown = OverflowDropdownView()
+    let filterDropdown = FilterDropdownView()
     
-    private let editButton: UIButton = {
+    let editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "clock"), for: .normal)
         button.tintColor = .white
@@ -242,10 +266,16 @@ class PhotosViewController: UIViewController {
         }
         photoCollectionView.reloadData()
         setupSettingsButton()
-        setupLayoutButton()
-        setupSortingButton()
+        setupOverflowAndFilterButtons()
         setupEditButton()
         setupLoadingAndEmptyStateViews()
+        view.bringSubviewToFront(dimmerView)
+        view.bringSubviewToFront(overflowDropdown)
+        view.bringSubviewToFront(filterDropdown)
+        view.bringSubviewToFront(settingsButton)
+        view.bringSubviewToFront(overflowButton)
+        view.bringSubviewToFront(filterButton)
+        view.bringSubviewToFront(editButton)
     }
     
     @objc private func handleRefresh() {
@@ -262,28 +292,6 @@ class PhotosViewController: UIViewController {
             settingsButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             settingsButton.widthAnchor.constraint(equalToConstant: 31),
             settingsButton.heightAnchor.constraint(equalToConstant: 31)
-        ])
-    }
-    
-    private func setupLayoutButton() {
-        view.addSubview(layoutButton)
-        layoutButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            layoutButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
-            layoutButton.trailingAnchor.constraint(equalTo: settingsButton.safeAreaLayoutGuide.leadingAnchor, constant: -10),
-            layoutButton.widthAnchor.constraint(equalToConstant: 31),
-            layoutButton.heightAnchor.constraint(equalToConstant: 31)
-        ])
-    }
-    
-    private func setupSortingButton() {
-        view.addSubview(sortingButton)
-        sortingButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            sortingButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0),
-            sortingButton.trailingAnchor.constraint(equalTo: layoutButton.safeAreaLayoutGuide.leadingAnchor, constant: -10),
-            sortingButton.widthAnchor.constraint(equalToConstant: 31),
-            sortingButton.heightAnchor.constraint(equalToConstant: 31)
         ])
     }
     
@@ -350,7 +358,7 @@ class PhotosViewController: UIViewController {
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
                         
-                        showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                        showEmptyState(type: emptyStateForCurrentResults())
                     }
                     
                     isFetching = false
@@ -359,7 +367,7 @@ class PhotosViewController: UIViewController {
                     
                 case .failed(let error):
                     print("Fetch failed: \(error)")
-                    showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                    showEmptyState(type: emptyStateForCurrentResults())
                     isFetching = false
                     hideLoadingSpinner()
                     refreshControl.endRefreshing()
@@ -480,14 +488,14 @@ class PhotosViewController: UIViewController {
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
                         
-                        showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                        showEmptyState(type: emptyStateForCurrentResults())
                     }
                     
                     hideLoadingSpinner()
                     
                 case .failed(let error):
                     print("Fetch failed: \(error)")
-                    showEmptyState(type: .noPhotosForDate(viewModel.displayDate()))
+                    showEmptyState(type: emptyStateForCurrentResults())
                     hideLoadingSpinner()
                 }
             }
@@ -506,6 +514,7 @@ class PhotosViewController: UIViewController {
     }
     
     @objc func changLayoutButtonTapped() {
+        dismissDropdowns()
         Helper.changeLayout()
         photoCollectionView.reloadData()
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -photoCollectionView.contentInset.top), animated: true)
@@ -513,6 +522,7 @@ class PhotosViewController: UIViewController {
     }
     
     @objc func changSortingOrderTapped() {
+        dismissDropdowns()
         Helper.changeSortingOrder()
         viewModel.sortAssetArray()
         photoCollectionView.reloadData()

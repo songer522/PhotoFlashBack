@@ -88,6 +88,9 @@ actor PhotoManager {
                       assetYear != currentYear else {
                     return
                 }
+                guard !asset.mediaSubtypes.contains(.photoScreenshot) else {
+                    return
+                }
                 
                 if assetsByYear[assetYear] == nil {
                     assetsByYear[assetYear] = []
