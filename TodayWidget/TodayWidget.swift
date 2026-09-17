@@ -19,6 +19,22 @@ struct MemoryEntry: TimelineEntry {
         let image: UIImage
         let year: String
         let creationDate: Date
+        let localIdentifier: String
+        let widgetIndex: Int
+    }
+
+    /// Per-photo deep link so a tap opens the exact card that was tapped,
+    /// not always the first stored asset. Matches WidgetDeepLink in the app
+    /// target (duplicated here because the widget can't see app sources).
+    static func widgetURL(index: Int, localIdentifier: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "openToday"
+        components.host = "widget"
+        components.queryItems = [
+            URLQueryItem(name: "index", value: String(index)),
+            URLQueryItem(name: "localId", value: localIdentifier),
+        ]
+        return components.url ?? URL(string: "openToday://widget")!
     }
     
     static var placeholder: MemoryEntry {
@@ -79,7 +95,8 @@ struct MemoryTimelineProvider: TimelineProvider {
             if let imageData = sharedDefaults?.data(forKey: imageKey),
                let image = UIImage(data: imageData),
                let metadata = sharedDefaults?.dictionary(forKey: metadataKey) as? [String: Any],
-               let creationDate = metadata["creationDate"] as? Date {
+               let creationDate = metadata["creationDate"] as? Date,
+               let localIdentifier = metadata["localIdentifier"] as? String {
 
                 // Skip stale entries left over from a previous day's fetch that don't
                 // actually match today's day/month, so old "on this day" photos don't linger.
@@ -93,7 +110,9 @@ struct MemoryTimelineProvider: TimelineProvider {
                 let memory = MemoryEntry.MemoryPhoto(
                     image: image,
                     year: String(year),
-                    creationDate: creationDate
+                    creationDate: creationDate,
+                    localIdentifier: localIdentifier,
+                    widgetIndex: index
                 )
                 memories.append(memory)
             }
@@ -142,33 +161,34 @@ struct SmallWidgetView: View {
         if entry.isEmpty {
             EmptyStateView()
         } else if let memory = entry.memories.first {
-            GeometryReader { geometry in
-                ZStack(alignment: .bottomLeading) {
-                    Image(uiImage: memory.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .clipped()
-                    
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.7)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("On this day")
-                            .font(.caption2)
-                            .foregroundColor(.white.opacity(0.9))
-                        
-                        Text(memory.year)
-                            .font(.title2.bold())
-                            .foregroundColor(.white)
+            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                GeometryReader { geometry in
+                    ZStack(alignment: .bottomLeading) {
+                        Image(uiImage: memory.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .clipped()
+
+                        LinearGradient(
+                            colors: [.clear, .black.opacity(0.7)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("On this day")
+                                .font(.caption2)
+                                .foregroundColor(.white.opacity(0.9))
+
+                            Text(memory.year)
+                                .font(.title2.bold())
+                                .foregroundColor(.white)
+                        }
+                        .padding(12)
                     }
-                    .padding(12)
                 }
             }
-            .widgetURL(URL(string: "openToday://widget"))
             .id(memory.year) // Prevent animation glitch when switching sizes
         } else {
             LoadingStateView()
@@ -186,11 +206,12 @@ struct MediumWidgetView: View {
         } else {
             HStack(spacing: 2) {
                 ForEach(entry.memories.prefix(3)) { memory in
-                    MemoryCardView(memory: memory)
+                    Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                        MemoryCardView(memory: memory)
+                    }
                 }
             }
             .padding(2)
-            .widgetURL(URL(string: "openToday://widget"))
         }
     }
 }
@@ -206,20 +227,23 @@ struct LargeWidgetView: View {
             VStack(spacing: 2) {
                 HStack(spacing: 2) {
                     ForEach(entry.memories.prefix(3)) { memory in
-                        MemoryCardView(memory: memory)
+                        Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                            MemoryCardView(memory: memory)
+                        }
                     }
                 }
-                
+
                 if entry.memories.count > 3 {
                     HStack(spacing: 2) {
                         ForEach(entry.memories.dropFirst(3).prefix(3)) { memory in
-                            MemoryCardView(memory: memory)
+                            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                                MemoryCardView(memory: memory)
+                            }
                         }
                     }
                 }
             }
             .padding(2)
-            .widgetURL(URL(string: "openToday://widget"))
         }
     }
 }
@@ -230,20 +254,22 @@ struct CircularWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            ZStack {
-                Image(uiImage: memory.image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                
-                Circle()
-                    .fill(Color.black.opacity(0.3))
-                    .overlay {
-                        Text(memory.year)
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                    }
+            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                ZStack {
+                    Image(uiImage: memory.image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+
+                    Circle()
+                        .fill(Color.black.opacity(0.3))
+                        .overlay {
+                            Text(memory.year)
+                                .font(.caption.bold())
+                                .foregroundColor(.white)
+                        }
+                }
+                .clipShape(Circle())
             }
-            .clipShape(Circle())
         } else {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.title2)
@@ -256,23 +282,25 @@ struct RectangularWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            HStack(spacing: 8) {
-                Image(uiImage: memory.image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Memory")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                    
-                    Text(memory.year)
-                        .font(.headline)
+            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                HStack(spacing: 8) {
+                    Image(uiImage: memory.image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Memory")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+
+                        Text(memory.year)
+                            .font(.headline)
+                    }
+
+                    Spacer()
                 }
-                
-                Spacer()
             }
         } else {
             HStack {
@@ -289,7 +317,9 @@ struct InlineWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            Text("Memory from \(memory.year)")
+            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
+                Text("Memory from \(memory.year)")
+            }
         } else {
             Text("No memories today")
         }
@@ -392,17 +422,23 @@ struct TodayWidget_Previews: PreviewProvider {
         MemoryEntry.MemoryPhoto(
             image: UIImage(systemName: "photo")!,
             year: "2019",
-            creationDate: Date()
+            creationDate: Date(),
+            localIdentifier: "preview-0",
+            widgetIndex: 0
         ),
         MemoryEntry.MemoryPhoto(
             image: UIImage(systemName: "photo.fill")!,
             year: "2015",
-            creationDate: Date()
+            creationDate: Date(),
+            localIdentifier: "preview-1",
+            widgetIndex: 1
         ),
         MemoryEntry.MemoryPhoto(
             image: UIImage(systemName: "photo.circle")!,
             year: "2012",
-            creationDate: Date()
+            creationDate: Date(),
+            localIdentifier: "preview-2",
+            widgetIndex: 2
         )
     ]
     

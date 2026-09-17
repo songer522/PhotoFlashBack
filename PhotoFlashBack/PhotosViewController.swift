@@ -171,7 +171,7 @@ class PhotosViewController: UIViewController {
             picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
             fetchPhotos()
         } else {
-            scrollToItemIfNeeded()
+            openPendingWidgetPhoto()
         }
     }
     
@@ -367,7 +367,7 @@ class PhotosViewController: UIViewController {
                         hideEmptyState()
                         photoCollectionView.reloadData()
                         photoCollectionView.collectionViewLayout.invalidateLayout()
-                        scrollToItemIfNeeded()
+                        openPendingWidgetPhoto()
                     } else {
                         // Light haptic for empty result
                         let generator = UIImpactFeedbackGenerator(style: .light)
@@ -391,30 +391,124 @@ class PhotosViewController: UIViewController {
         }
     }
     
-    func scrollToItemIfNeeded() {
-        if let itemToGo = UserDefaults.standard.object(forKey: "ItemToGo") as? [String: Any], let assetId = itemToGo["localIdentifier"] as? String, let date = itemToGo["creationDate"] as? Date  {
-            let calendar = Calendar.current
-            let year = calendar.component(.year, from: date)
-            let yearString = String(year)
-            
-            let filteredArrayWithIndex = viewModel.assetArray.enumerated().compactMap { index, yearArray -> (Int, (String, [PHAsset]))? in
-                return yearArray.0 == yearString ? (index, yearArray) : nil
-            }
-            
-            let filteredItemWithIndex = filteredArrayWithIndex.first?.1.1.enumerated().compactMap {index, asset -> (Int, PHAsset)? in
-                return asset.localIdentifier == assetId ? (index, asset) : nil
-            }
-            if let section = filteredArrayWithIndex.first?.0, let row = filteredItemWithIndex?.first?.0 {
-                scrollToItem(section, row: row, collectionView: photoCollectionView)
-                let delayInSeconds: TimeInterval = 0.5 // Delay of 5 seconds
+    /// Opens the photo pending from a widget tap, if any. ItemToGo is only
+    /// cleared once the photo is opened (or the fetch proving it missing has
+    /// settled), so taps arriving mid-fetch are retried by the fetch
+    /// completion instead of being lost.
+    func openPendingWidgetPhoto() {
+        guard let itemToGo = UserDefaults.standard.object(forKey: "ItemToGo") as? [String: Any],
+              let assetId = itemToGo["localIdentifier"] as? String else {
+            return
+        }
+        // Grid hasn't loaded yet — keep ItemToGo; fetchPhotos completion retries.
+        guard !viewModel.assetSequence.isEmpty else { return }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + delayInSeconds) {
-                    self.itemTappedAt(indexPath: IndexPath(item: row, section: section))
-                }
-                
+        if let seqIndex = viewModel.assetSequence.lastIndex(where: { $0.localIdentifier == assetId }) {
+            // Scroll the grid to the photo's section/row so the custom zoom
+            // transition has a source cell when possible.
+            if let position = indexPath(forAssetWithIdentifier: assetId) {
+                photoCollectionView.layoutIfNeeded()
+                photoCollectionView.scrollToItem(at: position, at: .top, animated: false)
+                photoCollectionView.layoutIfNeeded()
             }
+            // A stale viewer can still be on top here (e.g. the fetch finished
+            // while one was open) — swap it instead of stacking or dropping.
+            if presentedViewController is PhotoViewController {
+                UserDefaults.standard.set(nil, forKey: "ItemToGo")
+                dismiss(animated: false) { [weak self] in
+                    self?.presentViewer(atSequenceIndex: seqIndex)
+                }
+                return
+            }
+            // Only clear once actually presented; otherwise the tap is lost.
+            if presentViewer(atSequenceIndex: seqIndex) {
+                UserDefaults.standard.set(nil, forKey: "ItemToGo")
+            }
+            return
+        }
+
+        // Fallback for legacy widget URLs without a localId (year/date match).
+        if openPendingWidgetPhotoByDate(itemToGo) {
+            UserDefaults.standard.set(nil, forKey: "ItemToGo")
+            return
+        }
+
+        // Asset genuinely not in today's results (deleted/filtered) — don't
+        // retry forever, but don't drop it mid-fetch either.
+        if !isFetching {
             UserDefaults.standard.set(nil, forKey: "ItemToGo")
         }
+    }
+
+    private func indexPath(forAssetWithIdentifier assetId: String) -> IndexPath? {
+        for (section, (_, assets)) in viewModel.assetArray.enumerated() {
+            if let row = assets.firstIndex(where: { $0.localIdentifier == assetId }) {
+                return IndexPath(item: row, section: section)
+            }
+        }
+        return nil
+    }
+
+    /// Presents the full-screen viewer at an assetSequence index. Unlike
+    /// itemTappedAt(_:), this doesn't require a visible source cell: the
+    /// custom zoom transition is used when the cell is on screen, otherwise it
+    /// falls back to a plain fullscreen presentation so the deep link never
+    /// silently fails. Returns false when nothing was presented (bad index,
+    /// viewer already on top) so callers keep ItemToGo for a retry instead of
+    /// dropping the tap.
+    @discardableResult
+    private func presentViewer(atSequenceIndex seqIndex: Int) -> Bool {
+        guard seqIndex >= 0 && seqIndex < viewModel.assetSequence.count else { return false }
+        // Don't stack viewers if one is already presented (e.g. rapid taps).
+        if presentedViewController is PhotoViewController { return false }
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        guard let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController else { return false }
+        imageViewerVC.viewModel = viewModel
+        imageViewerVC.currentIndex = seqIndex
+        imageViewerVC.modalPresentationStyle = .fullScreen
+        imageViewerVC.modalPresentationCapturesStatusBarAppearance = true
+
+        if let position = indexPath(forAssetWithIdentifier: viewModel.assetSequence[seqIndex].localIdentifier),
+           let cell = photoCollectionView.cellForItem(at: position) {
+            let customTransitioningDelegate = CustomTransitioningDelegate(sourceView: cell)
+            photoTransitioningDelegate = customTransitioningDelegate
+            imageViewerVC.transitioningDelegate = customTransitioningDelegate
+        }
+        present(imageViewerVC, animated: true)
+        return true
+    }
+
+    /// Legacy path: match by year + localIdentifier and open after scrolling.
+    /// Returns true if the photo was opened. Presents immediately (no delayed
+    /// dispatch) so backgrounding mid-delay can't lose the open.
+    @discardableResult
+    private func openPendingWidgetPhotoByDate(_ itemToGo: [String: Any]) -> Bool {
+        guard let assetId = itemToGo["localIdentifier"] as? String,
+              let date = itemToGo["creationDate"] as? Date else {
+            return false
+        }
+        let calendar = Calendar.current
+        let yearString = String(calendar.component(.year, from: date))
+
+        guard let section = viewModel.assetArray.firstIndex(where: { $0.0 == yearString }),
+              let row = viewModel.assetArray[section].1.firstIndex(where: { $0.localIdentifier == assetId }),
+              let seqIndex = viewModel.assetSequence.lastIndex(where: { $0.localIdentifier == assetId }) else {
+            return false
+        }
+        photoCollectionView.layoutIfNeeded()
+        photoCollectionView.scrollToItem(at: IndexPath(item: row, section: section), at: .top, animated: false)
+        photoCollectionView.layoutIfNeeded()
+        if presentedViewController is PhotoViewController {
+            dismiss(animated: false) { [weak self] in
+                self?.presentViewer(atSequenceIndex: seqIndex)
+            }
+            return true
+        }
+        return presentViewer(atSequenceIndex: seqIndex)
+    }
+
+    func scrollToItemIfNeeded() {
+        openPendingWidgetPhoto()
     }
     
     func showEmptyState(type: EmptyStateView.EmptyStateType? = nil) {
