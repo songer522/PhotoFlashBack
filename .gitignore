@@ -1,0 +1,19 @@
+# Xcode per-user state — never shared. Note xcshareddata/ is intentionally
+# tracked: it holds the shared scheme and the Xcode Cloud workflow manifest.
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# Build products
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# macOS
+.DS_Store
