@@ -12,8 +12,12 @@ import CoreLocation
 
 class Helper {
     class func compoundPredicateFrom(day: Int, month: Int) -> [NSPredicate] {
-        let calendar = Calendar.current
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.calendar = calendar
+        dateFormatter.timeZone = .current
         dateFormatter.dateFormat = "yyyy-M-d"
         var predicates: [NSPredicate] = []
         for year in 1970...2050 {
@@ -28,23 +32,7 @@ class Helper {
         }
         return predicates
     }
-    
-    
-    // too bad PHFetchOption doesn't support predicate block
-    class func predicateMatchingYearAndMonthInDate(day: Int, month: Int) -> NSPredicate {
-        let predicate = NSPredicate { (obj, bindings) -> Bool in
-            if let phAsset = obj as? PHAsset, let creationDate = phAsset.creationDate
-            {
-                let creationDay = Calendar.current.component(.day, from: creationDate)
-                let creationMonth = Calendar.current.component(.month, from: creationDate)
-                return day == creationDay && month == creationMonth && phAsset.mediaType == .image
-            } else {
-                return false
-            }
-        }
-        return predicate
-    }
-    
+
     class func durationFormatter(duration: TimeInterval) -> String {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .abbreviated
@@ -67,53 +55,61 @@ class Helper {
         return String(year)
     }
     
+    @MainActor
     class func updateAssetInfoLabelWithLocationName(asset: PHAsset, label: UILabel) {
         let creationDate = asset.creationDate ?? Date()
         let formattedDate = Helper.formatDateAndTime(creationDate)
-        
+        let expectedIdentifier = asset.localIdentifier
+
         guard let location = asset.location else {
+            expect(expectedIdentifier, for: label)
             label.text = "\(formattedDate)"
             return
         }
-        
+
+        expect(expectedIdentifier, for: label)
+
         Task {
             // Check cache first
             if let cachedLocation = await LocationCache.shared.getCachedLocation(for: location) {
                 await MainActor.run {
+                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
                     label.text = "\(cachedLocation)\n\(formattedDate)"
                 }
                 return
             }
-            
+
             do {
                 let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-                
+
                 guard let placemark = placemarks.first else {
                     await MainActor.run {
+                        guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
                         label.text = "\(formattedDate)"
                     }
                     return
                 }
-                
+
                 var locationName = ""
-                
+
                 if let city = placemark.locality {
                     locationName += city
                 }
-                
+
                 if let state = placemark.administrativeArea {
                     if !locationName.isEmpty {
                         locationName += ", "
                     }
                     locationName += state
                 }
-                
+
                 // Cache the result
                 if !locationName.isEmpty {
                     await LocationCache.shared.cacheLocation(locationName, for: location)
                 }
-                
+
                 await MainActor.run {
+                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
                     if !locationName.isEmpty {
                         label.text = "\(locationName)\n\(formattedDate)"
                     } else {
@@ -122,10 +118,30 @@ class Helper {
                 }
             } catch {
                 await MainActor.run {
+                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
                     label.text = "\(formattedDate)"
                 }
             }
         }
+    }
+
+    /// `updateAssetInfoLabelWithLocationName` can have several reverse-geocode lookups in flight at
+    /// once (e.g. swiping quickly through geo-tagged photos). Track which asset each label is
+    /// currently supposed to display, keyed by the label instance, so a slow, stale lookup can't
+    /// overwrite the label with a previous asset's info after a newer request has started.
+    /// Weak keys so an entry disappears with its label: keying by `ObjectIdentifier` would both
+    /// grow without bound and risk a freed label's address being reused by a new one.
+    @MainActor
+    private static let expectedAssetIdentifiers = NSMapTable<UILabel, NSString>.weakToStrongObjects()
+
+    @MainActor
+    private static func expect(_ identifier: String, for label: UILabel) {
+        expectedAssetIdentifiers.setObject(identifier as NSString, forKey: label)
+    }
+
+    @MainActor
+    private static func shouldApplyLabelResult(label: UILabel, expecting identifier: String) -> Bool {
+        expectedAssetIdentifiers.object(forKey: label) as String? == identifier
     }
     
     class func windowSize() -> CGSize? {

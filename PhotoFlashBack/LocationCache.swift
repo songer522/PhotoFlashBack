@@ -14,15 +14,25 @@ actor LocationCache {
     
     private var memoryCache: [String: CachedLocation] = [:]
     private let fileURL: URL
-    private let maxCacheAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
-    
+
+    /// Shared expiry window, used by `CachedLocation.isExpired` so the two cannot drift.
+    static let maxCacheAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
+    /// Upper bound on the number of entries kept in the cache; oldest entries (by
+    /// `timestamp`) are evicted first once this is exceeded.
+    private static let maxEntryCount = 500
+
+    /// Pending on-disk flush, coalesced so repeated inserts don't each trigger a full write.
+    private var isDirty = false
+    private var pendingFlushTask: Task<Void, Never>?
+    private static let flushDebounceInterval: UInt64 = 5 * 1_000_000_000 // 5 seconds
+
     struct CachedLocation: Codable {
         let locationName: String
         let timestamp: Date
         let coordinate: CoordinateData
-        
+
         var isExpired: Bool {
-            Date().timeIntervalSince(timestamp) > 60 * 60 * 24 * 30 // 30 days
+            Date().timeIntervalSince(timestamp) > LocationCache.maxCacheAge
         }
     }
     
@@ -66,53 +76,77 @@ actor LocationCache {
     /// Retrieves a cached location name if available and not expired
     func getCachedLocation(for location: CLLocation) -> String? {
         let coordinate = CoordinateData(from: location)
-        
-        // Check for exact match or nearby location (within 100m)
+
+        // Fast path: exact key hit using the same rounding used on write.
+        let key = cacheKey(for: coordinate)
+        if let exact = memoryCache[key], !exact.isExpired {
+            return exact.locationName
+        }
+
+        // Fall back to a proximity scan, returning the CLOSEST match within 100m
+        // (dictionary order is arbitrary, so picking the first match would be
+        // nondeterministic).
+        var closest: (name: String, distance: Double)?
         for (_, cached) in memoryCache {
-            if !cached.isExpired && cached.coordinate.distance(from: coordinate) < 100 {
-                return cached.locationName
+            guard !cached.isExpired else { continue }
+            let distance = cached.coordinate.distance(from: coordinate)
+            guard distance < 100 else { continue }
+            if closest == nil || distance < closest!.distance {
+                closest = (cached.locationName, distance)
             }
         }
-        
-        return nil
+
+        return closest?.name
     }
-    
+
     /// Caches a location name for future use
     func cacheLocation(_ locationName: String, for location: CLLocation) {
         let coordinate = CoordinateData(from: location)
         let key = cacheKey(for: coordinate)
-        
+
         let cached = CachedLocation(
             locationName: locationName,
             timestamp: Date(),
             coordinate: coordinate
         )
-        
+
         memoryCache[key] = cached
-        
-        // Save to disk asynchronously
-        Task {
-            await saveCache()
-        }
+
+        scheduleFlush()
     }
-    
+
     /// Clears expired entries from cache
     func clearExpiredEntries() {
         memoryCache = memoryCache.filter { !$0.value.isExpired }
-        
-        Task {
-            await saveCache()
+
+        scheduleFlush()
+    }
+
+    // MARK: - Private Methods
+
+    /// Marks the cache dirty and, if no flush is already pending, schedules one a few
+    /// seconds out. This coalesces bursts of inserts (e.g. one per year-group during a
+    /// fetch) into a single encode + disk write instead of one per insert.
+    private func scheduleFlush() {
+        isDirty = true
+
+        guard pendingFlushTask == nil else { return }
+
+        pendingFlushTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: LocationCache.flushDebounceInterval)
+            guard let self else { return }
+            await self.flushIfNeeded()
         }
     }
-    
-    /// Returns cache statistics
-    func getCacheStats() -> (total: Int, expired: Int) {
-        let total = memoryCache.count
-        let expired = memoryCache.values.filter { $0.isExpired }.count
-        return (total, expired)
+
+    /// Flushes any outstanding dirty state. Called by the debounce timer, but also safe
+    /// to call directly so a pending flush is never silently dropped.
+    private func flushIfNeeded() async {
+        pendingFlushTask = nil
+        guard isDirty else { return }
+        isDirty = false
+        saveCache()
     }
-    
-    // MARK: - Private Methods
     
     private func cacheKey(for coordinate: CoordinateData) -> String {
         // Round coordinates to 4 decimal places (~11m precision)
@@ -143,14 +177,26 @@ actor LocationCache {
     }
     
     private func saveCache() {
+        // Cap growth: evict the oldest entries (by timestamp) once over the limit.
+        if memoryCache.count > LocationCache.maxEntryCount {
+            let overflow = memoryCache.count - LocationCache.maxEntryCount
+            let oldestKeys = memoryCache
+                .sorted { $0.value.timestamp < $1.value.timestamp }
+                .prefix(overflow)
+                .map { $0.key }
+            for key in oldestKeys {
+                memoryCache.removeValue(forKey: key)
+            }
+        }
+
         do {
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .iso8601
-            encoder.outputFormatting = .prettyPrinted
-            
+            // This is a machine-read cache; skip .prettyPrinted to roughly halve file size.
+
             let data = try encoder.encode(memoryCache)
             try data.write(to: fileURL, options: .atomic)
-            
+
             print("LocationCache: Saved \(memoryCache.count) locations to disk")
         } catch {
             print("LocationCache: Failed to save cache - \(error.localizedDescription)")

@@ -43,15 +43,6 @@ actor PhotoManager {
         }
     }
 
-    func fetchAndStoreRandomAsset() async -> Bool {
-        guard let asset = await fetchRandomAssetFromSameDayInPast() else {
-            print("No matching asset found.")
-            return false
-        }
-        
-        return await storeAsset(asset)
-    }
-    
     /// Fetches and stores multiple random assets for widget (for medium/large widgets)
     func fetchAndStoreMultipleAssets(count: Int = 6) async -> Bool {
         let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: count)
@@ -64,11 +55,6 @@ actor PhotoManager {
         return await storeMultipleAssets(assets)
     }
 
-    func fetchRandomAssetFromSameDayInPast() async -> PHAsset? {
-        let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: 1)
-        return assets.first
-    }
-    
     /// Fetches multiple random assets from different years
     func fetchMultipleRandomAssetsFromSameDayInPast(count: Int) async -> [PHAsset] {
         return await Task.detached(priority: .userInitiated) {
@@ -135,7 +121,23 @@ actor PhotoManager {
 
 
     private func storeAsset(_ asset: PHAsset, index: Int = 0) async -> Bool {
-        await withCheckedContinuation { continuation in
+        // The PHImageManager result handler can fire on an arbitrary queue and, in some
+        // cases (cancellation, a degraded-only delivery, or an iCloud download failure),
+        // more than once or with only a degraded result. Guard against both leaking the
+        // continuation (never resuming) and double-resuming it (which traps).
+        let hasResumed = NSLock()
+        var didResume = false
+
+        return await withCheckedContinuation { continuation in
+            let resume: (Bool) -> Void = { result in
+                hasResumed.lock()
+                let alreadyResumed = didResume
+                didResume = true
+                hasResumed.unlock()
+                guard !alreadyResumed else { return }
+                continuation.resume(returning: result)
+            }
+
             let options = PHImageRequestOptions()
             options.isSynchronous = false
             options.isNetworkAccessAllowed = true
@@ -150,17 +152,17 @@ actor PhotoManager {
                 contentMode: .aspectFill,
                 options: options
             ) { (image, info) in
-                guard let info = info else {
-                    continuation.resume(returning: false)
+                if (info?[PHImageCancelledKey] as? Bool) == true || info?[PHImageErrorKey] != nil {
+                    resume(false)
                     return
                 }
-                
-                let isDegraded = (info[PHImageResultIsDegradedKey] as? Bool) ?? false
+
+                let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
                 guard !isDegraded else { return }
-                
+
                 guard let image = image,
                       let imageData = image.jpegData(compressionQuality: 0.8) else {
-                    continuation.resume(returning: false)
+                    resume(false)
                     return
                 }
 
@@ -170,15 +172,15 @@ actor PhotoManager {
                     "pixelWidth": asset.pixelWidth,
                     "pixelHeight": asset.pixelHeight
                 ]
-                
+
                 let sharedDefaults = UserDefaults(suiteName: PhotoManager.sharedSuiteName)
                 let imageKey = PhotoManager.imageKey(for: index)
                 let metadataKey = PhotoManager.metadataKey(for: index)
 
                 sharedDefaults?.set(imageData, forKey: imageKey)
                 sharedDefaults?.set(metadata, forKey: metadataKey)
-                
-                continuation.resume(returning: true)
+
+                resume(true)
             }
         }
     }

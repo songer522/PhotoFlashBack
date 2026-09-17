@@ -169,8 +169,11 @@ class PhotoViewController: UIViewController {
     }
     
     @objc private func shareButtonTapped() {
-        guard let indexPath = photoCollectionView.indexPathsForVisibleItems.first,
-              let cell = photoCollectionView.cellForItem(at: indexPath) as? ImageViewerCollectionViewCell else {
+        guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
+            return
+        }
+        let indexPath = IndexPath(item: currentIndex, section: 0)
+        guard let cell = photoCollectionView.cellForItem(at: indexPath) as? ImageViewerCollectionViewCell else {
             return
         }
         var items: [Any] = []
