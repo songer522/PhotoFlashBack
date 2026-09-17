@@ -11,7 +11,21 @@ import Photos
 actor PhotoManager {
     static let shared = PhotoManager()
 
+    // Shared App Group storage used to hand photos off to the Today widget.
+    private static let sharedSuiteName = "group.com.YangSong.PhotoFlashBack.Today"
+    // Maximum number of stored assets, matching the widget's systemLarge case (see TodayWidget.swift)
+    // and the `count: 6` callers in AppDelegate/SceneDelegate.
+    private static let maxStoredAssetCount = 6
+
     private init() {}
+
+    private static func imageKey(for index: Int) -> String {
+        index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
+    }
+
+    private static func metadataKey(for index: Int) -> String {
+        index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
+    }
 
     func requestPhotoLibraryAuthorization() async -> Bool {
         await withCheckedContinuation { continuation in
@@ -157,10 +171,10 @@ actor PhotoManager {
                     "pixelHeight": asset.pixelHeight
                 ]
                 
-                let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
-                let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
-                let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-                
+                let sharedDefaults = UserDefaults(suiteName: PhotoManager.sharedSuiteName)
+                let imageKey = PhotoManager.imageKey(for: index)
+                let metadataKey = PhotoManager.metadataKey(for: index)
+
                 sharedDefaults?.set(imageData, forKey: imageKey)
                 sharedDefaults?.set(metadata, forKey: metadataKey)
                 
@@ -171,7 +185,7 @@ actor PhotoManager {
     
     private func storeMultipleAssets(_ assets: [PHAsset]) async -> Bool {
         var success = true
-        
+
         // Store assets with different keys for each
         for (index, asset) in assets.enumerated() {
             let result = await storeAsset(asset, index: index)
@@ -179,8 +193,23 @@ actor PhotoManager {
                 success = false
             }
         }
-        
+
+        // Clear any leftover keys from a previous run that stored more assets than this run
+        // did, so the widget can't read stale (wrong-day) entries at higher indices.
+        clearStaleAssetKeys(from: assets.count)
+
         return success
+    }
+
+    /// Removes stored image/metadata keys for indices `startIndex..<maxStoredAssetCount`,
+    /// which may hold data from a previous run that found more matching assets than this one did.
+    private func clearStaleAssetKeys(from startIndex: Int) {
+        guard startIndex < PhotoManager.maxStoredAssetCount else { return }
+        let sharedDefaults = UserDefaults(suiteName: PhotoManager.sharedSuiteName)
+        for index in startIndex..<PhotoManager.maxStoredAssetCount {
+            sharedDefaults?.removeObject(forKey: PhotoManager.imageKey(for: index))
+            sharedDefaults?.removeObject(forKey: PhotoManager.metadataKey(for: index))
+        }
     }
 }
 

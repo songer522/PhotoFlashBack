@@ -75,6 +75,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
         WidgetCenter.shared.reloadAllTimelines()
+
+        // Submit the first (and any subsequent) BGAppRefreshTask request here. BGTaskScheduler
+        // replaces any already-pending request with the same identifier, so it's safe to call
+        // this every time the app enters the background.
+        (UIApplication.shared.delegate as? AppDelegate)?.scheduleBackgroundFetch()
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {

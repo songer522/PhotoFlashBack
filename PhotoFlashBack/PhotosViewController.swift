@@ -18,6 +18,12 @@ class PhotosViewController: UIViewController {
     var isFetching = false
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
+    // Strong reference to keep the zoom transition delegate alive for the duration of the
+    // full-screen viewer presentation. `UIViewController.transitioningDelegate` is weak, so
+    // without this the delegate (and the custom animator it hands out) would be deallocated
+    // immediately after `itemTappedAt` returns, silently falling back to the default modal
+    // transition.
+    var photoTransitioningDelegate: CustomTransitioningDelegate?
     
     // 加载进度视图
     private lazy var loadingProgressView: LoadingProgressView = {

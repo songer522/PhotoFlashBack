@@ -22,7 +22,7 @@ struct MemoryEntry: TimelineEntry {
     }
     
     static var placeholder: MemoryEntry {
-        MemoryEntry(date: Date(), memories: [], isEmpty: false)
+        MemoryEntry(date: Date(), memories: [], isEmpty: true)
     }
 }
 
@@ -68,17 +68,27 @@ struct MemoryTimelineProvider: TimelineProvider {
         }
         
         var memories: [MemoryEntry.MemoryPhoto] = []
-        
+        let calendar = Calendar.current
+        let todayComponents = calendar.dateComponents([.day, .month], from: date)
+
         // Load photos from shared storage
         for index in 0..<maxPhotos {
             let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
             let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-            
+
             if let imageData = sharedDefaults?.data(forKey: imageKey),
                let image = UIImage(data: imageData),
                let metadata = sharedDefaults?.dictionary(forKey: metadataKey) as? [String: Any],
                let creationDate = metadata["creationDate"] as? Date {
-                
+
+                // Skip stale entries left over from a previous day's fetch that don't
+                // actually match today's day/month, so old "on this day" photos don't linger.
+                let storedComponents = calendar.dateComponents([.day, .month], from: creationDate)
+                guard storedComponents.day == todayComponents.day,
+                      storedComponents.month == todayComponents.month else {
+                    continue
+                }
+
                 let year = Calendar.current.component(.year, from: creationDate)
                 let memory = MemoryEntry.MemoryPhoto(
                     image: image,

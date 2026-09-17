@@ -63,9 +63,12 @@ class PhotoViewController: UIViewController {
         setupViews()
         photoCollectionView.reloadData()
         photoCollectionView.layoutIfNeeded()
-        photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
-        let asset = viewModel.assetSequence[currentIndex]
-        Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
+        // Guard against an out-of-range currentIndex (e.g. stale index from a deferred deep-link tap)
+        if currentIndex >= 0 && currentIndex < viewModel.assetSequence.count {
+            photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
+            let asset = viewModel.assetSequence[currentIndex]
+            Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
+        }
         photoCollectionView.isPagingEnabled = true
         setupShareButton()
         setupDeleteButton()
@@ -247,30 +250,38 @@ class PhotoViewController: UIViewController {
                 guard let self = self else { return }
                 
                 if success {
-                    // Update the shared viewModel's data structures
+                    // Update the shared viewModel's data structures. Note: sortAssetArray() (called
+                    // inside removeAssetFromViewModel) rebuilds assetSequence from scratch, so when the
+                    // deleted asset was the last one of its year, the year's cover entry also disappears
+                    // and the sequence can shrink by more than 1. Don't call deleteItems(at:) here since
+                    // it asserts the drop is exactly 1 — reloadData() below is sufficient.
                     self.removeAssetFromViewModel(assetToDelete)
-                    
-                    // Update this view controller's collection view
-                    self.photoCollectionView.deleteItems(at: [IndexPath(item: self.currentIndex, section: 0)])
-                    
-                    // Adjust currentIndex if needed
-                    if self.currentIndex >= self.viewModel.assetSequence.count, self.currentIndex > 0 {
-                        self.currentIndex -= 1
-                    }
-                    
+
                     // Reload to update UI
                     self.photoCollectionView.reloadData()
-                    
+
+                    // Clamp currentIndex into the valid range instead of only decrementing by 1
+                    if self.viewModel.assetSequence.isEmpty {
+                        self.currentIndex = 0
+                    } else {
+                        self.currentIndex = min(self.currentIndex, self.viewModel.assetSequence.count - 1)
+                    }
+
                     // Show haptic feedback for deletion
                     let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.success)
-                    
+
                     // Mark that we should refresh the main view
                     self.shouldRefresh = true
-                    
+
                     // If no more photos, dismiss
                     if self.viewModel.assetSequence.isEmpty {
                         self.dismiss(animated: true)
+                    } else {
+                        // Scroll back to the (clamped) current page and refresh its info label
+                        self.photoCollectionView.scrollToItem(at: IndexPath(item: self.currentIndex, section: 0), at: .centeredHorizontally, animated: false)
+                        let asset = self.viewModel.assetSequence[self.currentIndex]
+                        Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: self.assetInfoLabel)
                     }
                 } else {
                     // Handle error
