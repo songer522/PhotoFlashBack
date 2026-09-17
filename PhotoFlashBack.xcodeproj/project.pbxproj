@@ -37,8 +37,6 @@
 		FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */; };
 		FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F129D55C8C006B8705 /* TodayWidget.swift */; };
 		FC9872F529D55C8D006B8705 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC9872F429D55C8D006B8705 /* Assets.xcassets */; };
-		FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */; };
-		FC9872F829D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */; };
 		FC9872FB29D55C8D006B8705 /* TodayWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		FC98730229D68ECE006B8705 /* PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC98730129D68ECE006B8705 /* PhotoManager.swift */; };
 		FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF0128D9602A00160033 /* AppDelegate.swift */; };
@@ -116,7 +114,6 @@
 		FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetBundle.swift; sourceTree = "<group>"; };
 		FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetLiveActivity.swift; sourceTree = "<group>"; };
 		FC9872F129D55C8C006B8705 /* TodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
-		FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = TodayWidget.intentdefinition; sourceTree = "<group>"; };
 		FC9872F429D55C8D006B8705 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FC9872F629D55C8D006B8705 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FC9872FF29D562FC006B8705 /* PhotoFlashBack.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PhotoFlashBack.entitlements; sourceTree = "<group>"; };
@@ -193,7 +190,6 @@
 				FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */,
 				FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */,
 				FC9872F129D55C8C006B8705 /* TodayWidget.swift */,
-				FC9872F329D55C8C006B8705 /* TodayWidget.intentdefinition */,
 				FC9872F429D55C8D006B8705 /* Assets.xcassets */,
 				FC9872F629D55C8D006B8705 /* Info.plist */,
 			);
@@ -407,7 +403,6 @@
 			files = (
 				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
 				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
-				FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
 				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -426,7 +421,6 @@
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
 				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
 				FCB1DF1628D9638000160033 /* PhotosViewModel.swift in Sources */,
-				FC9872F829D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
 				FC59623328E54B5B006AB3E9 /* PhotosViewController+TextField.swift in Sources */,
 				FCB1DF0228D9602A00160033 /* AppDelegate.swift in Sources */,
 				FC3ED4912EED2A2500E5435C /* PhotoError.swift in Sources */,
