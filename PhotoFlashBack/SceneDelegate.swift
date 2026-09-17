@@ -29,6 +29,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Set the initial view controller as the root view controller of the window
         self.window?.rootViewController = initialViewController
         self.window?.makeKeyAndVisible()
+
+        // Cold start from a widget tap: connectionOptions carries the URL when the
+        // app wasn't running. Stash it now; the grid opens it once its fetch completes.
+        for context in connectionOptions.urlContexts {
+            handleWidgetURL(context.url)
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -47,16 +53,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             // Fetch multiple assets for widget (supports large widgets)
             _ = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
         }
-        
-        guard let topVC = topMostViewController() as? PhotosViewController else {
-            UserDefaults.standard.set(nil, forKey: "ItemToGo")
-            return
-        }
-        
-        if UserDefaults.standard.bool(forKey: "ShouldRefresh") {
-            topVC.refreshIfNotToday()
-            UserDefaults.standard.set(false, forKey: "ShouldRefresh")
-        }
+
+        routePendingWidgetPhoto()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -83,13 +81,96 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        if let url = URLContexts.first?.url, url.scheme == "openToday" {
-            // Handle the URL and perform the required action.
-            UserDefaults.standard.setValue(true, forKey: "ShouldRefresh")
-            if let metaData =  UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")?.value(forKey: "randomAssetMetadata") as? [String: Any] {
-                UserDefaults.standard.set(metaData, forKey: "ItemToGo")
+        if let url = URLContexts.first?.url {
+            handleWidgetURL(url)
+            // If the scene is already active, openURLContexts fires without a
+            // subsequent sceneDidBecomeActive, so route immediately.
+            if scene.activationState == .foregroundActive {
+                routePendingWidgetPhoto()
             }
         }
+    }
+
+    // MARK: - Widget deep link
+
+    private func handleWidgetURL(_ url: URL) {
+        guard url.scheme == WidgetDeepLink.scheme else { return }
+        UserDefaults.standard.setValue(true, forKey: "ShouldRefresh")
+        let target = WidgetDeepLink.parse(url)
+        if let metaData = WidgetDeepLink.resolveMetadata(index: target.index, localIdentifier: target.localIdentifier) {
+            UserDefaults.standard.set(metaData, forKey: "ItemToGo")
+        }
+    }
+
+    /// Routes a pending widget tap to the grid, even when a full-screen viewer
+    /// is already presented. A stale viewer is dismissed BEFORE refreshing /
+    /// opening — the open path presents a new viewer, so dismissing after
+    /// would kill the viewer we just opened. ItemToGo is left in place until
+    /// PhotosViewController successfully opens it (or the fetch proving it
+    /// missing completes), so taps arriving mid-fetch aren't lost.
+    private func routePendingWidgetPhoto() {
+        guard let photosVC = photosViewController() else {
+            // No grid yet (e.g. cold start before willConnect resolves) — keep
+            // ItemToGo; the grid's fetch completion will pick it up.
+            return
+        }
+
+        dismissViewerIfNeeded(presenting: photosVC) { [weak photosVC] in
+            guard let photosVC = photosVC else { return }
+            if UserDefaults.standard.bool(forKey: "ShouldRefresh") {
+                UserDefaults.standard.set(false, forKey: "ShouldRefresh")
+                // Either opens the pending photo immediately (already today)
+                // or starts a fetch whose completion opens it.
+                photosVC.refreshIfNotToday()
+            } else {
+                photosVC.openPendingWidgetPhoto()
+            }
+        }
+    }
+
+    private func dismissViewerIfNeeded(presenting photosVC: PhotosViewController, then completion: @escaping () -> Void) {
+        if photosVC.presentedViewController is PhotoViewController {
+            photosVC.dismiss(animated: false) {
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
+
+    /// Finds the underlying grid even when a viewer (or settings) is presented
+    /// on top. Unlike topMostViewController(), this never returns the viewer
+    /// itself, so widget taps aren't dropped while a photo is open.
+    private func photosViewController() -> PhotosViewController? {
+        guard let rootViewController = UIApplication.shared.connectedScenes
+            .filter({ $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive })
+            .map({ $0 as? UIWindowScene })
+            .compactMap({ $0 })
+            .first?.windows
+            .filter({ $0.isKeyWindow }).first?.rootViewController else {
+            return nil
+        }
+
+        var queue: [UIViewController] = [rootViewController]
+        while !queue.isEmpty {
+            let current = queue.removeFirst()
+            if let photosVC = current as? PhotosViewController {
+                return photosVC
+            }
+            if let nav = current as? UINavigationController {
+                queue.append(contentsOf: nav.viewControllers)
+                if let visible = nav.visibleViewController, !(visible is UINavigationController) {
+                    queue.append(visible)
+                }
+            } else if let tab = current as? UITabBarController {
+                if let vcs = tab.viewControllers { queue.append(contentsOf: vcs) }
+                if let selected = tab.selectedViewController { queue.append(selected) }
+            }
+            if let presented = current.presentedViewController {
+                queue.append(presented)
+            }
+        }
+        return nil
     }
 
     func requestAppRating() {
