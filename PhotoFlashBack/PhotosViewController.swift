@@ -358,12 +358,16 @@ class PhotosViewController: UIViewController {
                     
                 case .completed:
                     let hasPhotos = viewModel.assetSequence.count > 0
-                    
+                    // Set before the work below (which can call openPendingWidgetPhoto(),
+                    // whose "asset genuinely missing" cleanup checks isFetching) so that
+                    // guard sees the fetch as finished rather than still in flight.
+                    isFetching = false
+
                     if hasPhotos {
                         // Haptic feedback on successful completion
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
-                        
+
                         hideEmptyState()
                         photoCollectionView.reloadData()
                         photoCollectionView.collectionViewLayout.invalidateLayout()
@@ -372,14 +376,13 @@ class PhotosViewController: UIViewController {
                         // Light haptic for empty result
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
-                        
+
                         showEmptyState(type: emptyStateForCurrentResults())
                     }
-                    
-                    isFetching = false
+
                     hideLoadingSpinner()
                     refreshControl.endRefreshing()
-                    
+
                 case .failed(let error):
                     print("Fetch failed: \(error)")
                     showEmptyState(type: emptyStateForCurrentResults())
@@ -390,7 +393,7 @@ class PhotosViewController: UIViewController {
             }
         }
     }
-    
+
     /// Opens the photo pending from a widget tap, if any. ItemToGo is only
     /// cleared once the photo is opened (or the fetch proving it missing has
     /// settled), so taps arriving mid-fetch are retried by the fetch
@@ -427,12 +430,6 @@ class PhotosViewController: UIViewController {
             return
         }
 
-        // Fallback for legacy widget URLs without a localId (year/date match).
-        if openPendingWidgetPhotoByDate(itemToGo) {
-            UserDefaults.standard.set(nil, forKey: "ItemToGo")
-            return
-        }
-
         // Asset genuinely not in today's results (deleted/filtered) — don't
         // retry forever, but don't drop it mid-fetch either.
         if !isFetching {
@@ -454,13 +451,16 @@ class PhotosViewController: UIViewController {
     /// custom zoom transition is used when the cell is on screen, otherwise it
     /// falls back to a plain fullscreen presentation so the deep link never
     /// silently fails. Returns false when nothing was presented (bad index,
-    /// viewer already on top) so callers keep ItemToGo for a retry instead of
-    /// dropping the tap.
+    /// something already presented) so callers keep ItemToGo for a retry
+    /// instead of dropping the tap.
     @discardableResult
     private func presentViewer(atSequenceIndex seqIndex: Int) -> Bool {
         guard seqIndex >= 0 && seqIndex < viewModel.assetSequence.count else { return false }
-        // Don't stack viewers if one is already presented (e.g. rapid taps).
-        if presentedViewController is PhotoViewController { return false }
+        // Don't stack on top of anything already presented (e.g. rapid taps,
+        // or Settings still on screen) — UIKit would refuse the present() call
+        // below anyway. Callers that intend to swap an existing viewer already
+        // dismiss first and present from the dismissal completion.
+        if presentedViewController != nil { return false }
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         guard let imageViewerVC = storyboard.instantiateViewController(withIdentifier: "imageViewer") as? PhotoViewController else { return false }
         imageViewerVC.viewModel = viewModel
@@ -478,39 +478,6 @@ class PhotosViewController: UIViewController {
         return true
     }
 
-    /// Legacy path: match by year + localIdentifier and open after scrolling.
-    /// Returns true if the photo was opened. Presents immediately (no delayed
-    /// dispatch) so backgrounding mid-delay can't lose the open.
-    @discardableResult
-    private func openPendingWidgetPhotoByDate(_ itemToGo: [String: Any]) -> Bool {
-        guard let assetId = itemToGo["localIdentifier"] as? String,
-              let date = itemToGo["creationDate"] as? Date else {
-            return false
-        }
-        let calendar = Calendar.current
-        let yearString = String(calendar.component(.year, from: date))
-
-        guard let section = viewModel.assetArray.firstIndex(where: { $0.0 == yearString }),
-              let row = viewModel.assetArray[section].1.firstIndex(where: { $0.localIdentifier == assetId }),
-              let seqIndex = viewModel.assetSequence.lastIndex(where: { $0.localIdentifier == assetId }) else {
-            return false
-        }
-        photoCollectionView.layoutIfNeeded()
-        photoCollectionView.scrollToItem(at: IndexPath(item: row, section: section), at: .top, animated: false)
-        photoCollectionView.layoutIfNeeded()
-        if presentedViewController is PhotoViewController {
-            dismiss(animated: false) { [weak self] in
-                self?.presentViewer(atSequenceIndex: seqIndex)
-            }
-            return true
-        }
-        return presentViewer(atSequenceIndex: seqIndex)
-    }
-
-    func scrollToItemIfNeeded() {
-        openPendingWidgetPhoto()
-    }
-    
     func showEmptyState(type: EmptyStateView.EmptyStateType? = nil) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }

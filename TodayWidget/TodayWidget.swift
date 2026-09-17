@@ -83,12 +83,21 @@ struct MemoryTimelineProvider: TimelineProvider {
             maxPhotos = 1
         }
         
+        // The app stores at most this many entries (indices 0..<maxStoredAssetCount)
+        // and clears the rest, so scanning never needs to look past this bound.
+        let maxStoredAssetCount = 6
+
         var memories: [MemoryEntry.MemoryPhoto] = []
         let calendar = Calendar.current
         let todayComponents = calendar.dateComponents([.day, .month], from: date)
 
-        // Load photos from shared storage
-        for index in 0..<maxPhotos {
+        // Scan forward through the stored slots until we've collected maxPhotos
+        // valid (non-stale) entries, rather than only looking at the first
+        // maxPhotos slots — an early slot being stale shouldn't hide later ones.
+        for index in 0..<maxStoredAssetCount {
+            if memories.count >= maxPhotos {
+                break
+            }
             let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
             let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
 
@@ -161,34 +170,33 @@ struct SmallWidgetView: View {
         if entry.isEmpty {
             EmptyStateView()
         } else if let memory = entry.memories.first {
-            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
-                GeometryReader { geometry in
-                    ZStack(alignment: .bottomLeading) {
-                        Image(uiImage: memory.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .clipped()
+            GeometryReader { geometry in
+                ZStack(alignment: .bottomLeading) {
+                    Image(uiImage: memory.image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
 
-                        LinearGradient(
-                            colors: [.clear, .black.opacity(0.7)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.7)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
 
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("On this day")
-                                .font(.caption2)
-                                .foregroundColor(.white.opacity(0.9))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("On this day")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.9))
 
-                            Text(memory.year)
-                                .font(.title2.bold())
-                                .foregroundColor(.white)
-                        }
-                        .padding(12)
+                        Text(memory.year)
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
                     }
+                    .padding(12)
                 }
             }
+            .widgetURL(MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier))
             .id(memory.year) // Prevent animation glitch when switching sizes
         } else {
             LoadingStateView()
@@ -254,22 +262,21 @@ struct CircularWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
-                ZStack {
-                    Image(uiImage: memory.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
+            ZStack {
+                Image(uiImage: memory.image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
 
-                    Circle()
-                        .fill(Color.black.opacity(0.3))
-                        .overlay {
-                            Text(memory.year)
-                                .font(.caption.bold())
-                                .foregroundColor(.white)
-                        }
-                }
-                .clipShape(Circle())
+                Circle()
+                    .fill(Color.black.opacity(0.3))
+                    .overlay {
+                        Text(memory.year)
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                    }
             }
+            .clipShape(Circle())
+            .widgetURL(MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier))
         } else {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.title2)
@@ -282,26 +289,25 @@ struct RectangularWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
-                HStack(spacing: 8) {
-                    Image(uiImage: memory.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+            HStack(spacing: 8) {
+                Image(uiImage: memory.image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Memory")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Memory")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
 
-                        Text(memory.year)
-                            .font(.headline)
-                    }
-
-                    Spacer()
+                    Text(memory.year)
+                        .font(.headline)
                 }
+
+                Spacer()
             }
+            .widgetURL(MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier))
         } else {
             HStack {
                 Image(systemName: "photo")
@@ -317,9 +323,8 @@ struct InlineWidgetView: View {
     
     var body: some View {
         if let memory = entry.memories.first {
-            Link(destination: MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier)) {
-                Text("Memory from \(memory.year)")
-            }
+            Text("Memory from \(memory.year)")
+                .widgetURL(MemoryEntry.widgetURL(index: memory.widgetIndex, localIdentifier: memory.localIdentifier))
         } else {
             Text("No memories today")
         }
