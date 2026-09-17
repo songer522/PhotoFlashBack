@@ -20,7 +20,9 @@ class PhotoViewController: UIViewController {
     private let imageLoadingManager = ImageLoadingManager.shared
     private var prefetchRange: Range<Int> = 0..<0
     
-    private let shareButton: UIButton = {
+    // `lazy var` rather than `let`: in a stored-property initializer there is no instance
+    // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
+    private lazy var shareButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "square.and.arrow.up"), for: .normal)
         button.tintColor = .white
@@ -40,7 +42,7 @@ class PhotoViewController: UIViewController {
     }()
 
     
-    private let playPauseButton: UIButton = {
+    private lazy var playPauseButton: UIButton = {
          let button = UIButton(type: .system)
          button.setImage(UIImage(systemName: "pause.fill"), for: .normal)
          button.tintColor = .white
@@ -125,6 +127,12 @@ class PhotoViewController: UIViewController {
         }
     
     private func setupPlayPauseButton() {
+        // Called every time a video is shown; without this the same button would be re-added
+        // and a duplicate set of constraints activated on each video.
+        guard playPauseButton.superview == nil else {
+            playPauseButton.isHidden = true
+            return
+        }
         view.addSubview(playPauseButton)
         playPauseButton.isHidden = true
         playPauseButton.translatesAutoresizingMaskIntoConstraints = false
@@ -203,7 +211,7 @@ class PhotoViewController: UIViewController {
     }
 
     // Add a new delete button similar to your share button
-    private let deleteButton: UIButton = {
+    private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(systemName: "trash"), for: .normal)
         button.tintColor = .white

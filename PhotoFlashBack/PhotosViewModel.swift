@@ -228,10 +228,7 @@ class PhotosViewModel {
                     // A newer fetch (e.g. a date pick) has superseded this one. Publishing now
                     // would clobber the newer day's data in the shared view model, so stop
                     // before touching any of it.
-                    guard !Task.isCancelled else {
-                        continuation.finish()
-                        return
-                    }
+                    try Task.checkCancellation()
 
                     self.lastAppliedFilter = filter.normalizedForFetch()
 
@@ -248,9 +245,14 @@ class PhotosViewModel {
                     }
                     
                     // Complete
+                    try Task.checkCancellation()
                     continuation.yield(.completed())
                     continuation.finish()
-                    
+
+                } catch is CancellationError {
+                    // Superseded by a newer fetch: end the stream quietly rather than
+                    // reporting a failure the user never caused.
+                    continuation.finish()
                 } catch {
                     continuation.yield(.failed(error))
                     continuation.finish()

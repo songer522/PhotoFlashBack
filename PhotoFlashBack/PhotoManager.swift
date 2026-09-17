@@ -27,22 +27,6 @@ actor PhotoManager {
         index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
     }
 
-    func requestPhotoLibraryAuthorization() async -> Bool {
-        await withCheckedContinuation { continuation in
-            PHPhotoLibrary.requestAuthorization { status in
-                switch status {
-                case .authorized, .limited:
-                    continuation.resume(returning: true)
-                case .denied, .restricted, .notDetermined:
-                    continuation.resume(returning: false)
-                @unknown default:
-                    print("Warning: Unknown photo library authorization status")
-                    continuation.resume(returning: false)
-                }
-            }
-        }
-    }
-
     /// Fetches and stores multiple random assets for widget (for medium/large widgets)
     func fetchAndStoreMultipleAssets(count: Int = 6) async -> Bool {
         let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: count)

@@ -134,6 +134,12 @@ extension PhotosViewController: UICollectionViewDelegate {
     
 }
 
+extension PhotosViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        view.endEditing(true)
+    }
+}
+
 extension PhotosViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard section >= 0 && section < viewModel.assetArray.count else {

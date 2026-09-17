@@ -62,7 +62,9 @@ class PhotosViewController: UIViewController {
         return textField
     }()
     
-    let settingsButton: UIButton = {
+    // `lazy var` rather than `let`: in a stored-property initializer there is no instance
+    // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
+    lazy var settingsButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "gearshape") {
@@ -72,7 +74,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    let layoutButton: UIButton = {
+    lazy var layoutButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "rectangle.grid.3x2") {
@@ -82,7 +84,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    let sortingButton: UIButton = {
+    lazy var sortingButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "arrow.up.arrow.down") {
@@ -92,7 +94,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
 
-    let overflowButton: UIButton = {
+    lazy var overflowButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "ellipsis") {
@@ -102,7 +104,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
 
-    let filterButton: UIButton = {
+    lazy var filterButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "line.3.horizontal.decrease") {
@@ -116,7 +118,7 @@ class PhotosViewController: UIViewController {
     let overflowDropdown = OverflowDropdownView()
     let filterDropdown = FilterDropdownView()
     
-    let editButton: UIButton = {
+    lazy var editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "clock"), for: .normal)
         button.tintColor = .white
@@ -345,7 +347,7 @@ class PhotosViewController: UIViewController {
                     
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
                     
-                case .fetchingLocations(let year, let current, let total):
+                case .fetchingLocations(_, let current, let total):
                     // Subtle haptic when starting location fetch
                     if current == 1 {
                         let generator = UIImpactFeedbackGenerator(style: .soft)
@@ -490,7 +492,7 @@ class PhotosViewController: UIViewController {
                 case .groupingByYear:
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
 
-                case .fetchingLocations(let year, let current, let total):
+                case .fetchingLocations(_, let current, let total):
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
 
                 case .completed:

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FC19B9E229DB5BD300B97689 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC19B9E129DB5BD300B97689 /* Configuration.swift */; };
 		FC3ED4912EED2A2500E5435C /* PhotoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4902EED2A2500E5435C /* PhotoError.swift */; };
 		FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */; };
 		FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4942EED35A400E5435C /* PhotoViewController.swift */; };
@@ -88,7 +87,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FC19B9E129DB5BD300B97689 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		FC3ED4902EED2A2500E5435C /* PhotoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoError.swift; sourceTree = "<group>"; };
 		FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoadingManager.swift; sourceTree = "<group>"; };
 		FC3ED4942EED35A400E5435C /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
@@ -205,7 +203,6 @@
 		FCB1DEF528D9602A00160033 = {
 			isa = PBXGroup;
 			children = (
-				FC19B9E129DB5BD300B97689 /* Configuration.swift */,
 				FC98730029D5631E006B8705 /* TodayWidgetExtension.entitlements */,
 				FCB1DF0028D9602A00160033 /* PhotoFlashBack */,
 				FC9872EC29D55C8C006B8705 /* TodayWidget */,
@@ -409,7 +406,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
-				FC19B9E229DB5BD300B97689 /* Configuration.swift in Sources */,
 				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
 				FC9872F729D55C8D006B8705 /* TodayWidget.intentdefinition in Sources */,
 				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
