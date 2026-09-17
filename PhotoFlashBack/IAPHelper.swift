@@ -18,17 +18,37 @@ class IAPHelper {
     
     var isIAPAvailable = false
     weak var presenter: UIViewController?
-    
+    // Tracks whether the current products request has already settled (received a response
+    // or timed out), so a late productsReceivedBlock after a timeout can't re-show a stuck
+    // spinner or present the tip alert out of nowhere.
+    private var didSettleProductsRequest = false
+
     func setupTipJar(presentingVC: UIViewController) {
         GlobalActivityIndicator.shared.show(on: presentingVC)
         if isIAPAvailable {
             initiatePurchase(presentingVC: presentingVC)
         } else {
+            didSettleProductsRequest = false
             tipJar.startObservingPaymentQueue()
-            tipJar.productsReceivedBlock = {self.allowTip(presentingVC: presentingVC)}
+            // Weakly capture both self and presentingVC: productsReceivedBlock only fires on
+            // a successful StoreKit response, and previously capturing presentingVC strongly
+            // here kept the presenting view controller alive indefinitely while waiting.
+            tipJar.productsReceivedBlock = { [weak self, weak presentingVC] in
+                guard let self = self, let presentingVC = presentingVC else { return }
+                self.allowTip(presentingVC: presentingVC)
+            }
             tipJar.transactionSuccessfulBlock = showThankYou
             tipJar.transactionFailedBlock = tipCancelled
             tipJar.productsRequest?.start()
+
+            // There's no failure callback wired into SwiftTipJar's products request, so with
+            // no network (or if StoreKit simply never answers) the spinner would otherwise
+            // stay up forever. Guarantee it gets dismissed.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 12) { [weak self] in
+                guard let self = self, !self.didSettleProductsRequest else { return }
+                self.didSettleProductsRequest = true
+                GlobalActivityIndicator.shared.hide()
+            }
         }
     }
     
@@ -127,6 +147,12 @@ class IAPHelper {
         // Must run on main thread because it will be called from background but is setting up UI elements
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            guard !self.didSettleProductsRequest else {
+                // The timeout already fired and hid the spinner — a late response must not
+                // re-show it or present the tip alert unexpectedly.
+                return
+            }
+            self.didSettleProductsRequest = true
             self.isIAPAvailable = true
             self.initiatePurchase(presentingVC: presentingVC)
         }

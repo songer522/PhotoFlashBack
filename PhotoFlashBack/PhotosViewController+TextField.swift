@@ -57,9 +57,3 @@ extension PhotosViewController: UITextFieldDelegate {
         textField.inputView = customInputView
     }
 }
-
-extension PhotosViewController: UIScrollViewDelegate {
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        view.endEditing(true)
-    }
-}

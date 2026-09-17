@@ -165,7 +165,7 @@ class PhotosViewModel {
     /// Fetches photos with progress tracking
     func fetchPhotoWithProgress() -> AsyncStream<PhotoFetchProgress> {
         AsyncStream { continuation in
-            Task {
+            let producer = Task {
                 do {
                     locationDict.removeAll()
                     assetArray.removeAll()
@@ -225,8 +225,13 @@ class PhotosViewModel {
                         return tempAssetDict
                     }.value
                     
+                    // A newer fetch (e.g. a date pick) has superseded this one. Publishing now
+                    // would clobber the newer day's data in the shared view model, so stop
+                    // before touching any of it.
+                    try Task.checkCancellation()
+
                     self.lastAppliedFilter = filter.normalizedForFetch()
-                    
+
                     // Phase 2: Group by year
                     continuation.yield(.groupingByYear())
                     self.assetDict = newAssetDict
@@ -240,13 +245,25 @@ class PhotosViewModel {
                     }
                     
                     // Complete
+                    try Task.checkCancellation()
                     continuation.yield(.completed())
                     continuation.finish()
-                    
+
+                } catch is CancellationError {
+                    // Superseded by a newer fetch: end the stream quietly rather than
+                    // reporting a failure the user never caused.
+                    continuation.finish()
                 } catch {
                     continuation.yield(.failed(error))
                     continuation.finish()
                 }
+            }
+
+            // Tie the producer to the stream's lifetime: when the consumer stops iterating
+            // (including because its task was cancelled by a newer fetch), cancel the work
+            // rather than letting it run on and overwrite the shared view model.
+            continuation.onTermination = { _ in
+                producer.cancel()
             }
         }
     }

@@ -61,7 +61,11 @@ extension PhotosViewController: UICollectionViewDelegate {
             imageViewerVC.modalPresentationStyle = .fullScreen
             imageViewerVC.modalPresentationCapturesStatusBarAppearance = true
             
+            // Keep a strong reference on self for the lifetime of the presentation; the
+            // transitioningDelegate property itself is weak, so a local variable here would be
+            // deallocated before the animation runs.
             let customTransitioningDelegate = CustomTransitioningDelegate(sourceView: cell)
+            photoTransitioningDelegate = customTransitioningDelegate
             imageViewerVC.transitioningDelegate = customTransitioningDelegate
             
             present(imageViewerVC, animated: true)
@@ -128,6 +132,12 @@ extension PhotosViewController: UICollectionViewDelegate {
     
     
     
+}
+
+extension PhotosViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        view.endEditing(true)
+    }
 }
 
 extension PhotosViewController: UICollectionViewDataSource {

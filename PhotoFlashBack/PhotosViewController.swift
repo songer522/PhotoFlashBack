@@ -16,8 +16,18 @@ class PhotosViewController: UIViewController {
     @IBOutlet weak var emptyStateLabel: UILabel!
     private let refreshControl = UIRefreshControl()
     var isFetching = false
+    // Shared in-flight fetch task for both fetchPhotos() and datePicked(), so a date pick
+    // while a fetch is running cancels the older stream instead of running two streams
+    // concurrently against the same view model.
+    var fetchTask: Task<Void, Never>?
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
+    // Strong reference to keep the zoom transition delegate alive for the duration of the
+    // full-screen viewer presentation. `UIViewController.transitioningDelegate` is weak, so
+    // without this the delegate (and the custom animator it hands out) would be deallocated
+    // immediately after `itemTappedAt` returns, silently falling back to the default modal
+    // transition.
+    var photoTransitioningDelegate: CustomTransitioningDelegate?
     
     // 加载进度视图
     private lazy var loadingProgressView: LoadingProgressView = {
@@ -52,7 +62,9 @@ class PhotosViewController: UIViewController {
         return textField
     }()
     
-    let settingsButton: UIButton = {
+    // `lazy var` rather than `let`: in a stored-property initializer there is no instance
+    // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
+    lazy var settingsButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "gearshape") {
@@ -62,7 +74,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    let layoutButton: UIButton = {
+    lazy var layoutButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "rectangle.grid.3x2") {
@@ -72,7 +84,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
     
-    let sortingButton: UIButton = {
+    lazy var sortingButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "arrow.up.arrow.down") {
@@ -82,7 +94,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
 
-    let overflowButton: UIButton = {
+    lazy var overflowButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "ellipsis") {
@@ -92,7 +104,7 @@ class PhotosViewController: UIViewController {
         return button
     }()
 
-    let filterButton: UIButton = {
+    lazy var filterButton: UIButton = {
         let button = UIButton(type: .custom)
         button.tintColor = .white
         if let image = UIImage(systemName: "line.3.horizontal.decrease") {
@@ -106,7 +118,7 @@ class PhotosViewController: UIViewController {
     let overflowDropdown = OverflowDropdownView()
     let filterDropdown = FilterDropdownView()
     
-    let editButton: UIButton = {
+    lazy var editButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage( UIImage(systemName: "clock"), for: .normal)
         button.tintColor = .white
@@ -311,15 +323,18 @@ class PhotosViewController: UIViewController {
     
     @objc func fetchPhotos() {
         print("FetchPhotos!!!!")
-        guard !isFetching else { return }
-        
+        // Cancel any in-flight fetch (e.g. from a date pick) instead of dropping this request.
+        fetchTask?.cancel()
+
         isFetching = true
         showLoadingSpinner()
         hideEmptyState()
-        
-        Task {
+
+        fetchTask = Task {
             // Use progress tracking version
             for await progress in viewModel.fetchPhotoWithProgress() {
+                // Bail out before touching any shared UI state if a newer fetch superseded us.
+                if Task.isCancelled { return }
                 // Update UI based on progress
                 switch progress.phase {
                 case .fetchingPhotos(let current, let total):
@@ -332,7 +347,7 @@ class PhotosViewController: UIViewController {
                     
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
                     
-                case .fetchingLocations(let year, let current, let total):
+                case .fetchingLocations(_, let current, let total):
                     // Subtle haptic when starting location fetch
                     if current == 1 {
                         let generator = UIImpactFeedbackGenerator(style: .soft)
@@ -456,30 +471,38 @@ class PhotosViewController: UIViewController {
     @objc func datePicked() {
         view.endEditing(true)
         photoCollectionView.setContentOffset(CGPoint(x: 0, y: -100), animated: false)
+        // A date pick is an explicit user action, so don't drop it if a fetch is already
+        // running — cancel the older stream and take over the shared fetchTask/isFetching
+        // state instead, mirroring fetchPhotos().
+        fetchTask?.cancel()
+
+        isFetching = true
         showLoadingSpinner()
         hideEmptyState()
-        
-        Task {
+
+        fetchTask = Task {
             // Use progress tracking for date picker as well
             for await progress in viewModel.fetchPhotoWithProgress() {
+                // Bail out before touching any shared UI state if a newer fetch superseded us.
+                if Task.isCancelled { return }
                 switch progress.phase {
                 case .fetchingPhotos(let current, let total):
                     updateLoadingProgress(Float(progress.overallProgress), loaded: current, total: total)
-                    
+
                 case .groupingByYear:
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
-                    
-                case .fetchingLocations(let year, let current, let total):
+
+                case .fetchingLocations(_, let current, let total):
                     loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
-                    
+
                 case .completed:
                     let hasPhotos = viewModel.assetSequence.count > 0
-                    
+
                     if hasPhotos {
                         // Haptic feedback on successful completion
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
-                        
+
                         hideEmptyState()
                         photoCollectionView.reloadData()
                         photoCollectionView.collectionViewLayout.invalidateLayout()
@@ -487,16 +510,20 @@ class PhotosViewController: UIViewController {
                         // Light haptic for empty result
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
-                        
+
                         showEmptyState(type: emptyStateForCurrentResults())
                     }
-                    
+
+                    isFetching = false
                     hideLoadingSpinner()
-                    
+                    refreshControl.endRefreshing()
+
                 case .failed(let error):
                     print("Fetch failed: \(error)")
                     showEmptyState(type: emptyStateForCurrentResults())
+                    isFetching = false
                     hideLoadingSpinner()
+                    refreshControl.endRefreshing()
                 }
             }
         }

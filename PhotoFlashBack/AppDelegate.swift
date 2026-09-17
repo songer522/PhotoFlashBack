@@ -52,14 +52,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func handleBackgroundFetch(task: BGAppRefreshTask) {
         // Create a background task to handle the fetch
         var backgroundTask: Task<Void, Never>?
-        
-        backgroundTask = Task {
-            // Set expiration handler to cancel task if it expires
-            task.expirationHandler = {
-                backgroundTask?.cancel()
-                task.setTaskCompleted(success: false)
-            }
 
+        // Set expiration handler synchronously, before the async work starts, so it's
+        // guaranteed to be in place even if the task expires before the Task body below runs.
+        task.expirationHandler = {
+            backgroundTask?.cancel()
+            task.setTaskCompleted(success: false)
+        }
+
+        backgroundTask = Task {
             // Perform background fetch - fetch multiple assets for widget
             let success = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
             

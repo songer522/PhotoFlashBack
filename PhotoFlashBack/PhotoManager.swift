@@ -11,33 +11,22 @@ import Photos
 actor PhotoManager {
     static let shared = PhotoManager()
 
+    // Shared App Group storage used to hand photos off to the Today widget.
+    private static let sharedSuiteName = "group.com.YangSong.PhotoFlashBack.Today"
+    // Maximum number of stored assets, matching the widget's systemLarge case (see TodayWidget.swift)
+    // and the `count: 6` callers in AppDelegate/SceneDelegate.
+    private static let maxStoredAssetCount = 6
+
     private init() {}
 
-    func requestPhotoLibraryAuthorization() async -> Bool {
-        await withCheckedContinuation { continuation in
-            PHPhotoLibrary.requestAuthorization { status in
-                switch status {
-                case .authorized, .limited:
-                    continuation.resume(returning: true)
-                case .denied, .restricted, .notDetermined:
-                    continuation.resume(returning: false)
-                @unknown default:
-                    print("Warning: Unknown photo library authorization status")
-                    continuation.resume(returning: false)
-                }
-            }
-        }
+    private static func imageKey(for index: Int) -> String {
+        index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
     }
 
-    func fetchAndStoreRandomAsset() async -> Bool {
-        guard let asset = await fetchRandomAssetFromSameDayInPast() else {
-            print("No matching asset found.")
-            return false
-        }
-        
-        return await storeAsset(asset)
+    private static func metadataKey(for index: Int) -> String {
+        index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
     }
-    
+
     /// Fetches and stores multiple random assets for widget (for medium/large widgets)
     func fetchAndStoreMultipleAssets(count: Int = 6) async -> Bool {
         let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: count)
@@ -50,11 +39,6 @@ actor PhotoManager {
         return await storeMultipleAssets(assets)
     }
 
-    func fetchRandomAssetFromSameDayInPast() async -> PHAsset? {
-        let assets = await fetchMultipleRandomAssetsFromSameDayInPast(count: 1)
-        return assets.first
-    }
-    
     /// Fetches multiple random assets from different years
     func fetchMultipleRandomAssetsFromSameDayInPast(count: Int) async -> [PHAsset] {
         return await Task.detached(priority: .userInitiated) {
@@ -121,7 +105,23 @@ actor PhotoManager {
 
 
     private func storeAsset(_ asset: PHAsset, index: Int = 0) async -> Bool {
-        await withCheckedContinuation { continuation in
+        // The PHImageManager result handler can fire on an arbitrary queue and, in some
+        // cases (cancellation, a degraded-only delivery, or an iCloud download failure),
+        // more than once or with only a degraded result. Guard against both leaking the
+        // continuation (never resuming) and double-resuming it (which traps).
+        let hasResumed = NSLock()
+        var didResume = false
+
+        return await withCheckedContinuation { continuation in
+            let resume: (Bool) -> Void = { result in
+                hasResumed.lock()
+                let alreadyResumed = didResume
+                didResume = true
+                hasResumed.unlock()
+                guard !alreadyResumed else { return }
+                continuation.resume(returning: result)
+            }
+
             let options = PHImageRequestOptions()
             options.isSynchronous = false
             options.isNetworkAccessAllowed = true
@@ -136,17 +136,17 @@ actor PhotoManager {
                 contentMode: .aspectFill,
                 options: options
             ) { (image, info) in
-                guard let info = info else {
-                    continuation.resume(returning: false)
+                if (info?[PHImageCancelledKey] as? Bool) == true || info?[PHImageErrorKey] != nil {
+                    resume(false)
                     return
                 }
-                
-                let isDegraded = (info[PHImageResultIsDegradedKey] as? Bool) ?? false
+
+                let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
                 guard !isDegraded else { return }
-                
+
                 guard let image = image,
                       let imageData = image.jpegData(compressionQuality: 0.8) else {
-                    continuation.resume(returning: false)
+                    resume(false)
                     return
                 }
 
@@ -156,22 +156,22 @@ actor PhotoManager {
                     "pixelWidth": asset.pixelWidth,
                     "pixelHeight": asset.pixelHeight
                 ]
-                
-                let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
-                let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
-                let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-                
+
+                let sharedDefaults = UserDefaults(suiteName: PhotoManager.sharedSuiteName)
+                let imageKey = PhotoManager.imageKey(for: index)
+                let metadataKey = PhotoManager.metadataKey(for: index)
+
                 sharedDefaults?.set(imageData, forKey: imageKey)
                 sharedDefaults?.set(metadata, forKey: metadataKey)
-                
-                continuation.resume(returning: true)
+
+                resume(true)
             }
         }
     }
     
     private func storeMultipleAssets(_ assets: [PHAsset]) async -> Bool {
         var success = true
-        
+
         // Store assets with different keys for each
         for (index, asset) in assets.enumerated() {
             let result = await storeAsset(asset, index: index)
@@ -179,8 +179,23 @@ actor PhotoManager {
                 success = false
             }
         }
-        
+
+        // Clear any leftover keys from a previous run that stored more assets than this run
+        // did, so the widget can't read stale (wrong-day) entries at higher indices.
+        clearStaleAssetKeys(from: assets.count)
+
         return success
+    }
+
+    /// Removes stored image/metadata keys for indices `startIndex..<maxStoredAssetCount`,
+    /// which may hold data from a previous run that found more matching assets than this one did.
+    private func clearStaleAssetKeys(from startIndex: Int) {
+        guard startIndex < PhotoManager.maxStoredAssetCount else { return }
+        let sharedDefaults = UserDefaults(suiteName: PhotoManager.sharedSuiteName)
+        for index in startIndex..<PhotoManager.maxStoredAssetCount {
+            sharedDefaults?.removeObject(forKey: PhotoManager.imageKey(for: index))
+            sharedDefaults?.removeObject(forKey: PhotoManager.metadataKey(for: index))
+        }
     }
 }
 
