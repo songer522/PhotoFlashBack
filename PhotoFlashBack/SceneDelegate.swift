@@ -102,12 +102,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
-    /// Routes a pending widget tap to the grid, even when a full-screen viewer
-    /// is already presented. A stale viewer is dismissed BEFORE refreshing /
-    /// opening — the open path presents a new viewer, so dismissing after
-    /// would kill the viewer we just opened. ItemToGo is left in place until
-    /// PhotosViewController successfully opens it (or the fetch proving it
-    /// missing completes), so taps arriving mid-fetch aren't lost.
+    /// Routes a pending widget tap to the grid, even when something (a
+    /// full-screen viewer, or Settings) is already presented on top of it.
+    /// Whatever's on top is dismissed BEFORE refreshing / opening — the open
+    /// path presents a new viewer, so dismissing after would kill the viewer
+    /// we just opened. ItemToGo is left in place until PhotosViewController
+    /// successfully opens it (or the fetch proving it missing completes), so
+    /// taps arriving mid-fetch aren't lost.
     private func routePendingWidgetPhoto() {
         guard let photosVC = photosViewController() else {
             // No grid yet (e.g. cold start before willConnect resolves) — keep
@@ -115,7 +116,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
 
-        dismissViewerIfNeeded(presenting: photosVC) { [weak photosVC] in
+        dismissPresentedIfNeeded(on: photosVC) { [weak photosVC] in
             guard let photosVC = photosVC else { return }
             if UserDefaults.standard.bool(forKey: "ShouldRefresh") {
                 UserDefaults.standard.set(false, forKey: "ShouldRefresh")
@@ -128,8 +129,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
-    private func dismissViewerIfNeeded(presenting photosVC: PhotosViewController, then completion: @escaping () -> Void) {
-        if photosVC.presentedViewController is PhotoViewController {
+    /// Dismisses anything presented on top of the grid (a photo viewer, the
+    /// Settings navigation controller, etc.) so a widget tap can reach it.
+    /// PhotosViewController.presentViewer(atSequenceIndex:) refuses to present
+    /// while anything is already presented, so leaving e.g. Settings up would
+    /// otherwise silently drop the tap.
+    private func dismissPresentedIfNeeded(on photosVC: PhotosViewController, then completion: @escaping () -> Void) {
+        if photosVC.presentedViewController != nil {
             photosVC.dismiss(animated: false) {
                 completion()
             }
