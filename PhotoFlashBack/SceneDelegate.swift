@@ -54,6 +54,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             _ = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
         }
 
+        routePendingMemoryDate()
         routePendingWidgetPhoto()
     }
 
@@ -90,6 +91,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             if scene.activationState == .foregroundActive {
                 routePendingWidgetPhoto()
             }
+        }
+    }
+
+    // MARK: - Memory reminder tap
+
+    /// Shows the date from a tapped "memory of the day" notification on the grid. Like the
+    /// widget route, whatever is presented on top is dismissed first. With no grid yet the
+    /// date is left stored; PhotosViewController.viewDidLoad picks it up. With nothing
+    /// stored this does nothing (sceneDidBecomeActive calls it every time).
+    func routePendingMemoryDate() {
+        guard PendingMemoryDate.hasPending(), let photosVC = photosViewController() else { return }
+
+        dismissPresentedIfNeeded(on: photosVC) { [weak photosVC] in
+            guard let photosVC = photosVC, let date = PendingMemoryDate.take() else { return }
+            photosVC.show(month: date.month, day: date.day)
         }
     }
 

@@ -9,10 +9,11 @@ import UIKit
 import AVFAudio
 import BackgroundTasks
 import Photos
+import UserNotifications
 import WidgetKit
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
     // Background task identifier - must match Info.plist
     static let backgroundTaskIdentifier = "com.YangSong.PhotoFlashBack.fetch"
@@ -25,6 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         }
         
+        // Must be set before launch finishes so a notification tap that cold-starts the app is delivered.
+        UNUserNotificationCenter.current().delegate = self
+
         // Register the background task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { [weak self] task in
             guard let self = self else { return }
@@ -83,6 +87,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+
+    // MARK: - Notification delegate
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .list, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let request = response.notification.request
+        // Only memory reminders are ours; ignore anything else (and anything malformed).
+        if request.identifier.hasPrefix(MemoryReminderPlanner.identifierPrefix),
+           let date = PendingMemoryDate.parse(userInfo: request.content.userInfo) {
+            DispatchQueue.main.async {
+                PendingMemoryDate.store(month: date.month, day: date.day)
+                // A stale widget "refresh to today" must not override the reminder's date.
+                UserDefaults.standard.set(false, forKey: "ShouldRefresh")
+                // Already active: sceneDidBecomeActive won't fire again, so route now.
+                // Otherwise it routes when the scene activates (or the grid loads).
+                let activeScene = UIApplication.shared.connectedScenes
+                    .first { $0.activationState == .foregroundActive }
+                (activeScene?.delegate as? SceneDelegate)?.routePendingMemoryDate()
+                completionHandler()
+            }
+        } else {
+            completionHandler()
+        }
+    }
 
     // MARK: UISceneSession Lifecycle
 

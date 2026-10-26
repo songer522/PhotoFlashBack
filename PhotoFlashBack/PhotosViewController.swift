@@ -129,6 +129,11 @@ class PhotosViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Cold start from a reminder tap: open on that date instead of today.
+        if let pending = PendingMemoryDate.take() {
+            viewModel.month = pending.month
+            viewModel.day = pending.day
+        }
         setupViews()
         if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
@@ -164,15 +169,23 @@ class PhotosViewController: UIViewController {
     }
     
     func refreshIfNotToday() {
-        if !viewModel.isToday() {
-            viewModel.day = Calendar.current.component(.day, from: Date())
-            viewModel.month = Calendar.current.component(.month, from: Date())
-            picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
-            picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
-            fetchPhotos()
-        } else {
+        let now = Date()
+        show(month: Calendar.current.component(.month, from: now),
+             day: Calendar.current.component(.day, from: now))
+    }
+
+    /// Shows the memories for a month/day. If that date is already showing, just opens any
+    /// photo pending from a widget tap.
+    func show(month: Int, day: Int) {
+        if viewModel.month == month && viewModel.day == day {
             openPendingWidgetPhoto()
+            return
         }
+        viewModel.month = month
+        viewModel.day = day
+        picker.selectRow(month - 1, inComponent: 0, animated: false)
+        picker.selectRow(day - 1, inComponent: 1, animated: false)
+        fetchPhotos()
     }
     
     deinit {
