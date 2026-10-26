@@ -68,21 +68,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // Perform background fetch - fetch multiple assets for widget
             let success = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
 
-            // Keep the daily memory reminders fresh; finish before telling iOS we're done.
-            await MemoryReminderScheduler.shared.refresh()
-            
             if success {
                 // Assets fetched and stored successfully
                 WidgetCenter.shared.reloadAllTimelines()
-                task.setTaskCompleted(success: true)
             } else {
                 // Failed to fetch or store the assets
                 print("Background fetch failed: Unable to fetch or store random assets")
-                task.setTaskCompleted(success: false)
             }
-            
-            // Schedule the next background fetch
+
+            // Schedule the next background fetch before the slower reminder refresh,
+            // so running out of background time can't skip it.
             scheduleBackgroundFetch()
+
+            // Keep the daily memory reminders fresh; finish before telling iOS we're done.
+            await MemoryReminderScheduler.shared.refresh()
+            task.setTaskCompleted(success: success)
         }
     }
 

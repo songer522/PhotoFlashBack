@@ -64,6 +64,11 @@ PhotoFlashBack/            App target (UIKit)
   CustomLayouts.swift      Classic and mosaic collection view layouts
   SkeletonView.swift       Loading placeholders
   IAPHelper.swift          Tip jar
+  MemoryQuery.swift        Same-day-in-past-years memory lookup
+  MemoryReminderSettings.swift   Daily reminder settings + persistence
+  MemoryReminderPlanner.swift    Plans which dates get reminders
+  MemoryReminderScheduler.swift  Schedules the local notifications
+  PendingMemoryDate.swift  Notification-tap date handoff and parsing
 TodayWidget/               WidgetKit extension
 PhotoFlashBackTests/       Unit tests
 screenshots/               App Store screenshots
@@ -78,7 +83,7 @@ xcodebuild test \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro Max'
 ```
 
-Or press ⌘U in Xcode. Coverage currently focuses on the media filter logic and image-request gating.
+Or press ⌘U in Xcode. Coverage currently focuses on the media filter logic, image-request gating, the reminder planner/scheduler, and pending-date parsing.
 
 ## License
 

@@ -73,10 +73,10 @@ class SettingsViewController: UITableViewController {
         super.viewWillAppear(animated)
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             let authorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
-            let shown = MemoryReminderSettingsStore.load().enabled && authorized
             DispatchQueue.main.async {
                 guard let self = self else { return }
-                self.reminderShownOn = shown
+                // Read the setting here, not before the async hop, so a stale result can't undo a fresh toggle.
+                self.reminderShownOn = MemoryReminderSettingsStore.load().enabled && authorized
                 self.tableView.reloadSections(IndexSet(integer: 0), with: .none)
             }
         }

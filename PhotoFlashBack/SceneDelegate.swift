@@ -87,7 +87,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // this every time the app enters the background.
         (UIApplication.shared.delegate as? AppDelegate)?.scheduleBackgroundFetch()
 
-        Task { await MemoryReminderScheduler.shared.refresh() }
+        // Ask iOS for time to finish the refresh after the app is suspended.
+        var bgTaskID = UIBackgroundTaskIdentifier.invalid
+        let endBackgroundTask = {
+            guard bgTaskID != .invalid else { return }
+            UIApplication.shared.endBackgroundTask(bgTaskID)
+            bgTaskID = .invalid
+        }
+        bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "MemoryReminderRefresh", expirationHandler: endBackgroundTask)
+        Task {
+            await MemoryReminderScheduler.shared.refresh()
+            await MainActor.run { endBackgroundTask() }
+        }
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -112,6 +123,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         dismissPresentedIfNeeded(on: photosVC) { [weak photosVC] in
             guard let photosVC = photosVC, let date = PendingMemoryDate.take() else { return }
+            // Commit any open date-picker editing session so it can't clobber the shown date.
+            photosVC.view.endEditing(true)
             photosVC.show(month: date.month, day: date.day)
         }
     }
