@@ -99,22 +99,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
-        let request = response.notification.request
-        // Only memory reminders are ours; ignore anything else (and anything malformed).
-        if request.identifier.hasPrefix(MemoryReminderPlanner.identifierPrefix),
-           let date = PendingMemoryDate.parse(userInfo: request.content.userInfo) {
-            DispatchQueue.main.async {
-                PendingMemoryDate.store(month: date.month, day: date.day)
-                // A stale widget "refresh to today" must not override the reminder's date.
-                UserDefaults.standard.set(false, forKey: "ShouldRefresh")
+        // Only memory reminders are ours; anything else (or malformed) is ignored.
+        DispatchQueue.main.async {
+            if PendingMemoryDate.storeTap(of: response) {
                 // Already active: sceneDidBecomeActive won't fire again, so route now.
                 // Otherwise it routes when the scene activates (or the grid loads).
                 let activeScene = UIApplication.shared.connectedScenes
                     .first { $0.activationState == .foregroundActive }
                 (activeScene?.delegate as? SceneDelegate)?.routePendingMemoryDate()
-                completionHandler()
             }
-        } else {
             completionHandler()
         }
     }

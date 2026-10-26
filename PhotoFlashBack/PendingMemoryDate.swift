@@ -1,4 +1,5 @@
 import Foundation
+import UserNotifications
 
 /// A month/day the user asked to see by tapping a "memory of the day" notification.
 /// Stored until the photo grid is ready to show it, then taken (read and cleared).
@@ -19,6 +20,23 @@ enum PendingMemoryDate {
             return nil
         }
         return validated(month: month, day: day)
+    }
+
+    /// Records the date of a tapped "memory of the day" notification so the grid shows it.
+    /// Ignores other notifications and malformed userInfo. The reminder wins over a pending
+    /// widget tap, so ShouldRefresh and the widget's ItemToGo are cleared. Returns whether
+    /// the tap was a memory reminder.
+    @discardableResult
+    static func storeTap(of response: UNNotificationResponse, in defaults: UserDefaults = .standard) -> Bool {
+        let request = response.notification.request
+        guard request.identifier.hasPrefix(MemoryReminderPlanner.identifierPrefix),
+              let date = parse(userInfo: request.content.userInfo) else {
+            return false
+        }
+        store(month: date.month, day: date.day, in: defaults)
+        defaults.set(false, forKey: "ShouldRefresh")
+        defaults.removeObject(forKey: "ItemToGo")
+        return true
     }
 
     static func store(month: Int, day: Int, in defaults: UserDefaults = .standard) {

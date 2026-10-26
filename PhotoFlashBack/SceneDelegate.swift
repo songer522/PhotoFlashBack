@@ -19,6 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        // Cold start from a reminder tap: stash the date BEFORE the grid is created, so its
+        // viewDidLoad opens on that date directly. (UNUserNotificationCenter's didReceive
+        // arrives later; it re-stores the same date and show() is a no-op for it.)
+        if let response = connectionOptions.notificationResponse {
+            PendingMemoryDate.storeTap(of: response)
+        }
         
         self.window = UIWindow(windowScene: windowScene)
         
