@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */; };
+		FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000005 /* MemoryQueryTests.swift */; };
+		FC8A22220000000000000004 /* MemoryReminderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000003 /* MemoryReminderSettings.swift */; };
+		FC8A22220000000000000002 /* MemoryQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000001 /* MemoryQuery.swift */; };
 		FC3ED4912EED2A2500E5435C /* PhotoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4902EED2A2500E5435C /* PhotoError.swift */; };
 		FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */; };
 		FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4942EED35A400E5435C /* PhotoViewController.swift */; };
@@ -86,6 +90,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettingsTests.swift; sourceTree = "<group>"; };
+		FC8A22220000000000000005 /* MemoryQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQueryTests.swift; sourceTree = "<group>"; };
+		FC8A22220000000000000003 /* MemoryReminderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettings.swift; sourceTree = "<group>"; };
+		FC8A22220000000000000001 /* MemoryQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQuery.swift; sourceTree = "<group>"; };
 		FC3ED4902EED2A2500E5435C /* PhotoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoError.swift; sourceTree = "<group>"; };
 		FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoadingManager.swift; sourceTree = "<group>"; };
 		FC3ED4942EED35A400E5435C /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
@@ -181,6 +189,8 @@
 			isa = PBXGroup;
 			children = (
 				FC8A11110000000000000007 /* MediaFilterTests.swift */,
+				FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */,
+				FC8A22220000000000000005 /* MemoryQueryTests.swift */,
 				FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */,
 			);
 			path = PhotoFlashBackTests;
@@ -230,6 +240,8 @@
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
 				FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */,
 				FC8A11110000000000000001 /* MediaFilter.swift */,
+				FC8A22220000000000000003 /* MemoryReminderSettings.swift */,
+				FC8A22220000000000000001 /* MemoryQuery.swift */,
 				FC8A11110000000000000003 /* ToolbarDropdownViews.swift */,
 				FC821D3929D0270B00890051 /* CustomLayouts.swift */,
 				FC81130528E4E52C00112583 /* PhotosViewController+DatePicker.swift */,
@@ -396,6 +408,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */,
+				FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */,
+				FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */,
 				FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,6 +454,8 @@
 				FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */,
 				FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */,
 				FC8A11110000000000000002 /* MediaFilter.swift in Sources */,
+				FC8A22220000000000000004 /* MemoryReminderSettings.swift in Sources */,
+				FC8A22220000000000000002 /* MemoryQuery.swift in Sources */,
 				FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */,
 				FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */,
 				FCA111110000000000000022 /* WidgetDeepLink.swift in Sources */,
