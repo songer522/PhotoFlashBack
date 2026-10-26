@@ -63,6 +63,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         backgroundTask = Task {
             // Perform background fetch - fetch multiple assets for widget
             let success = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
+
+            // Keep the daily memory reminders fresh; finish before telling iOS we're done.
+            await MemoryReminderScheduler.shared.refresh()
             
             if success {
                 // Assets fetched and stored successfully

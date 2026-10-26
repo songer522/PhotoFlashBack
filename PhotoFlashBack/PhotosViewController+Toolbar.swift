@@ -20,6 +20,7 @@ extension PhotosViewController {
         filterDropdown.translatesAutoresizingMaskIntoConstraints = false
         filterDropdown.onChange = { filter in
             MediaFilterStore.save(filter)
+            Task { await MemoryReminderScheduler.shared.refresh() }
         }
 
         NSLayoutConstraint.activate([
