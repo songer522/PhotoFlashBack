@@ -49,7 +49,9 @@ actor MemoryReminderScheduler {
     private let count: @Sendable (Int, Int) -> Int
     private let thumbnail: @Sendable (PlannedReminder) async -> UNNotificationAttachment?
     private let now: @Sendable () -> Date
-    private let calendar: Calendar
+    /// Fixed calendar for tests; nil reads `Calendar.current` on every refresh so a
+    /// time-zone change while the app stays alive is picked up.
+    private let calendar: Calendar?
 
     /// The most recently queued refresh. Actors are reentrant across `await`, so overlapping
     /// `refresh()` calls are chained through this task to run strictly one after another.
@@ -61,7 +63,7 @@ actor MemoryReminderScheduler {
         count: @escaping @Sendable (Int, Int) -> Int,
         thumbnail: @escaping @Sendable (PlannedReminder) async -> UNNotificationAttachment?,
         now: @escaping @Sendable () -> Date = { Date() },
-        calendar: Calendar = .current
+        calendar: Calendar? = nil
     ) {
         self.center = center
         self.settings = settings
@@ -91,7 +93,7 @@ actor MemoryReminderScheduler {
 
         let reminders = MemoryReminderPlanner.plan(
             now: now(),
-            calendar: calendar,
+            calendar: calendar ?? .current,
             settings: currentSettings,
             count: count
         )
@@ -160,6 +162,8 @@ actor MemoryReminderScheduler {
         }
     }
 
+    private static let thumbnailTimeout: TimeInterval = 5
+
     private static func requestImage(for asset: PHAsset) async -> UIImage? {
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
@@ -177,7 +181,7 @@ actor MemoryReminderScheduler {
                 guard !alreadyResumed else { return }
                 continuation.resume(returning: image)
             }
-            PHImageManager.default().requestImage(
+            let requestID = PHImageManager.default().requestImage(
                 for: asset,
                 targetSize: CGSize(width: 300, height: 300),
                 contentMode: .aspectFill,
@@ -189,6 +193,12 @@ actor MemoryReminderScheduler {
                 }
                 if (info?[PHImageResultIsDegradedKey] as? Bool) == true { return }
                 resume(image)
+            }
+            // An iCloud-only asset can take arbitrarily long to download, and every reminder
+            // waits on this; give up and send that reminder without a picture.
+            DispatchQueue.global().asyncAfter(deadline: .now() + thumbnailTimeout) {
+                PHImageManager.default().cancelImageRequest(requestID)
+                resume(nil)
             }
         }
     }

@@ -181,14 +181,17 @@ class PhotosViewController: UIViewController {
     /// photo pending from a widget tap.
     func show(month: Int, day: Int) {
         let current = loadedDate ?? (viewModel.month, viewModel.day)
-        if current.month == month && current.day == day {
-            openPendingWidgetPhoto()
-            return
-        }
+        let alreadyLoaded = current.month == month && current.day == day
+        // Sync the model and picker even when skipping the fetch: the picker may have been
+        // scrolled to another date without Select being tapped.
         viewModel.month = month
         viewModel.day = day
         picker.selectRow(month - 1, inComponent: 0, animated: false)
         picker.selectRow(day - 1, inComponent: 1, animated: false)
+        if alreadyLoaded {
+            openPendingWidgetPhoto()
+            return
+        }
         fetchPhotos()
     }
     
