@@ -54,17 +54,22 @@ enum MemoryQuery {
         return calendar
     }
 
-    /// One (from, to] range per year 1970...2050 covering `days` dates from `start`, padded two
-    /// days each side so Feb 29 shifts and year wraps stay inside.
+    /// One (from, to] range per year covering `days` dates from `start`, padded two days each side
+    /// so Feb 29 shifts and year wraps stay inside, and clamped to the years 1970...2050 the grid's
+    /// `Helper.compoundPredicateFrom` searches. A window that wraps into January starts in 1969 so
+    /// January 1970 is still counted.
     static func windowRanges(from start: Date, days: Int, timeZone: TimeZone = .current) -> [(from: Date, to: Date)] {
         let calendar = memoryCalendar(timeZone: timeZone)
         let first = calendar.dateComponents([.month, .day], from: start)
-        guard let firstMonth = first.month, let firstDay = first.day else { return [] }
-        return (1970...2050).compactMap { year in
+        guard let firstMonth = first.month, let firstDay = first.day,
+              let earliest = calendar.date(from: DateComponents(year: 1970, month: 1, day: 1)),
+              let latest = calendar.date(from: DateComponents(year: 2051, month: 1, day: 1)) else { return [] }
+        return (1969...2050).compactMap { year in
             guard let anchor = calendar.date(from: DateComponents(year: year, month: firstMonth, day: firstDay)),
                   let from = calendar.date(byAdding: .day, value: -2, to: anchor),
                   let to = calendar.date(byAdding: .day, value: days + 2, to: anchor) else { return nil }
-            return (from, to)
+            let clamped = (from: max(from, earliest), to: min(to, latest))
+            return clamped.from < clamped.to ? clamped : nil
         }
     }
 

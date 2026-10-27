@@ -70,6 +70,20 @@ final class MemoryQueryTests: XCTestCase {
         XCTAssertFalse(MemoryQuery.isMemory(creationDate: memoryDate, kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: hebrew))
     }
 
+    func testWrappedWindowRangesCoverExactlyTheGridYears() {
+        let calendar = MemoryQuery.memoryCalendar()
+        func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+            calendar.date(from: DateComponents(year: year, month: month, day: day, hour: 12))!
+        }
+        let ranges = MemoryQuery.windowRanges(from: date(2026, 12, 20), days: 31)
+        func covered(_ date: Date) -> Bool { ranges.contains { $0.from < date && date <= $0.to } }
+
+        XCTAssertTrue(covered(date(1970, 1, 5)))
+        XCTAssertTrue(covered(date(2050, 12, 25)))
+        XCTAssertFalse(covered(date(1969, 12, 25)))
+        XCTAssertFalse(covered(date(2051, 1, 5)))
+    }
+
     func testMemoryCalendarIsGregorianInTheGivenTimeZone() {
         let zone = TimeZone(identifier: "Asia/Tokyo")!
         let calendar = MemoryQuery.memoryCalendar(timeZone: zone)
