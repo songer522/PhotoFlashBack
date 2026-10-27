@@ -173,8 +173,9 @@ class PhotosViewController: UIViewController {
     
     func refreshIfNotToday() {
         let now = Date()
-        show(month: Calendar.current.component(.month, from: now),
-             day: Calendar.current.component(.day, from: now))
+        let calendar = MemoryQuery.memoryCalendar()
+        show(month: calendar.component(.month, from: now),
+             day: calendar.component(.day, from: now))
     }
 
     /// Shows the memories for a month/day. If that date is already showing, just opens any

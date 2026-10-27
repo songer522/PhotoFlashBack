@@ -52,7 +52,7 @@ actor MemoryReminderScheduler {
     private let makeCounter: @Sendable (_ start: Date, _ days: Int) -> (Int, Int) -> Int
     private let thumbnail: @Sendable (PlannedReminder) async -> UNNotificationAttachment?
     private let now: @Sendable () -> Date
-    /// Fixed calendar for tests; nil builds `MemoryQuery.reminderCalendar()` on every refresh so a
+    /// Fixed calendar for tests; nil builds `MemoryQuery.memoryCalendar()` on every refresh so a
     /// time-zone change while the app stays alive is picked up.
     private let calendar: Calendar?
 
@@ -95,7 +95,7 @@ actor MemoryReminderScheduler {
         }
 
         let refreshNow = now()
-        let refreshCalendar = calendar ?? MemoryQuery.reminderCalendar()
+        let refreshCalendar = calendar ?? MemoryQuery.memoryCalendar()
         // The plan starts today or tomorrow and spans 30 days, so 31 dates from today cover it.
         let count = makeCounter(refreshCalendar.startOfDay(for: refreshNow), 31)
         let reminders = MemoryReminderPlanner.plan(

@@ -56,9 +56,23 @@ final class MemoryQueryTests: XCTestCase {
         XCTAssertEqual(ranges.count, 2050 - 1970 + 1)
     }
 
-    func testReminderCalendarIsGregorianInTheGivenTimeZone() {
+    func testDefaultGridMatchingAgreesWithTheCounterEvenWhereHebrewMonthDayDiffers() {
+        // Oct 27, 2020 is 9 Heshvan 5781 in the Hebrew calendar. The counter groups it under 10/27,
+        // so the grid's default matching must accept it for 10/27 too, or a reminder would
+        // advertise memories the grid then hides.
+        let memoryDate = MemoryQuery.memoryCalendar().date(from: DateComponents(year: 2020, month: 10, day: 27, hour: 12))!
+        var hebrew = Calendar(identifier: .hebrew)
+        hebrew.timeZone = .current
+        XCTAssertNotEqual(hebrew.dateComponents([.month, .day], from: memoryDate), DateComponents(month: 10, day: 27))
+
+        XCTAssertEqual(MemoryQuery.dayKey(creationDate: memoryDate), MemoryQuery.DayKey(month: 10, day: 27))
+        XCTAssertTrue(MemoryQuery.isMemory(creationDate: memoryDate, kind: .photo, month: 10, day: 27, filter: unfiltered))
+        XCTAssertFalse(MemoryQuery.isMemory(creationDate: memoryDate, kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: hebrew))
+    }
+
+    func testMemoryCalendarIsGregorianInTheGivenTimeZone() {
         let zone = TimeZone(identifier: "Asia/Tokyo")!
-        let calendar = MemoryQuery.reminderCalendar(timeZone: zone)
+        let calendar = MemoryQuery.memoryCalendar(timeZone: zone)
         XCTAssertEqual(calendar.identifier, .gregorian)
         XCTAssertEqual(calendar.timeZone, zone)
     }

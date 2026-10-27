@@ -22,7 +22,7 @@ enum MemoryQuery {
         month: Int,
         day: Int,
         filter: MediaFilter,
-        calendar: Calendar = .current
+        calendar: Calendar = memoryCalendar()
     ) -> Bool {
         guard let creationDate else { return false }
         let components = calendar.dateComponents([.month, .day], from: creationDate)
@@ -38,16 +38,17 @@ enum MemoryQuery {
     /// The month/day a photo counts toward, matching the grid: its per-year range is
     /// (startOfDay, nextStartOfDay] filtered by `isMemory`, so a photo stamped exactly at
     /// local midnight never shows up and isn't counted here either.
-    static func dayKey(creationDate: Date?, calendar: Calendar = .current) -> DayKey? {
+    static func dayKey(creationDate: Date?, calendar: Calendar = memoryCalendar()) -> DayKey? {
         guard let creationDate, creationDate != calendar.startOfDay(for: creationDate) else { return nil }
         let components = calendar.dateComponents([.month, .day], from: creationDate)
         guard let month = components.month, let day = components.day else { return nil }
         return DayKey(month: month, day: day)
     }
 
-    /// The calendar reminder dates are worked out in: Gregorian like `Helper.compoundPredicateFrom`,
-    /// so a Buddhist, Japanese or Hebrew device calendar can't shift the years or month/day.
-    static func reminderCalendar(timeZone: TimeZone = .current) -> Calendar {
+    /// The calendar every memory date is worked out in (grid, widget and reminders): Gregorian like
+    /// `Helper.compoundPredicateFrom`, so a Buddhist, Japanese or Hebrew device calendar can't shift
+    /// the years or month/day, and a reminder's count always matches the grid it opens.
+    static func memoryCalendar(timeZone: TimeZone = .current) -> Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = timeZone
         return calendar
@@ -56,7 +57,7 @@ enum MemoryQuery {
     /// One (from, to] range per year 1970...2050 covering `days` dates from `start`, padded two
     /// days each side so Feb 29 shifts and year wraps stay inside.
     static func windowRanges(from start: Date, days: Int, timeZone: TimeZone = .current) -> [(from: Date, to: Date)] {
-        let calendar = reminderCalendar(timeZone: timeZone)
+        let calendar = memoryCalendar(timeZone: timeZone)
         let first = calendar.dateComponents([.month, .day], from: start)
         guard let firstMonth = first.month, let firstDay = first.day else { return [] }
         return (1970...2050).compactMap { year in
@@ -74,7 +75,7 @@ enum MemoryQuery {
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         guard status == .authorized || status == .limited else { return [:] }
 
-        let calendar = reminderCalendar(timeZone: timeZone)
+        let calendar = memoryCalendar(timeZone: timeZone)
         let ranges = windowRanges(from: start, days: days, timeZone: timeZone).map {
             NSPredicate(format: "creationDate > %@ AND creationDate <= %@", $0.from as NSDate, $0.to as NSDate)
         }

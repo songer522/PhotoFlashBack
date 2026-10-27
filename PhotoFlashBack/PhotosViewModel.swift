@@ -93,8 +93,9 @@ class PhotosViewModel {
     var monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
     init() {
-        day = Calendar.current.component(.day, from: Date())
-        month = Calendar.current.component(.month, from: Date())
+        let calendar = MemoryQuery.memoryCalendar()
+        day = calendar.component(.day, from: Date())
+        month = calendar.component(.month, from: Date())
     }
     
     func displayDate() -> String {
@@ -105,7 +106,8 @@ class PhotosViewModel {
     }
     
     func isToday() -> Bool {
-        return day == Calendar.current.component(.day, from: Date()) && month == Calendar.current.component(.month, from: Date())
+        let calendar = MemoryQuery.memoryCalendar()
+        return day == calendar.component(.day, from: Date()) && month == calendar.component(.month, from: Date())
     }
     
     func fetchPhoto() async {
@@ -128,7 +130,7 @@ class PhotosViewModel {
                         return
                     }
                     
-                    let assetYear = Calendar.current.component(.year, from: creationDate)
+                    let assetYear = MemoryQuery.memoryCalendar().component(.year, from: creationDate)
                     
                     if MemoryQuery.isMemory(creationDate: creationDate, kind: MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes), month: month, day: day, filter: filter) {
                         if var assetArray = tempAssetDict[String(assetYear)] {
@@ -180,7 +182,7 @@ class PhotosViewModel {
                                     return
                                 }
                                 
-                                let assetYear = Calendar.current.component(.year, from: creationDate)
+                                let assetYear = MemoryQuery.memoryCalendar().component(.year, from: creationDate)
                                 
                                 if MemoryQuery.isMemory(creationDate: creationDate, kind: MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes), month: month, day: day, filter: filter) {
                                     if var assetArray = tempAssetDict[String(assetYear)] {
@@ -310,7 +312,7 @@ class PhotosViewModel {
             return 30
         case 2:
             // Check for leap year
-            let calendar = Calendar.current
+            let calendar = MemoryQuery.memoryCalendar()
             let currentYear = calendar.component(.year, from: Date())
             let isLeapYear = calendar.range(of: .day, in: .month, for: calendar.date(from: DateComponents(year: currentYear, month: 2, day: 1))!)!.count == 29
             return isLeapYear ? 29 : 28
