@@ -88,7 +88,7 @@ final class MemoryReminderSchedulerTests: XCTestCase {
         return MemoryReminderScheduler(
             center: center,
             settings: { settings.get() },
-            count: { _, _ in 2 },
+            makeCounter: { _, _ in { _, _ in 2 } },
             thumbnail: { _ in nil },
             now: { fixedNow },
             calendar: calendar

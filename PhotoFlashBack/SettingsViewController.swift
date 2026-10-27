@@ -121,8 +121,14 @@ class SettingsViewController: UITableViewController {
         return section == 0 ? "Daily Reminder" : nil
     }
 
-    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        return section == 0 ? "Get a notification each day when you have memories from that date." : nil
+    // A plain-style table draws footer titles on one line, so use a view that wraps.
+    override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        guard section == 0 else { return nil }
+        let footer = UITableViewHeaderFooterView()
+        var content = UIListContentConfiguration.groupedFooter()
+        content.text = "Get a notification each day when you have memories from that date."
+        footer.contentConfiguration = content
+        return footer
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

@@ -29,4 +29,16 @@ final class MemoryQueryTests: XCTestCase {
         let allOff = MediaFilter(photos: false, videos: false, screenshots: false)
         XCTAssertTrue(MemoryQuery.isMemory(creationDate: date(2019, 10, 27), kind: .screenshot, month: 10, day: 27, filter: allOff, calendar: calendar))
     }
+
+    func testDayKeyUsesCalendarMonthAndDay() {
+        XCTAssertEqual(MemoryQuery.dayKey(creationDate: date(2019, 10, 27), calendar: calendar), MemoryQuery.DayKey(month: 10, day: 27))
+        XCTAssertNil(MemoryQuery.dayKey(creationDate: nil, calendar: calendar))
+    }
+
+    func testDayKeySkipsExactMidnightLikeTheGridPredicate() {
+        // The grid's per-year range is (startOfDay, nextStartOfDay], so a photo stamped exactly
+        // at midnight is never shown; the batched counter must agree.
+        XCTAssertNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0), calendar: calendar))
+        XCTAssertNotNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0).addingTimeInterval(1), calendar: calendar))
+    }
 }

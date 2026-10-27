@@ -36,8 +36,9 @@ actor MemoryReminderScheduler {
     static let shared = MemoryReminderScheduler(
         center: UNUserNotificationCenter.current(),
         settings: { MemoryReminderSettingsStore.load() },
-        count: { month, day in
-            MemoryQuery.count(month: month, day: day, filter: MediaFilterStore.load())
+        makeCounter: { start, days in
+            let counts = MemoryQuery.counts(from: start, days: days, filter: MediaFilterStore.load())
+            return { month, day in counts[MemoryQuery.DayKey(month: month, day: day)] ?? 0 }
         },
         thumbnail: { reminder in
             await MemoryReminderScheduler.makeThumbnailAttachment(for: reminder)
@@ -46,7 +47,9 @@ actor MemoryReminderScheduler {
 
     private let center: NotificationScheduling
     private let settings: @Sendable () -> MemoryReminderSettings
-    private let count: @Sendable (Int, Int) -> Int
+    /// Builds a month/day counter for `days` dates from a start date. Counting the whole window
+    /// in one go keeps a refresh well inside the time iOS allows in the background.
+    private let makeCounter: @Sendable (_ start: Date, _ days: Int) -> (Int, Int) -> Int
     private let thumbnail: @Sendable (PlannedReminder) async -> UNNotificationAttachment?
     private let now: @Sendable () -> Date
     /// Fixed calendar for tests; nil reads `Calendar.current` on every refresh so a
@@ -60,14 +63,14 @@ actor MemoryReminderScheduler {
     init(
         center: NotificationScheduling,
         settings: @escaping @Sendable () -> MemoryReminderSettings,
-        count: @escaping @Sendable (Int, Int) -> Int,
+        makeCounter: @escaping @Sendable (_ start: Date, _ days: Int) -> (Int, Int) -> Int,
         thumbnail: @escaping @Sendable (PlannedReminder) async -> UNNotificationAttachment?,
         now: @escaping @Sendable () -> Date = { Date() },
         calendar: Calendar? = nil
     ) {
         self.center = center
         self.settings = settings
-        self.count = count
+        self.makeCounter = makeCounter
         self.thumbnail = thumbnail
         self.now = now
         self.calendar = calendar
@@ -91,9 +94,13 @@ actor MemoryReminderScheduler {
             return
         }
 
+        let refreshNow = now()
+        let refreshCalendar = calendar ?? .current
+        // The plan starts today or tomorrow and spans 30 days, so 31 dates from today cover it.
+        let count = makeCounter(refreshCalendar.startOfDay(for: refreshNow), 31)
         let reminders = MemoryReminderPlanner.plan(
-            now: now(),
-            calendar: calendar ?? .current,
+            now: refreshNow,
+            calendar: refreshCalendar,
             settings: currentSettings,
             count: count
         )
