@@ -35,6 +35,8 @@ enum MemoryQuery {
     }
 
     static func assets(month: Int, day: Int, filter: MediaFilter) -> [PHAsset] {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        guard status == .authorized || status == .limited else { return [] }
         let fetched = PHAsset.fetchAssets(with: fetchOptions(month: month, day: day))
         var result: [PHAsset] = []
         fetched.enumerateObjects { asset, _, _ in

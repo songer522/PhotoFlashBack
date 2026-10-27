@@ -164,16 +164,31 @@ actor MemoryReminderScheduler {
         let options = PHImageRequestOptions()
         options.isNetworkAccessAllowed = true
         options.deliveryMode = .highQualityFormat
+        // The handler can fire more than once, or with only an error/cancellation, so resume
+        // exactly once: a leaked continuation would hang every refresh chained behind this one.
+        let lock = NSLock()
+        var didResume = false
         return await withCheckedContinuation { continuation in
+            let resume: (UIImage?) -> Void = { image in
+                lock.lock()
+                let alreadyResumed = didResume
+                didResume = true
+                lock.unlock()
+                guard !alreadyResumed else { return }
+                continuation.resume(returning: image)
+            }
             PHImageManager.default().requestImage(
                 for: asset,
                 targetSize: CGSize(width: 300, height: 300),
                 contentMode: .aspectFill,
                 options: options
             ) { image, info in
-                // A final result arrives once with `.highQualityFormat`; ignore any degraded preview.
+                if (info?[PHImageCancelledKey] as? Bool) == true || info?[PHImageErrorKey] != nil {
+                    resume(nil)
+                    return
+                }
                 if (info?[PHImageResultIsDegradedKey] as? Bool) == true { return }
-                continuation.resume(returning: image)
+                resume(image)
             }
         }
     }

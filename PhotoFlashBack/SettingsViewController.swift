@@ -58,6 +58,8 @@ class SettingsViewController: UITableViewController {
             self?.tipCancelled()
         }
         tipJar.productsRequest?.start()
+        // viewWillAppear doesn't run when returning from iOS Settings, so recheck permission here too.
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
     func setupLoadingSpinner() {
@@ -71,12 +73,26 @@ class SettingsViewController: UITableViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        reloadReminderState(rescheduleIfTurnedOn: false)
+    }
+
+    @objc private func appWillEnterForeground() {
+        // Permission may have been re-granted in iOS Settings; reschedule right away rather than
+        // waiting for the next trip to the background.
+        reloadReminderState(rescheduleIfTurnedOn: true)
+    }
+
+    private func reloadReminderState(rescheduleIfTurnedOn: Bool) {
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             let authorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 // Read the setting here, not before the async hop, so a stale result can't undo a fresh toggle.
-                self.reminderShownOn = MemoryReminderSettingsStore.load().enabled && authorized
+                let shownOn = MemoryReminderSettingsStore.load().enabled && authorized
+                if rescheduleIfTurnedOn && shownOn && !self.reminderShownOn {
+                    Task { await MemoryReminderScheduler.shared.refresh() }
+                }
+                self.reminderShownOn = shownOn
                 self.tableView.reloadSections(IndexSet(integer: 0), with: .none)
             }
         }

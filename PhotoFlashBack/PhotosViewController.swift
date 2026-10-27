@@ -22,6 +22,9 @@ class PhotosViewController: UIViewController {
     var fetchTask: Task<Void, Never>?
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
+    /// The date the grid last loaded. Scrolling the picker changes `viewModel.month/day`
+    /// before Select is tapped, so those can't tell what is actually on screen.
+    var loadedDate: (month: Int, day: Int)?
     // Strong reference to keep the zoom transition delegate alive for the duration of the
     // full-screen viewer presentation. `UIViewController.transitioningDelegate` is weak, so
     // without this the delegate (and the custom animator it hands out) would be deallocated
@@ -177,7 +180,8 @@ class PhotosViewController: UIViewController {
     /// Shows the memories for a month/day. If that date is already showing, just opens any
     /// photo pending from a widget tap.
     func show(month: Int, day: Int) {
-        if viewModel.month == month && viewModel.day == day {
+        let current = loadedDate ?? (viewModel.month, viewModel.day)
+        if current.month == month && current.day == day {
             openPendingWidgetPhoto()
             return
         }
@@ -343,6 +347,7 @@ class PhotosViewController: UIViewController {
         showLoadingSpinner()
         hideEmptyState()
 
+        loadedDate = (viewModel.month, viewModel.day)
         fetchTask = Task {
             // Use progress tracking version
             for await progress in viewModel.fetchPhotoWithProgress() {
@@ -554,6 +559,7 @@ class PhotosViewController: UIViewController {
         showLoadingSpinner()
         hideEmptyState()
 
+        loadedDate = (viewModel.month, viewModel.day)
         fetchTask = Task {
             // Use progress tracking for date picker as well
             for await progress in viewModel.fetchPhotoWithProgress() {
@@ -605,6 +611,13 @@ class PhotosViewController: UIViewController {
     
     @objc func dateCancelled () {
         view.endEditing(true)
+        // Put the picker and view model back on the date the grid is showing.
+        if let loadedDate {
+            viewModel.month = loadedDate.month
+            viewModel.day = loadedDate.day
+            picker.selectRow(loadedDate.month - 1, inComponent: 0, animated: false)
+            picker.selectRow(loadedDate.day - 1, inComponent: 1, animated: false)
+        }
     }
     
     @objc func settingsButtonTapped() {
