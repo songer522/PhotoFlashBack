@@ -45,22 +45,38 @@ enum MemoryQuery {
         return DayKey(month: month, day: day)
     }
 
+    /// The calendar reminder dates are worked out in: Gregorian like `Helper.compoundPredicateFrom`,
+    /// so a Buddhist, Japanese or Hebrew device calendar can't shift the years or month/day.
+    static func reminderCalendar(timeZone: TimeZone = .current) -> Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return calendar
+    }
+
+    /// One (from, to] range per year 1970...2050 covering `days` dates from `start`, padded two
+    /// days each side so Feb 29 shifts and year wraps stay inside.
+    static func windowRanges(from start: Date, days: Int, timeZone: TimeZone = .current) -> [(from: Date, to: Date)] {
+        let calendar = reminderCalendar(timeZone: timeZone)
+        let first = calendar.dateComponents([.month, .day], from: start)
+        guard let firstMonth = first.month, let firstDay = first.day else { return [] }
+        return (1970...2050).compactMap { year in
+            guard let anchor = calendar.date(from: DateComponents(year: year, month: firstMonth, day: firstDay)),
+                  let from = calendar.date(byAdding: .day, value: -2, to: anchor),
+                  let to = calendar.date(byAdding: .day, value: days + 2, to: anchor) else { return nil }
+            return (from, to)
+        }
+    }
+
     /// Counts memories for `days` consecutive dates starting at `start` with a single PhotoKit
     /// query. Each query costs about the same however many dates it covers, so this is ~30x
     /// faster than counting the dates one at a time. Per date it matches `assets(month:day:filter:)`.
-    static func counts(from start: Date, days: Int, filter: MediaFilter, calendar: Calendar = .current) -> [DayKey: Int] {
+    static func counts(from start: Date, days: Int, filter: MediaFilter, timeZone: TimeZone = .current) -> [DayKey: Int] {
         let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         guard status == .authorized || status == .limited else { return [:] }
 
-        let first = calendar.dateComponents([.month, .day], from: start)
-        guard let firstMonth = first.month, let firstDay = first.day else { return [:] }
-        // One range per year covering the window, padded so Feb 29 shifts and year wraps stay inside.
-        var ranges: [NSPredicate] = []
-        for year in 1970...2050 {
-            guard let anchor = calendar.date(from: DateComponents(year: year, month: firstMonth, day: firstDay)),
-                  let from = calendar.date(byAdding: .day, value: -2, to: anchor),
-                  let to = calendar.date(byAdding: .day, value: days + 2, to: anchor) else { continue }
-            ranges.append(NSPredicate(format: "creationDate > %@ AND creationDate <= %@", from as NSDate, to as NSDate))
+        let calendar = reminderCalendar(timeZone: timeZone)
+        let ranges = windowRanges(from: start, days: days, timeZone: timeZone).map {
+            NSPredicate(format: "creationDate > %@ AND creationDate <= %@", $0.from as NSDate, $0.to as NSDate)
         }
         let mediaPredicate = NSPredicate(format: "mediaType = %d OR mediaType = %d", PHAssetMediaType.image.rawValue, PHAssetMediaType.video.rawValue)
         let options = PHFetchOptions()

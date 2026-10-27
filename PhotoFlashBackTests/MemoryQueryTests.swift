@@ -41,4 +41,25 @@ final class MemoryQueryTests: XCTestCase {
         XCTAssertNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0), calendar: calendar))
         XCTAssertNotNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0).addingTimeInterval(1), calendar: calendar))
     }
+
+    func testWindowRangesUseGregorianYearsWhateverTheDeviceCalendar() {
+        var buddhist = Calendar(identifier: .buddhist)
+        buddhist.timeZone = TimeZone(identifier: "America/Chicago")!
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = buddhist.timeZone
+        let start = gregorian.date(from: DateComponents(year: 2026, month: 10, day: 26))!
+
+        let ranges = MemoryQuery.windowRanges(from: start, days: 31, timeZone: buddhist.timeZone)
+
+        let october2020 = gregorian.date(from: DateComponents(year: 2020, month: 10, day: 27, hour: 12))!
+        XCTAssertTrue(ranges.contains { $0.from < october2020 && october2020 <= $0.to })
+        XCTAssertEqual(ranges.count, 2050 - 1970 + 1)
+    }
+
+    func testReminderCalendarIsGregorianInTheGivenTimeZone() {
+        let zone = TimeZone(identifier: "Asia/Tokyo")!
+        let calendar = MemoryQuery.reminderCalendar(timeZone: zone)
+        XCTAssertEqual(calendar.identifier, .gregorian)
+        XCTAssertEqual(calendar.timeZone, zone)
+    }
 }
