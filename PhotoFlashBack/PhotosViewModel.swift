@@ -93,8 +93,9 @@ class PhotosViewModel {
     var monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     
     init() {
-        day = Calendar.current.component(.day, from: Date())
-        month = Calendar.current.component(.month, from: Date())
+        let calendar = MemoryQuery.memoryCalendar()
+        day = calendar.component(.day, from: Date())
+        month = calendar.component(.month, from: Date())
     }
     
     func displayDate() -> String {
@@ -105,7 +106,8 @@ class PhotosViewModel {
     }
     
     func isToday() -> Bool {
-        return day == Calendar.current.component(.day, from: Date()) && month == Calendar.current.component(.month, from: Date())
+        let calendar = MemoryQuery.memoryCalendar()
+        return day == calendar.component(.day, from: Date()) && month == calendar.component(.month, from: Date())
     }
     
     func fetchPhoto() async {
@@ -117,16 +119,7 @@ class PhotosViewModel {
         // Perform fetch on background thread to avoid blocking UI
         let filter = MediaFilterStore.load()
         let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month, filter] in
-            let options = PHFetchOptions()
-            options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            
-            let predicates = Helper.compoundPredicateFrom(day: day, month: month)
-            let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-            let predicate3 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
-            let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
-            let compoundPredicate2 = NSCompoundPredicate(type: .or, subpredicates: [predicate2, predicate3])
-            let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1, compoundPredicate2])
-            options.predicate = compoundPredicate3
+            let options = MemoryQuery.fetchOptions(month: month, day: day)
             
             let assetsFetchResults = PHAsset.fetchAssets(with: options)
             var tempAssetDict: [String: [PHAsset]] = [:]
@@ -137,12 +130,9 @@ class PhotosViewModel {
                         return
                     }
                     
-                    let assetDay = Calendar.current.component(.day, from: creationDate)
-                    let assetMonth = Calendar.current.component(.month, from: creationDate)
-                    let assetYear = Calendar.current.component(.year, from: creationDate)
+                    let assetYear = MemoryQuery.memoryCalendar().component(.year, from: creationDate)
                     
-                    if assetDay == day && assetMonth == month {
-                        guard filter.includes(asset) else { return }
+                    if MemoryQuery.isMemory(creationDate: creationDate, kind: MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes), month: month, day: day, filter: filter) {
                         if var assetArray = tempAssetDict[String(assetYear)] {
                             assetArray.append(asset)
                             tempAssetDict[String(assetYear)] = assetArray
@@ -175,16 +165,7 @@ class PhotosViewModel {
                     // Phase 1: Fetch photos
                     let filter = MediaFilterStore.load()
                     let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month, filter] in
-                        let options = PHFetchOptions()
-                        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                        
-                        let predicates = Helper.compoundPredicateFrom(day: day, month: month)
-                        let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-                        let predicate3 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.video.rawValue)
-                        let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
-                        let compoundPredicate2 = NSCompoundPredicate(type: .or, subpredicates: [predicate2, predicate3])
-                        let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1, compoundPredicate2])
-                        options.predicate = compoundPredicate3
+                        let options = MemoryQuery.fetchOptions(month: month, day: day)
                         
                         let assetsFetchResults = PHAsset.fetchAssets(with: options)
                         var tempAssetDict: [String: [PHAsset]] = [:]
@@ -201,11 +182,9 @@ class PhotosViewModel {
                                     return
                                 }
                                 
-                                let assetDay = Calendar.current.component(.day, from: creationDate)
-                                let assetMonth = Calendar.current.component(.month, from: creationDate)
-                                let assetYear = Calendar.current.component(.year, from: creationDate)
+                                let assetYear = MemoryQuery.memoryCalendar().component(.year, from: creationDate)
                                 
-                                if assetDay == day && assetMonth == month, filter.includes(asset) {
+                                if MemoryQuery.isMemory(creationDate: creationDate, kind: MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes), month: month, day: day, filter: filter) {
                                     if var assetArray = tempAssetDict[String(assetYear)] {
                                         assetArray.append(asset)
                                         tempAssetDict[String(assetYear)] = assetArray
@@ -333,7 +312,7 @@ class PhotosViewModel {
             return 30
         case 2:
             // Check for leap year
-            let calendar = Calendar.current
+            let calendar = MemoryQuery.memoryCalendar()
             let currentYear = calendar.component(.year, from: Date())
             let isLeapYear = calendar.range(of: .day, in: .month, for: calendar.date(from: DateComponents(year: currentYear, month: 2, day: 1))!)!.count == 29
             return isLeapYear ? 29 : 28

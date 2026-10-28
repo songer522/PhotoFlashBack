@@ -22,6 +22,9 @@ class PhotosViewController: UIViewController {
     var fetchTask: Task<Void, Never>?
     var isLandscape = Helper.isLandscape()
     var viewModel = PhotosViewModel()
+    /// The date the grid last loaded. Scrolling the picker changes `viewModel.month/day`
+    /// before Select is tapped, so those can't tell what is actually on screen.
+    var loadedDate: (month: Int, day: Int)?
     // Strong reference to keep the zoom transition delegate alive for the duration of the
     // full-screen viewer presentation. `UIViewController.transitioningDelegate` is weak, so
     // without this the delegate (and the custom animator it hands out) would be deallocated
@@ -129,6 +132,11 @@ class PhotosViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Cold start from a reminder tap: open on that date instead of today.
+        if let pending = PendingMemoryDate.take() {
+            viewModel.month = pending.month
+            viewModel.day = pending.day
+        }
         setupViews()
         if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
             PHPhotoLibrary.requestAuthorization(for: .readWrite) { [weak self] status in
@@ -164,15 +172,28 @@ class PhotosViewController: UIViewController {
     }
     
     func refreshIfNotToday() {
-        if !viewModel.isToday() {
-            viewModel.day = Calendar.current.component(.day, from: Date())
-            viewModel.month = Calendar.current.component(.month, from: Date())
-            picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
-            picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
-            fetchPhotos()
-        } else {
+        let now = Date()
+        let calendar = MemoryQuery.memoryCalendar()
+        show(month: calendar.component(.month, from: now),
+             day: calendar.component(.day, from: now))
+    }
+
+    /// Shows the memories for a month/day. If that date is already showing, just opens any
+    /// photo pending from a widget tap.
+    func show(month: Int, day: Int) {
+        let current = loadedDate ?? (viewModel.month, viewModel.day)
+        let alreadyLoaded = current.month == month && current.day == day
+        // Sync the model and picker even when skipping the fetch: the picker may have been
+        // scrolled to another date without Select being tapped.
+        viewModel.month = month
+        viewModel.day = day
+        picker.selectRow(month - 1, inComponent: 0, animated: false)
+        picker.selectRow(day - 1, inComponent: 1, animated: false)
+        if alreadyLoaded {
             openPendingWidgetPhoto()
+            return
         }
+        fetchPhotos()
     }
     
     deinit {
@@ -330,6 +351,7 @@ class PhotosViewController: UIViewController {
         showLoadingSpinner()
         hideEmptyState()
 
+        loadedDate = (viewModel.month, viewModel.day)
         fetchTask = Task {
             // Use progress tracking version
             for await progress in viewModel.fetchPhotoWithProgress() {
@@ -541,6 +563,7 @@ class PhotosViewController: UIViewController {
         showLoadingSpinner()
         hideEmptyState()
 
+        loadedDate = (viewModel.month, viewModel.day)
         fetchTask = Task {
             // Use progress tracking for date picker as well
             for await progress in viewModel.fetchPhotoWithProgress() {
@@ -592,6 +615,13 @@ class PhotosViewController: UIViewController {
     
     @objc func dateCancelled () {
         view.endEditing(true)
+        // Put the picker and view model back on the date the grid is showing.
+        if let loadedDate {
+            viewModel.month = loadedDate.month
+            viewModel.day = loadedDate.day
+            picker.selectRow(loadedDate.month - 1, inComponent: 0, animated: false)
+            picker.selectRow(loadedDate.day - 1, inComponent: 1, animated: false)
+        }
     }
     
     @objc func settingsButtonTapped() {

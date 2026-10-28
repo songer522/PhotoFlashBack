@@ -21,6 +21,7 @@ Shipping on the App Store as **[Rewind: Memories on This Day](https://itunes.app
 - **Home screen widget** — a WidgetKit extension that shows today's memories and refreshes at midnight, sharing data with the app through an App Group.
 - **Background refresh** — a `BGTaskScheduler` job warms the day's memories so the app and widget open with content ready.
 - **Tip jar** — an optional in-app tip via StoreKit, plus rate/feedback/share actions in Settings.
+- **Daily memory reminder** — an opt-in local notification (Settings → Daily Reminder) at a time you choose, e.g. "📸 24 memories from Oct 27", sent only on dates that have memories; tapping it opens that date.
 
 Everything runs locally against `PHPhotoLibrary`. The app has no backend and uploads nothing.
 
@@ -63,6 +64,11 @@ PhotoFlashBack/            App target (UIKit)
   CustomLayouts.swift      Classic and mosaic collection view layouts
   SkeletonView.swift       Loading placeholders
   IAPHelper.swift          Tip jar
+  MemoryQuery.swift        Same-day-in-past-years memory lookup
+  MemoryReminderSettings.swift   Daily reminder settings + persistence
+  MemoryReminderPlanner.swift    Plans which dates get reminders
+  MemoryReminderScheduler.swift  Schedules the local notifications
+  PendingMemoryDate.swift  Notification-tap date handoff and parsing
 TodayWidget/               WidgetKit extension
 PhotoFlashBackTests/       Unit tests
 screenshots/               App Store screenshots
@@ -74,10 +80,10 @@ screenshots/               App Store screenshots
 xcodebuild test \
   -project PhotoFlashBack.xcodeproj \
   -scheme PhotoFlashBack \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro Max'
 ```
 
-Or press ⌘U in Xcode. Coverage currently focuses on the media filter logic and image-request gating.
+Or press ⌘U in Xcode. Coverage currently focuses on the media filter logic, image-request gating, the reminder planner/scheduler, and pending-date parsing.
 
 ## License
 

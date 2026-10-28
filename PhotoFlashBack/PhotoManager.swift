@@ -43,7 +43,7 @@ actor PhotoManager {
     func fetchMultipleRandomAssetsFromSameDayInPast(count: Int) async -> [PHAsset] {
         return await Task.detached(priority: .userInitiated) {
             let today = Date()
-            let calendar = Calendar.current
+            let calendar = MemoryQuery.memoryCalendar()
             let todayComponents = calendar.dateComponents([.day, .month, .year], from: today)
             
             guard let day = todayComponents.day, let month = todayComponents.month, let currentYear = todayComponents.year else {

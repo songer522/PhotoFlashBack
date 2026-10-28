@@ -1,0 +1,93 @@
+import XCTest
+import Photos
+@testable import PhotoFlashBack
+
+final class MemoryQueryTests: XCTestCase {
+    private let calendar = Calendar(identifier: .gregorian)
+    private let unfiltered = MediaFilter(photos: true, videos: true, screenshots: true)
+
+    private func date(_ year: Int, _ month: Int, _ day: Int, _ hour: Int = 10) -> Date {
+        calendar.date(from: DateComponents(year: year, month: month, day: day, hour: hour))!
+    }
+
+    func testMatchesSameMonthDayAnyYear() {
+        XCTAssertTrue(MemoryQuery.isMemory(creationDate: date(2019, 10, 27), kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: calendar))
+    }
+
+    func testRejectsOtherDay() {
+        XCTAssertFalse(MemoryQuery.isMemory(creationDate: date(2019, 10, 28), kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: calendar))
+        XCTAssertFalse(MemoryQuery.isMemory(creationDate: nil, kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: calendar))
+    }
+
+    func testFilterExcludingKindRejects() {
+        let videosOnly = MediaFilter(photos: false, videos: true, screenshots: false)
+        XCTAssertFalse(MemoryQuery.isMemory(creationDate: date(2019, 10, 27), kind: .photo, month: 10, day: 27, filter: videosOnly, calendar: calendar))
+        XCTAssertTrue(MemoryQuery.isMemory(creationDate: date(2019, 10, 27), kind: .video, month: 10, day: 27, filter: videosOnly, calendar: calendar))
+    }
+
+    func testAllOffFilterIsUnfiltered() {
+        let allOff = MediaFilter(photos: false, videos: false, screenshots: false)
+        XCTAssertTrue(MemoryQuery.isMemory(creationDate: date(2019, 10, 27), kind: .screenshot, month: 10, day: 27, filter: allOff, calendar: calendar))
+    }
+
+    func testDayKeyUsesCalendarMonthAndDay() {
+        XCTAssertEqual(MemoryQuery.dayKey(creationDate: date(2019, 10, 27), calendar: calendar), MemoryQuery.DayKey(month: 10, day: 27))
+        XCTAssertNil(MemoryQuery.dayKey(creationDate: nil, calendar: calendar))
+    }
+
+    func testDayKeySkipsExactMidnightLikeTheGridPredicate() {
+        // The grid's per-year range is (startOfDay, nextStartOfDay], so a photo stamped exactly
+        // at midnight is never shown; the batched counter must agree.
+        XCTAssertNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0), calendar: calendar))
+        XCTAssertNotNil(MemoryQuery.dayKey(creationDate: date(2019, 10, 27, 0).addingTimeInterval(1), calendar: calendar))
+    }
+
+    func testWindowRangesUseGregorianYearsWhateverTheDeviceCalendar() {
+        var buddhist = Calendar(identifier: .buddhist)
+        buddhist.timeZone = TimeZone(identifier: "America/Chicago")!
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = buddhist.timeZone
+        let start = gregorian.date(from: DateComponents(year: 2026, month: 10, day: 26))!
+
+        let ranges = MemoryQuery.windowRanges(from: start, days: 31, timeZone: buddhist.timeZone)
+
+        let october2020 = gregorian.date(from: DateComponents(year: 2020, month: 10, day: 27, hour: 12))!
+        XCTAssertTrue(ranges.contains { $0.from < october2020 && october2020 <= $0.to })
+        XCTAssertEqual(ranges.count, 2050 - 1970 + 1)
+    }
+
+    func testDefaultGridMatchingAgreesWithTheCounterEvenWhereHebrewMonthDayDiffers() {
+        // Oct 27, 2020 is 9 Heshvan 5781 in the Hebrew calendar. The counter groups it under 10/27,
+        // so the grid's default matching must accept it for 10/27 too, or a reminder would
+        // advertise memories the grid then hides.
+        let memoryDate = MemoryQuery.memoryCalendar().date(from: DateComponents(year: 2020, month: 10, day: 27, hour: 12))!
+        var hebrew = Calendar(identifier: .hebrew)
+        hebrew.timeZone = .current
+        XCTAssertNotEqual(hebrew.dateComponents([.month, .day], from: memoryDate), DateComponents(month: 10, day: 27))
+
+        XCTAssertEqual(MemoryQuery.dayKey(creationDate: memoryDate), MemoryQuery.DayKey(month: 10, day: 27))
+        XCTAssertTrue(MemoryQuery.isMemory(creationDate: memoryDate, kind: .photo, month: 10, day: 27, filter: unfiltered))
+        XCTAssertFalse(MemoryQuery.isMemory(creationDate: memoryDate, kind: .photo, month: 10, day: 27, filter: unfiltered, calendar: hebrew))
+    }
+
+    func testWrappedWindowRangesCoverExactlyTheGridYears() {
+        let calendar = MemoryQuery.memoryCalendar()
+        func date(_ year: Int, _ month: Int, _ day: Int) -> Date {
+            calendar.date(from: DateComponents(year: year, month: month, day: day, hour: 12))!
+        }
+        let ranges = MemoryQuery.windowRanges(from: date(2026, 12, 20), days: 31)
+        func covered(_ date: Date) -> Bool { ranges.contains { $0.from < date && date <= $0.to } }
+
+        XCTAssertTrue(covered(date(1970, 1, 5)))
+        XCTAssertTrue(covered(date(2050, 12, 25)))
+        XCTAssertFalse(covered(date(1969, 12, 25)))
+        XCTAssertFalse(covered(date(2051, 1, 5)))
+    }
+
+    func testMemoryCalendarIsGregorianInTheGivenTimeZone() {
+        let zone = TimeZone(identifier: "Asia/Tokyo")!
+        let calendar = MemoryQuery.memoryCalendar(timeZone: zone)
+        XCTAssertEqual(calendar.identifier, .gregorian)
+        XCTAssertEqual(calendar.timeZone, zone)
+    }
+}

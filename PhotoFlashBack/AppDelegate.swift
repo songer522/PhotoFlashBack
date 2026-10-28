@@ -9,10 +9,11 @@ import UIKit
 import AVFAudio
 import BackgroundTasks
 import Photos
+import UserNotifications
 import WidgetKit
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     
     // Background task identifier - must match Info.plist
     static let backgroundTaskIdentifier = "com.YangSong.PhotoFlashBack.fetch"
@@ -25,6 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         }
         
+        // Must be set before launch finishes so a notification tap that cold-starts the app is delivered.
+        UNUserNotificationCenter.current().delegate = self
+
         // Register the background task
         BGTaskScheduler.shared.register(forTaskWithIdentifier: AppDelegate.backgroundTaskIdentifier, using: nil) { [weak self] task in
             guard let self = self else { return }
@@ -63,23 +67,50 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         backgroundTask = Task {
             // Perform background fetch - fetch multiple assets for widget
             let success = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
-            
+
             if success {
                 // Assets fetched and stored successfully
                 WidgetCenter.shared.reloadAllTimelines()
-                task.setTaskCompleted(success: true)
             } else {
                 // Failed to fetch or store the assets
                 print("Background fetch failed: Unable to fetch or store random assets")
-                task.setTaskCompleted(success: false)
             }
-            
-            // Schedule the next background fetch
+
+            // Schedule the next background fetch before the slower reminder refresh,
+            // so running out of background time can't skip it.
             scheduleBackgroundFetch()
+
+            // Keep the daily memory reminders fresh; finish before telling iOS we're done.
+            await MemoryReminderScheduler.shared.refresh()
+            task.setTaskCompleted(success: success)
         }
     }
 
 
+
+    // MARK: - Notification delegate
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .list, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Only memory reminders are ours; anything else (or malformed) is ignored.
+        DispatchQueue.main.async {
+            if PendingMemoryDate.storeTap(of: response) {
+                // Already active: sceneDidBecomeActive won't fire again, so route now.
+                // Otherwise it routes when the scene activates (or the grid loads).
+                let activeScene = UIApplication.shared.connectedScenes
+                    .first { $0.activationState == .foregroundActive }
+                (activeScene?.delegate as? SceneDelegate)?.routePendingMemoryDate()
+            }
+            completionHandler()
+        }
+    }
 
     // MARK: UISceneSession Lifecycle
 

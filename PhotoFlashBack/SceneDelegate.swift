@@ -19,6 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
+
+        // Cold start from a reminder tap: stash the date BEFORE the grid is created, so its
+        // viewDidLoad opens on that date directly. (UNUserNotificationCenter's didReceive
+        // arrives later; it re-stores the same date and show() is a no-op for it.)
+        if let response = connectionOptions.notificationResponse {
+            PendingMemoryDate.storeTap(of: response)
+        }
         
         self.window = UIWindow(windowScene: windowScene)
         
@@ -54,6 +61,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             _ = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
         }
 
+        routePendingMemoryDate()
         routePendingWidgetPhoto()
     }
 
@@ -78,6 +86,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // replaces any already-pending request with the same identifier, so it's safe to call
         // this every time the app enters the background.
         (UIApplication.shared.delegate as? AppDelegate)?.scheduleBackgroundFetch()
+
+        // Ask iOS for time to finish the refresh after the app is suspended.
+        var bgTaskID = UIBackgroundTaskIdentifier.invalid
+        let endBackgroundTask = {
+            guard bgTaskID != .invalid else { return }
+            UIApplication.shared.endBackgroundTask(bgTaskID)
+            bgTaskID = .invalid
+        }
+        bgTaskID = UIApplication.shared.beginBackgroundTask(withName: "MemoryReminderRefresh", expirationHandler: endBackgroundTask)
+        Task {
+            await MemoryReminderScheduler.shared.refresh()
+            await MainActor.run { endBackgroundTask() }
+        }
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -88,6 +109,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             if scene.activationState == .foregroundActive {
                 routePendingWidgetPhoto()
             }
+        }
+    }
+
+    // MARK: - Memory reminder tap
+
+    /// Shows the date from a tapped "memory of the day" notification on the grid. Like the
+    /// widget route, whatever is presented on top is dismissed first. With no grid yet the
+    /// date is left stored; PhotosViewController.viewDidLoad picks it up. With nothing
+    /// stored this does nothing (sceneDidBecomeActive calls it every time).
+    func routePendingMemoryDate() {
+        guard PendingMemoryDate.hasPending(), let photosVC = photosViewController() else { return }
+
+        dismissPresentedIfNeeded(on: photosVC) { [weak photosVC] in
+            guard let photosVC = photosVC, let date = PendingMemoryDate.take() else { return }
+            // Commit any open date-picker editing session so it can't clobber the shown date.
+            photosVC.view.endEditing(true)
+            photosVC.show(month: date.month, day: date.day)
         }
     }
 
