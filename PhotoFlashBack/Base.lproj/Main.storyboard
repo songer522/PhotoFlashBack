@@ -117,7 +117,7 @@
                                     </subviews>
                                     <constraints>
                                         <constraint firstItem="DcO-pW-0u0" firstAttribute="top" secondItem="cBR-ln-m0A" secondAttribute="top" id="8Zo-4F-0HG"/>
-                                        <constraint firstItem="DcO-pW-0u0" firstAttribute="leading" secondItem="cBR-ln-m0A" secondAttribute="leading" constant="16" id="emH-n0-xpQ"/>
+                                        <constraint firstItem="DcO-pW-0u0" firstAttribute="leading" secondItem="cBR-ln-m0A" secondAttribute="leading" constant="28" id="emH-n0-xpQ"/>
                                         <constraint firstAttribute="bottom" secondItem="DcO-pW-0u0" secondAttribute="bottom" id="y2i-3k-59g"/>
                                     </constraints>
                                     <connections>

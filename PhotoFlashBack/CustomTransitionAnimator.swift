@@ -56,7 +56,17 @@ class CustomTransitionAnimator: NSObject, UIViewControllerAnimatedTransitioning 
             }
 
             let initialFrame = sourceViewFrame
-            let finalFrame = containerView.bounds
+            let finalFrame: CGRect
+            if let toViewController = transitionContext.viewController(forKey: .to),
+               !transitionContext.finalFrame(for: toViewController).isEmpty {
+                finalFrame = transitionContext.finalFrame(for: toViewController)
+            } else {
+                finalFrame = containerView.bounds
+            }
+
+            toView.frame = finalFrame
+            toView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            toView.layoutIfNeeded()
 
             guard let snapshot = toView.snapshotView(afterScreenUpdates: true) else {
                 // toView hasn't rendered yet — fall back to a non-animated presentation
