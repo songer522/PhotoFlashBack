@@ -122,11 +122,20 @@ class PhotosViewController: UIViewController {
     let filterDropdown = FilterDropdownView()
     
     lazy var editButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage( UIImage(systemName: "clock"), for: .normal)
+        let button = UIButton(type: .system)
+        if #available(iOS 26.0, *) {
+            var config = UIButton.Configuration.glass()
+            config.image = UIImage(systemName: "clock")
+            config.baseForegroundColor = .white
+            config.cornerStyle = .capsule
+            button.configuration = config
+        } else {
+            button.setImage(UIImage(systemName: "clock"), for: .normal)
+            button.backgroundColor = .lightGray
+        }
+        button.overrideUserInterfaceStyle = .dark
         button.tintColor = .white
         button.addTarget(self, action: #selector(selectDate), for: .touchUpInside)
-        button.backgroundColor = .lightGray
         return button
     }()
     
@@ -338,8 +347,10 @@ class PhotosViewController: UIViewController {
             editButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             editButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ])
-        editButton.imageView?.contentMode = .scaleAspectFill
-        editButton.layer.cornerRadius = buttonSize / 2
+        if #unavailable(iOS 26.0) {
+            editButton.imageView?.contentMode = .scaleAspectFill
+            editButton.layer.cornerRadius = buttonSize / 2
+        }
     }
     
     @objc func fetchPhotos() {
