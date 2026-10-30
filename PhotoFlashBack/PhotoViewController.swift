@@ -24,11 +24,20 @@ class PhotoViewController: UIViewController {
     // `lazy var` rather than `let`: in a stored-property initializer there is no instance
     // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
     private lazy var shareButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage( UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        let button = UIButton(type: .system)
+        if #available(iOS 26.0, *) {
+            var config = UIButton.Configuration.glass()
+            config.image = UIImage(systemName: "square.and.arrow.up")
+            config.baseForegroundColor = .white
+            config.cornerStyle = .capsule
+            button.configuration = config
+        } else {
+            button.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+            button.backgroundColor = .lightGray
+        }
+        button.overrideUserInterfaceStyle = .dark
         button.tintColor = .white
         button.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
-        button.backgroundColor = .lightGray
         return button
     }()
     
@@ -44,13 +53,22 @@ class PhotoViewController: UIViewController {
 
     
     private lazy var playPauseButton: UIButton = {
-         let button = UIButton(type: .system)
-         button.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-         button.tintColor = .white
-         button.addTarget(self, action: #selector(playPauseButtonTapped), for: .touchUpInside)
-         button.backgroundColor = .lightGray
-         return button
-     }()
+        let button = UIButton(type: .system)
+        if #available(iOS 26.0, *) {
+            var config = UIButton.Configuration.glass()
+            config.image = UIImage(systemName: "pause.fill")
+            config.baseForegroundColor = .white
+            config.cornerStyle = .capsule
+            button.configuration = config
+        } else {
+            button.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+            button.backgroundColor = .lightGray
+        }
+        button.overrideUserInterfaceStyle = .dark
+        button.tintColor = .white
+        button.addTarget(self, action: #selector(playPauseButtonTapped), for: .touchUpInside)
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -140,18 +158,20 @@ class PhotoViewController: UIViewController {
     }
     
     private func setupShareButton() {
-            view.addSubview(shareButton)
-            shareButton.translatesAutoresizingMaskIntoConstraints = false
-            let buttonSize: CGFloat = 50
-            NSLayoutConstraint.activate([
-                shareButton.widthAnchor.constraint(equalToConstant: buttonSize),
-                shareButton.heightAnchor.constraint(equalToConstant: buttonSize),
-                shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-                shareButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
-            ])
+        view.addSubview(shareButton)
+        shareButton.translatesAutoresizingMaskIntoConstraints = false
+        let buttonSize: CGFloat = 50
+        NSLayoutConstraint.activate([
+            shareButton.widthAnchor.constraint(equalToConstant: buttonSize),
+            shareButton.heightAnchor.constraint(equalToConstant: buttonSize),
+            shareButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            shareButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+        ])
+        if #unavailable(iOS 26.0) {
             shareButton.imageView?.contentMode = .scaleAspectFill
             shareButton.layer.cornerRadius = buttonSize / 2
         }
+    }
     
     private func setupPlayPauseButton() {
         // Called every time a video is shown; without this the same button would be re-added
@@ -170,7 +190,9 @@ class PhotoViewController: UIViewController {
             playPauseButton.widthAnchor.constraint(equalToConstant: buttonSize),
             playPauseButton.heightAnchor.constraint(equalToConstant: buttonSize)
         ])
-        playPauseButton.layer.cornerRadius = buttonSize / 2
+        if #unavailable(iOS 26.0) {
+            playPauseButton.layer.cornerRadius = buttonSize / 2
+        }
     }
 
     func setupAssetInfoLabel() {
@@ -225,24 +247,42 @@ class PhotoViewController: UIViewController {
     }
     
     @objc func playPauseButtonTapped() {
-        if let currentImage = playPauseButton.currentImage, currentImage == UIImage(systemName: "play.fill") {
-            playPauseButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
+        let currentImage = playPauseButton.configuration?.image ?? playPauseButton.currentImage
+        if currentImage == UIImage(systemName: "play.fill") {
+            let pauseImage = UIImage(systemName: "pause.fill")
+            if #available(iOS 26.0, *) {
+                playPauseButton.configuration?.image = pauseImage
+            } else {
+                playPauseButton.setImage(pauseImage, for: .normal)
+            }
             playPauseButton.isHidden = true
             player.playFromCurrentTime()
-            // Add your logic to start playing here
         } else {
-            playPauseButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
+            let playImage = UIImage(systemName: "play.fill")
+            if #available(iOS 26.0, *) {
+                playPauseButton.configuration?.image = playImage
+            } else {
+                playPauseButton.setImage(playImage, for: .normal)
+            }
             player.pause()
-            // Add your logic to pause here
         }
     }
 
     // Add a new delete button similar to your share button
     private lazy var deleteButton: UIButton = {
-        let button = UIButton(type: .custom)
-        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        let button = UIButton(type: .system)
+        if #available(iOS 26.0, *) {
+            var config = UIButton.Configuration.glass()
+            config.image = UIImage(systemName: "trash")
+            config.baseForegroundColor = .white
+            config.cornerStyle = .capsule
+            button.configuration = config
+        } else {
+            button.setImage(UIImage(systemName: "trash"), for: .normal)
+            button.backgroundColor = .lightGray
+        }
+        button.overrideUserInterfaceStyle = .dark
         button.tintColor = .white
-        button.backgroundColor = .lightGray
         button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -258,7 +298,9 @@ class PhotoViewController: UIViewController {
             deleteButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             deleteButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
         ])
-        deleteButton.layer.cornerRadius = buttonSize / 2
+        if #unavailable(iOS 26.0) {
+            deleteButton.layer.cornerRadius = buttonSize / 2
+        }
     }
 
     // Then, implement the deletion with user confirmation:
