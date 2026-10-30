@@ -19,6 +19,7 @@ class PhotoViewController: UIViewController {
     var shouldRefresh = false
     private let imageLoadingManager = ImageLoadingManager.shared
     private var prefetchRange: Range<Int> = 0..<0
+    private var lastLaidOutCollectionViewSize: CGSize = .zero
     
     // `lazy var` rather than `let`: in a stored-property initializer there is no instance
     // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
@@ -53,6 +54,9 @@ class PhotoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let windowSize = Helper.windowSize(), view.bounds.size != windowSize {
+            view.frame = CGRect(origin: .zero, size: windowSize)
+        }
         let fullScreenFlowLayout = FullScreenFlowLayout()
         fullScreenFlowLayout.scrollDirection = .horizontal
         fullScreenFlowLayout.minimumLineSpacing = 0
@@ -65,9 +69,10 @@ class PhotoViewController: UIViewController {
         setupViews()
         photoCollectionView.reloadData()
         photoCollectionView.layoutIfNeeded()
+        lastLaidOutCollectionViewSize = photoCollectionView.bounds.size
         // Guard against an out-of-range currentIndex (e.g. stale index from a deferred deep-link tap)
         if currentIndex >= 0 && currentIndex < viewModel.assetSequence.count {
-            photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: true)
+            photoCollectionView.scrollToItem(at: IndexPath(item: currentIndex, section: 0), at: .centeredHorizontally, animated: false)
             let asset = viewModel.assetSequence[currentIndex]
             Helper.updateAssetInfoLabelWithLocationName(asset: asset, label: assetInfoLabel)
         }
@@ -79,6 +84,28 @@ class PhotoViewController: UIViewController {
         showVideoIfNeeded()
         prefetchAdjacentImages()
         // Do any additional setup after loading the view.
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let currentSize = photoCollectionView.bounds.size
+        guard currentSize.width > 0, currentSize.height > 0,
+              currentSize != lastLaidOutCollectionViewSize else {
+            return
+        }
+        lastLaidOutCollectionViewSize = currentSize
+        photoCollectionView.collectionViewLayout.invalidateLayout()
+        photoCollectionView.layoutIfNeeded()
+        if currentIndex >= 0 && currentIndex < viewModel.assetSequence.count {
+            let wasPagingEnabled = photoCollectionView.isPagingEnabled
+            photoCollectionView.isPagingEnabled = false
+            photoCollectionView.scrollToItem(
+                at: IndexPath(item: currentIndex, section: 0),
+                at: .centeredHorizontally,
+                animated: false
+            )
+            photoCollectionView.isPagingEnabled = wasPagingEnabled
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
