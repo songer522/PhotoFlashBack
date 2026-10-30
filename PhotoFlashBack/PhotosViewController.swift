@@ -288,7 +288,7 @@ class PhotosViewController: UIViewController {
             layout.sectionHeadersPinToVisibleBounds = true
         }
         photoCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 300, right: 0)
-        picker.backgroundColor = .systemFill
+        picker.backgroundColor = .clear
         picker.delegate = self
         picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
         picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
