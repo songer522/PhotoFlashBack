@@ -13,8 +13,7 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     {
         let pickerLabel = (view as? UILabel) ?? UILabel()
         
-        // Use dynamic label color that adapts to light/dark mode
-        pickerLabel.textColor = .label
+        pickerLabel.textColor = .white
         pickerLabel.backgroundColor = .clear
         pickerLabel.font = .systemFont(ofSize: 20, weight: .regular)
         
