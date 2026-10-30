@@ -190,8 +190,8 @@ class PhotoViewController: UIViewController {
             assetInfoLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 0),
             
             visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
-            visualEffectView.leadingAnchor.constraint(equalTo: assetInfoLabel.leadingAnchor),
-            visualEffectView.trailingAnchor.constraint(equalTo: assetInfoLabel.trailingAnchor),
+            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             visualEffectView.bottomAnchor.constraint(equalTo: assetInfoLabel.bottomAnchor, constant: 10)
         ])
     }
