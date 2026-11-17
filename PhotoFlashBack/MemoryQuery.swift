@@ -95,13 +95,23 @@ enum MemoryQuery {
     /// counts and the widget all search these years, so they agree on every date.
     static func libraryYearRange(now: Date = Date()) -> ClosedRange<Int> {
         func boundary(ascending: Bool) -> Date? {
-            let options = PHFetchOptions()
-            options.predicate = mediaPredicate
-            options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: ascending)]
-            options.fetchLimit = 1
-            return PHAsset.fetchAssets(with: options).firstObject?.creationDate
+            PHAsset.fetchAssets(with: boundaryFetchOptions(ascending: ascending)).firstObject?.creationDate
         }
         return yearRange(oldest: boundary(ascending: true), newest: boundary(ascending: false), now: now)
+    }
+
+    /// The single oldest (`ascending`) or newest dated image or video. Undated assets are excluded:
+    /// one sorting first would otherwise make the oldest year "this year" and hide older memories.
+    static func boundaryFetchOptions(ascending: Bool) -> PHFetchOptions {
+        let options = PHFetchOptions()
+        options.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            // A date comparison, the predicate form PhotoKit supports; nil never satisfies it.
+            NSPredicate(format: "creationDate > %@", Date.distantPast as NSDate),
+            mediaPredicate,
+        ])
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: ascending)]
+        options.fetchLimit = 1
+        return options
     }
 
     private static var mediaPredicate: NSPredicate {

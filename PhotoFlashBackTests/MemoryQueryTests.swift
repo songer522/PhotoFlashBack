@@ -140,6 +140,20 @@ final class MemoryQueryTests: XCTestCase {
         XCTAssertFalse(options.predicate!.evaluate(with: ["creationDate": otherDay, "mediaType": image] as NSDictionary))
     }
 
+    func testBoundaryFetchIgnoresUndatedAssetsSoTheyCannotHideOlderYears() {
+        // An undated asset sorts first in the ascending fetch; with fetchLimit 1 it would make the
+        // oldest year "this year" and hide every earlier memory (Codex review on PR #25).
+        let image = PHAssetMediaType.image.rawValue
+        let dated = MemoryQuery.memoryCalendar().date(from: DateComponents(year: 2009, month: 5, day: 1, hour: 12))!
+        for ascending in [true, false] {
+            let options = MemoryQuery.boundaryFetchOptions(ascending: ascending)
+            XCTAssertEqual(options.fetchLimit, 1)
+            XCTAssertEqual(options.sortDescriptors?.first?.ascending, ascending)
+            XCTAssertFalse(options.predicate!.evaluate(with: ["creationDate": NSNull(), "mediaType": image] as NSDictionary))
+            XCTAssertTrue(options.predicate!.evaluate(with: ["creationDate": dated, "mediaType": image] as NSDictionary))
+        }
+    }
+
     // MARK: - Widget selection (issue #16)
 
     func testWidgetYearAcceptsPastPhotosOnTheDay() {
