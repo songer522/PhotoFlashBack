@@ -448,6 +448,8 @@ class PhotoViewController: UIViewController {
     
     @objc func dismissVideo() {
         player.stop()
+        // The delegate callback can't reach a deallocating controller, so release explicitly.
+        VideoAudioSession.shared.playbackStopped()
         player.playerView.isHidden = true
         player.willMove(toParent: nil)
         player.view.removeFromSuperview()

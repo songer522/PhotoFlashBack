@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import AVFAudio
 import BackgroundTasks
 import Photos
 import UserNotifications
@@ -19,12 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     static let backgroundTaskIdentifier = "com.YangSong.PhotoFlashBack.fetch"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        do{
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.mixWithOthers])
-          try AVAudioSession.sharedInstance().setActive(true)
-        }catch{//some meaningful exception handling
-            
-        }
+        // Ambient category only: the session switches to playback and activates when viewer video starts (issue #17).
+        VideoAudioSession.shared.configureCategory()
         
         // Must be set before launch finishes so a notification tap that cold-starts the app is delivered.
         UNUserNotificationCenter.current().delegate = self

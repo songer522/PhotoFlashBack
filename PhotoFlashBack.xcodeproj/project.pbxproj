@@ -38,9 +38,11 @@
 		FC821D3829CEB03400890051 /* CustomTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */; };
 		FC821D3A29D0270B00890051 /* CustomLayouts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC821D3929D0270B00890051 /* CustomLayouts.swift */; };
 		FC8A11110000000000000002 /* MediaFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000001 /* MediaFilter.swift */; };
+		A17A0D100000000000000002 /* VideoAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A0D100000000000000001 /* VideoAudioSession.swift */; };
 		FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000003 /* ToolbarDropdownViews.swift */; };
 		FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */; };
 		FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000007 /* MediaFilterTests.swift */; };
+		A17A0D100000000000000004 /* VideoAudioSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A0D100000000000000003 /* VideoAudioSessionTests.swift */; };
 		FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */; };
 		FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC10A10C0000000000000001 /* LocationNameResolverTests.swift */; };
 		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
@@ -129,9 +131,11 @@
 		FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitionAnimator.swift; sourceTree = "<group>"; };
 		FC821D3929D0270B00890051 /* CustomLayouts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayouts.swift; sourceTree = "<group>"; };
 		FC8A11110000000000000001 /* MediaFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilter.swift; sourceTree = "<group>"; };
+		A17A0D100000000000000001 /* VideoAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAudioSession.swift; sourceTree = "<group>"; };
 		FC8A11110000000000000003 /* ToolbarDropdownViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarDropdownViews.swift; sourceTree = "<group>"; };
 		FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PhotosViewController+Toolbar.swift"; sourceTree = "<group>"; };
 		FC8A11110000000000000007 /* MediaFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilterTests.swift; sourceTree = "<group>"; };
+		A17A0D100000000000000003 /* VideoAudioSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoAudioSessionTests.swift; sourceTree = "<group>"; };
 		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
 		FC10A10C0000000000000001 /* LocationNameResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNameResolverTests.swift; sourceTree = "<group>"; };
@@ -208,6 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				FC8A11110000000000000007 /* MediaFilterTests.swift */,
+				A17A0D100000000000000003 /* VideoAudioSessionTests.swift */,
 				FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */,
 				FC12AB000000000000000001 /* LayoutRegressionTests.swift */,
 				FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */,
@@ -266,6 +271,7 @@
 				FCB1DF1728D96DC700160033 /* PhotosViewController+CollectionView.swift */,
 				FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */,
 				FC8A11110000000000000001 /* MediaFilter.swift */,
+				A17A0D100000000000000001 /* VideoAudioSession.swift */,
 				FC8A22220000000000000003 /* MemoryReminderSettings.swift */,
 				FC8A22220000000000000013 /* MemoryReminderPlanner.swift */,
 				FC8A22220000000000000023 /* MemoryReminderScheduler.swift */,
@@ -436,6 +442,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */,
+				A17A0D100000000000000004 /* VideoAudioSessionTests.swift in Sources */,
 				FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */,
 				FC12AB000000000000000002 /* LayoutRegressionTests.swift in Sources */,
 				FC8A22220000000000000018 /* MemoryReminderPlannerTests.swift in Sources */,
@@ -489,6 +496,7 @@
 				FCB1DF1828D96DC700160033 /* PhotosViewController+CollectionView.swift in Sources */,
 				FCB1DF1A28D96E6700160033 /* PhotoCollectionViewCell.swift in Sources */,
 				FC8A11110000000000000002 /* MediaFilter.swift in Sources */,
+				A17A0D100000000000000002 /* VideoAudioSession.swift in Sources */,
 				FC8A22220000000000000004 /* MemoryReminderSettings.swift in Sources */,
 				FC8A22220000000000000014 /* MemoryReminderPlanner.swift in Sources */,
 				FC8A22220000000000000024 /* MemoryReminderScheduler.swift in Sources */,
