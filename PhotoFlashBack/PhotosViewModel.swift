@@ -401,37 +401,6 @@ class PhotosViewModel {
     }
     
     private func reverseGeocode(location: CLLocation) async -> String? {
-        // Check cache first
-        if let cached = await LocationCache.shared.getCachedLocation(for: location) {
-            return cached
-        }
-        
-        do {
-            let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-            
-            guard let placemark = placemarks.first else { return nil }
-            
-            // Return the most specific location available
-            var locationName: String?
-            if let subCity = placemark.subLocality {
-                locationName = subCity
-            } else if let city = placemark.locality {
-                locationName = city
-            } else if let state = placemark.administrativeArea {
-                locationName = state
-            } else if let country = placemark.country {
-                locationName = country
-            }
-            
-            // Cache the result for future use
-            if let locationName = locationName {
-                await LocationCache.shared.cacheLocation(locationName, for: location)
-            }
-            
-            return locationName
-        } catch {
-            // Silently handle geocoding errors
-            return nil
-        }
+        await LocationNameResolver.shared.headerName(for: location)
     }
 }

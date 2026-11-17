@@ -39,6 +39,7 @@
 		FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000005 /* PhotosViewController+Toolbar.swift */; };
 		FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000007 /* MediaFilterTests.swift */; };
 		FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */; };
+		FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC10A10C0000000000000001 /* LocationNameResolverTests.swift */; };
 		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
 		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
 		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
@@ -128,6 +129,7 @@
 		FC8A11110000000000000007 /* MediaFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFilterTests.swift; sourceTree = "<group>"; };
 		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
+		FC10A10C0000000000000001 /* LocationNameResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNameResolverTests.swift; sourceTree = "<group>"; };
 		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
 		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -207,6 +209,7 @@
 				FC8A22220000000000000037 /* PendingMemoryDateTests.swift */,
 				FC8A22220000000000000005 /* MemoryQueryTests.swift */,
 				FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */,
+				FC10A10C0000000000000001 /* LocationNameResolverTests.swift */,
 			);
 			path = PhotoFlashBackTests;
 			sourceTree = "<group>";
@@ -432,6 +435,7 @@
 				FC8A22220000000000000038 /* PendingMemoryDateTests.swift in Sources */,
 				FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */,
 				FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */,
+				FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
