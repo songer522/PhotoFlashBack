@@ -54,8 +54,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        requestAppRating()
-        
         Task.detached(priority: .background) {
             // Fetch multiple assets for widget (supports large widgets)
             _ = await PhotoManager.shared.fetchAndStoreMultipleAssets(count: 6)
@@ -217,21 +215,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         return nil
     }
 
-    func requestAppRating() {
-        let minimumLaunchCount = 25
-        let userDefaults = UserDefaults.standard
-        let launchCountKey = "launchCount"
-        
-        let currentLaunchCount = userDefaults.integer(forKey: launchCountKey)
-        userDefaults.set(currentLaunchCount + 1, forKey: launchCountKey)
-        if currentLaunchCount >= minimumLaunchCount {
-           
-            guard let topVC = topMostViewController() else { return }
-            IAPHelper.shared.setupTipJar(presentingVC: topVC)
-            userDefaults.set(0, forKey: launchCountKey)
-        }
-    }
-    
     func topMostViewController() -> UIViewController? {
         guard let rootViewController = UIApplication.shared.connectedScenes
                 .filter({$0.activationState == .foregroundActive})

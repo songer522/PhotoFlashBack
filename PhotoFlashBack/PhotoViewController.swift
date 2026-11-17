@@ -20,6 +20,12 @@ class PhotoViewController: UIViewController {
     private let imageLoadingManager = ImageLoadingManager.shared
     private var prefetchRange: Range<Int> = 0..<0
     private var lastLaidOutCollectionViewSize: CGSize = .zero
+    // Review prompt bookkeeping (issue #18): the system prompt may follow a viewer close,
+    // but never one caused by, or overlapping, a delete or cut short mid-video.
+    private var isDeletionInProgress = false
+    private var isClosingAfterDeletion = false
+    private var wasPlayingVideoAtClose = false
+    private weak var reviewPromptPresenter: UIViewController?
     
     // `lazy var` rather than `let`: in a stored-property initializer there is no instance
     // `self`, so `addTarget(self, ...)` below would bind to the type, not this controller.
@@ -126,8 +132,19 @@ class PhotoViewController: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isBeingPresented {
+            ReviewPrompter.shared.recordViewerOpen()
+        }
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        if isBeingDismissed {
+            reviewPromptPresenter = presentingViewController
+            wasPlayingVideoAtClose = player.playbackState == .playing
+        }
         if let photosVC = self.presentingViewController as? PhotosViewController, shouldRefresh {
             // Reload the collection view with animation
             // The viewModel is shared, so the data is already updated
@@ -142,6 +159,11 @@ class PhotoViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         dismissVideo()
+        if isBeingDismissed {
+            ReviewPrompter.shared.viewerDidClose(presenter: reviewPromptPresenter,
+                                                 wasPlayingVideo: wasPlayingVideoAtClose,
+                                                 wasDeleting: isDeletionInProgress || isClosingAfterDeletion)
+        }
         // 停止所有缓存以释放内存
         imageLoadingManager.stopCachingAll()
         prefetchRange = 0..<0
@@ -322,13 +344,15 @@ class PhotoViewController: UIViewController {
             return
         }
         let assetToDelete = viewModel.assetSequence[currentIndex]
-        
+        isDeletionInProgress = true
+
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.deleteAssets([assetToDelete] as NSArray)
         }) { [weak self] success, error in
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async {
                 guard let self = self else { return }
-                
+                self.isDeletionInProgress = false
+
                 if success {
                     // Update the shared viewModel's data structures. Note: sortAssetArray() (called
                     // inside removeAssetFromViewModel) rebuilds assetSequence from scratch, so when the
@@ -356,6 +380,7 @@ class PhotoViewController: UIViewController {
 
                     // If no more photos, dismiss
                     if self.viewModel.assetSequence.isEmpty {
+                        self.isClosingAfterDeletion = true
                         self.dismiss(animated: true)
                     } else {
                         // Scroll back to the (clamped) current page and refresh its info label
