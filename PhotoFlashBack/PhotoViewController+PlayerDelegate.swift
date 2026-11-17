@@ -14,7 +14,11 @@ extension PhotoViewController: PlayerDelegate {
     }
     
     func playerPlaybackStateDidChange(_ player: Player) {
-        
+        if player.playbackState == .playing {
+            VideoAudioSession.shared.playbackStarted()
+        } else {
+            VideoAudioSession.shared.playbackStopped()
+        }
     }
     
     func playerBufferingStateDidChange(_ player: Player) {
