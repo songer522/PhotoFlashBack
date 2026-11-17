@@ -77,7 +77,7 @@ struct MemoryTimelineProvider: TimelineProvider {
             maxPhotos = 1
         case .systemMedium:
             maxPhotos = 3
-        case .systemLarge, .systemExtraLarge:
+        case .systemLarge, .systemExtraLarge, .systemExtraLargePortrait:
             maxPhotos = 6
         @unknown default:
             maxPhotos = 1
@@ -147,7 +147,7 @@ struct TodayWidgetEntryView: View {
                 SmallWidgetView(entry: entry)
             case .systemMedium:
                 MediumWidgetView(entry: entry)
-            case .systemLarge, .systemExtraLarge:
+            case .systemLarge, .systemExtraLarge, .systemExtraLargePortrait:
                 LargeWidgetView(entry: entry)
             case .accessoryCircular:
                 CircularWidgetView(entry: entry)

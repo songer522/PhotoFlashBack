@@ -160,7 +160,7 @@ class IAPHelper {
     
     private func tipCancelled() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard self != nil else { return }
             GlobalActivityIndicator.shared.hide()
         }
     }
