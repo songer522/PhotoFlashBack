@@ -62,6 +62,12 @@ final class VideoAudioSession {
         do {
             try session.setActive(false, options: [.notifyOthersOnDeactivation])
             isActive = false
+        } catch let error as NSError where error.code == AVAudioSession.ErrorCode.isBusy.rawValue {
+            // Apple: with audio objects still running (e.g. muted grid loops behind the viewer),
+            // deactivation stops them and deactivates the session before reporting isBusy.
+            // The session is inactive, so track it that way or the next video would never activate.
+            log("Audio session deactivated while busy; running audio objects were stopped: \(error)")
+            isActive = false
         } catch {
             // Stay in playback so a later stop can retry the deactivation and notify others.
             log("Failed to deactivate audio session: \(error)")

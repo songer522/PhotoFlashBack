@@ -14,6 +14,7 @@ private final class FakeAudioSession: AudioSessionControlling {
     var failCategory = false
     var failActivate = false
     var failDeactivate = false
+    var deactivateError: Error = FakeAudioSessionError()
 
     func setCategory(_ category: AVAudioSession.Category, mode: AVAudioSession.Mode, options: AVAudioSession.CategoryOptions) throws {
         calls.append(.setCategory(category, mode, options))
@@ -23,7 +24,7 @@ private final class FakeAudioSession: AudioSessionControlling {
     func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
         calls.append(.setActive(active, options))
         if active && failActivate { throw FakeAudioSessionError() }
-        if !active && failDeactivate { throw FakeAudioSessionError() }
+        if !active && failDeactivate { throw deactivateError }
     }
 }
 
@@ -114,5 +115,26 @@ final class VideoAudioSessionTests: XCTestCase {
         XCTAssertFalse(sut.isActive)
         XCTAssertEqual(logged.count, 1)
         XCTAssertEqual(session.calls.last, browsing)
+    }
+
+    func testBusyDeactivationCountsAsInactiveSoTheNextVideoActivatesAgain() {
+        // Apple: deactivating with running audio objects stops them, deactivates the session, and
+        // then reports isBusy (e.g. muted grid loops still playing behind the viewer). Codex review on PR #26.
+        sut.playbackStarted()
+        session.failDeactivate = true
+        session.deactivateError = NSError(domain: NSOSStatusErrorDomain, code: AVAudioSession.ErrorCode.isBusy.rawValue)
+
+        sut.playbackStopped()
+
+        XCTAssertFalse(sut.isActive)
+        XCTAssertEqual(logged.count, 1)
+        XCTAssertEqual(session.calls.last, browsing)
+
+        session.failDeactivate = false
+        session.calls = []
+        sut.playbackStarted()
+
+        XCTAssertEqual(session.calls, [viewerVideo, .setActive(true, [])])
+        XCTAssertTrue(sut.isActive)
     }
 }
