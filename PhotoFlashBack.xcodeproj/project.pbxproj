@@ -52,7 +52,6 @@
 		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
 		FC9872EB29D55C8C006B8705 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872CE29D556C8006B8705 /* SwiftUI.framework */; };
 		FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */; };
-		FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */; };
 		FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872F129D55C8C006B8705 /* TodayWidget.swift */; };
 		FC9872F529D55C8D006B8705 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FC9872F429D55C8D006B8705 /* Assets.xcassets */; };
 		FC9872FB29D55C8D006B8705 /* TodayWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -149,7 +148,6 @@
 		FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TodayWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC9872E929D55C8C006B8705 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetBundle.swift; sourceTree = "<group>"; };
-		FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidgetLiveActivity.swift; sourceTree = "<group>"; };
 		FC9872F129D55C8C006B8705 /* TodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
 		FC9872F429D55C8D006B8705 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FC9872F629D55C8D006B8705 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -236,7 +234,6 @@
 			isa = PBXGroup;
 			children = (
 				FC9872ED29D55C8C006B8705 /* TodayWidgetBundle.swift */,
-				FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */,
 				FC9872F129D55C8C006B8705 /* TodayWidget.swift */,
 				FC11B11100000000000000A1 /* WidgetMemoryDate.swift */,
 				FC9872F429D55C8D006B8705 /* Assets.xcassets */,
@@ -468,7 +465,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
 				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
 				FC11B11100000000000000A2 /* WidgetMemoryDate.swift in Sources */,
 				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
