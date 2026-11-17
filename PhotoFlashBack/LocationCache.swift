@@ -206,10 +206,11 @@ actor LocationCache {
     )
 
     /// Versioned so a schema change starts a fresh file instead of decoding old entries.
-    static let fileName = "location_cache_v2.json"
-    /// Earlier cache files, deleted on load. v1 held preformatted names in two different
-    /// formats (issue #10).
-    static let legacyFileNames = ["location_cache.json"]
+    static let fileName = "location_cache_v3.json"
+    /// Earlier cache files, deleted on load and never decoded. v1 held preformatted names in
+    /// two different formats (issue #10); v2 held CLGeocoder fields, which would mix with the
+    /// MapKit-style entries iOS 26+ writes (issue #15).
+    static let legacyFileNames = ["location_cache.json", "location_cache_v2.json"]
 
     private var memoryCache: [String: CachedLocation] = [:]
     private let fileURL: URL

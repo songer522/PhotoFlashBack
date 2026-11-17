@@ -244,6 +244,42 @@ final class LocationNameResolverTests: XCTestCase {
     }
 }
 
+extension LocationNameResolverTests {
+    /// Issue #15: v2 entries were filled by CLGeocoder (neighborhood + state fields). On iOS 26+
+    /// MapKit fills entries in a different style, so the v2 file is dropped and every place is
+    /// looked up fresh rather than mixing the two styles for up to 30 days.
+    func testPreMapKitV2CacheFileIsDroppedNotDecoded() async throws {
+        XCTAssertEqual(LocationCache.fileName, "location_cache_v3.json")
+        XCTAssertTrue(LocationCache.legacyFileNames.contains("location_cache.json"), "v1 must still be cleaned up")
+
+        // A valid v2 entry for this exact spot, in the CLGeocoder style.
+        let v2JSON = """
+        {"40.6782,-73.9442":{"place":{"subLocality":"Brooklyn","locality":"New York","administrativeArea":"NY",\
+        "country":"United States"},"timestamp":"\(ISO8601DateFormatter().string(from: Date()))",\
+        "coordinate":{"latitude":40.6782,"longitude":-73.9442}}}
+        """
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LocationNameResolverTests-v2-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let v2URL = directory.appendingPathComponent("location_cache_v2.json")
+        try Data(v2JSON.utf8).write(to: v2URL)
+
+        let mapKitStyle = PlaceComponents(cityName: "Brooklyn", cityWithContext: "", regionName: "United States")
+        let counter = GeocodeCounter()
+        let resolver = LocationNameResolver(cache: LocationCache(directory: directory)) { _ in
+            await counter.increment()
+            return mapKitStyle
+        }
+        let viewerName = await resolver.viewerName(for: CLLocation(latitude: 40.6782, longitude: -73.9442))
+
+        XCTAssertEqual(viewerName, "Brooklyn", "The v2 entry ('New York, NY') must not be served")
+        let geocodeCount = await counter.count
+        XCTAssertEqual(geocodeCount, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: v2URL.path), "The v2 cache file should be deleted")
+    }
+}
+
 private actor GeocodeCounter {
     private(set) var count = 0
 
