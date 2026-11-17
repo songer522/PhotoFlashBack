@@ -69,11 +69,14 @@ struct WidgetPhotoStore {
 
     /// Writes the slot's image, then its metadata. Each file is written atomically, and every write
     /// uses a new image file name, so metadata always names a complete image of the same photo.
+    /// Holds `writeLock` throughout, so an overlapping write's cleanup can't delete this image.
     func store(imageData: Data, creationDate: Date, localIdentifier: String,
                pixelWidth: Int, pixelHeight: Int, at index: Int) throws {
         guard (0..<Self.maxStoredAssetCount).contains(index) else {
             throw StoreError.indexOutOfRange(index)
         }
+        Self.writeLock.lock()
+        defer { Self.writeLock.unlock() }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
 
         let imageFileName = "\(Self.imagePrefix(for: index))\(UUID().uuidString).jpg"
@@ -94,6 +97,8 @@ struct WidgetPhotoStore {
     /// Removes slots `startIndex..<maxStoredAssetCount`, which may hold a previous run's photos.
     func removeEntries(from startIndex: Int) {
         guard startIndex < Self.maxStoredAssetCount else { return }
+        Self.writeLock.lock()
+        defer { Self.writeLock.unlock() }
         for index in max(startIndex, 0)..<Self.maxStoredAssetCount {
             // Metadata first, so a reader never finds metadata whose image is being removed.
             try? FileManager.default.removeItem(at: metadataURL(for: index))
@@ -155,6 +160,12 @@ struct WidgetPhotoStore {
     }
 
     // MARK: - Private
+
+    /// Serializes every write → publish metadata → cleanup sequence, and every removal, in this
+    /// process and across store instances: refreshes overlap, and PHImageManager result handlers
+    /// call `store` on arbitrary queues. Readers (the widget) never take it; atomic writes keep
+    /// each file whole for them.
+    private static let writeLock = NSLock()
 
     // Readable after first unlock, so the lock-screen widget and background refresh still work.
     private static let writeOptions: Data.WritingOptions = [.atomic, .completeFileProtectionUntilFirstUserAuthentication]

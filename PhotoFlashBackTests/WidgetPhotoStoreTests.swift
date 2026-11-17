@@ -64,6 +64,54 @@ final class WidgetPhotoStoreTests: XCTestCase {
         XCTAssertEqual(try imageFiles(forSlot: 1).count, 1)
     }
 
+    // MARK: - Concurrent writers (overlapping refreshes, PHImageManager handlers on any queue)
+
+    /// Asserts the slot is consistent: its metadata names an image that exists and no other image
+    /// remains, or it has neither metadata nor images.
+    private func assertSlotConsistent(_ index: Int, file: StaticString = #filePath, line: UInt = #line) throws {
+        let images = try imageFiles(forSlot: index)
+        if let metadata = store.metadata(at: index) {
+            XCTAssertNotNil(store.entry(at: index), "metadata names a missing image", file: file, line: line)
+            XCTAssertEqual(images, [metadata.imageFileName], "exactly one image, the one the metadata names",
+                           file: file, line: line)
+        } else {
+            XCTAssertEqual(images, [], "no metadata, so no image may remain", file: file, line: line)
+        }
+    }
+
+    func testConcurrentWritesToOneSlotLeaveMetadataAndExactlyOneImage() throws {
+        let data = jpegData()
+        let directory = self.directory!
+        for round in 0..<5 {
+            DispatchQueue.concurrentPerform(iterations: 64) { i in
+                // A separate instance per writer, as each refresh creates its own store.
+                try? WidgetPhotoStore(directory: directory).store(
+                    imageData: data, creationDate: Date(), localIdentifier: "asset-\(round)-\(i)",
+                    pixelWidth: 40, pixelHeight: 30, at: 0)
+            }
+            XCTAssertNotNil(store.entry(at: 0), "round \(round)")
+            try assertSlotConsistent(0)
+        }
+    }
+
+    func testConcurrentWritesAndRemovalsLeaveEachSlotConsistent() throws {
+        let data = jpegData()
+        let directory = self.directory!
+        for round in 0..<5 {
+            DispatchQueue.concurrentPerform(iterations: 64) { i in
+                let writer = WidgetPhotoStore(directory: directory)
+                if i % 4 == 3 {
+                    writer.removeEntries(from: 0)
+                } else {
+                    try? writer.store(imageData: data, creationDate: Date(), localIdentifier: "asset-\(round)-\(i)",
+                                      pixelWidth: 40, pixelHeight: 30, at: i % 2)
+                }
+            }
+            try assertSlotConsistent(0)
+            try assertSlotConsistent(1)
+        }
+    }
+
     func testEntryWhoseImageIsMissingIsNotReturned() throws {
         try save("asset-A", at: 0)
         let imageURL = try XCTUnwrap(store.entry(at: 0)?.imageURL)
@@ -163,14 +211,54 @@ final class WidgetPhotoStoreTests: XCTestCase {
         try save("asset-0", at: 0)
         try save("asset-1", at: 1)
 
-        XCTAssertEqual(WidgetDeepLink.resolveMetadata(index: 1, localIdentifier: "gone", store: store)?["localIdentifier"] as? String, "asset-1")
+        XCTAssertEqual(WidgetDeepLink.resolveMetadata(index: 1, localIdentifier: "gone", store: store,
+                                                      assetLookup: { _ in nil })?["localIdentifier"] as? String, "asset-1")
         XCTAssertEqual(WidgetDeepLink.resolveMetadata(index: 5, localIdentifier: nil, store: store)?["localIdentifier"] as? String, "asset-0")
         // Old widget timelines carry no query items.
         XCTAssertEqual(WidgetDeepLink.resolveMetadata(index: nil, localIdentifier: nil, store: store)?["localIdentifier"] as? String, "asset-0")
     }
 
-    func testResolveMetadataReturnsNilForEmptyStore() {
-        XCTAssertNil(WidgetDeepLink.resolveMetadata(index: 0, localIdentifier: "asset-0", store: store))
-        XCTAssertNil(WidgetDeepLink.resolveMetadata(index: 0, localIdentifier: nil, store: nil))
+    func testResolveMetadataReturnsNilForEmptyStoreWhenLookupMisses() {
+        var looked: [String] = []
+        XCTAssertNil(WidgetDeepLink.resolveMetadata(index: 0, localIdentifier: "asset-0", store: store,
+                                                    assetLookup: { looked.append($0); return nil }))
+        XCTAssertEqual(looked, ["asset-0"])
+        XCTAssertNil(WidgetDeepLink.resolveMetadata(index: 0, localIdentifier: nil, store: nil, assetLookup: { _ in nil }))
+    }
+
+    /// First launch after upgrading, from a tap on an existing widget: the legacy metadata is gone and
+    /// the file store is still empty, so the URL's localId is resolved through the photo library.
+    func testResolveMetadataUsesLookupForLocalIdentifierMissingFromStore() throws {
+        let looked = ["localIdentifier": "tapped", "pixelWidth": 4032, "pixelHeight": 3024] as [String: Any]
+
+        let fromEmptyStore = WidgetDeepLink.resolveMetadata(index: 2, localIdentifier: "tapped", store: store,
+                                                            assetLookup: { $0 == "tapped" ? looked : nil })
+        XCTAssertEqual(fromEmptyStore?["localIdentifier"] as? String, "tapped")
+        // No App Group container at all.
+        let withoutStore = WidgetDeepLink.resolveMetadata(index: 2, localIdentifier: "tapped", store: nil,
+                                                          assetLookup: { $0 == "tapped" ? looked : nil })
+        XCTAssertEqual(withoutStore?["localIdentifier"] as? String, "tapped")
+
+        // A stale store: the exact photo beats the index fallback.
+        try save("asset-0", at: 0)
+        try save("asset-2", at: 2)
+        let fromStaleStore = WidgetDeepLink.resolveMetadata(index: 2, localIdentifier: "tapped", store: store,
+                                                            assetLookup: { $0 == "tapped" ? looked : nil })
+        XCTAssertEqual(fromStaleStore?["localIdentifier"] as? String, "tapped")
+    }
+
+    func testResolveMetadataSkipsLookupWhenStoreHasLocalIdentifier() throws {
+        try save("asset-1", at: 1)
+        let meta = WidgetDeepLink.resolveMetadata(index: 0, localIdentifier: "asset-1", store: store,
+                                                  assetLookup: { _ in XCTFail("store match must win"); return nil })
+        XCTAssertEqual(meta?["localIdentifier"] as? String, "asset-1")
+    }
+
+    func testPhotoLibraryLookupMetadataIsAPropertyList() {
+        let dictionary = WidgetDeepLink.metadataDictionary(localIdentifier: "x", creationDate: nil,
+                                                           pixelWidth: 10, pixelHeight: 20)
+        XCTAssertEqual(dictionary["localIdentifier"] as? String, "x")
+        XCTAssertNil(dictionary["creationDate"], "a nil creation date is omitted, not stored")
+        XCTAssertTrue(PropertyListSerialization.propertyList(dictionary, isValidFor: .binary))
     }
 }
