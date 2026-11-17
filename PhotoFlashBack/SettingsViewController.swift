@@ -10,6 +10,16 @@ import MessageUI
 import SwiftTipJar
 import UserNotifications
 
+/// Tip confirmation copy. Uses the storefront-formatted price (SwiftTipJar's `Tip.displayPrice`,
+/// formatted with the product's `priceLocale`) rather than a hard-coded USD amount.
+enum TipConfirmationText {
+    static func message(displayPrice: String) -> String {
+        let price = displayPrice.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !price.isEmpty else { return "Would you like to send a tip?" }
+        return "Would you like to send a \(price) tip?"
+    }
+}
+
 class SettingsViewController: UITableViewController {
 
     private let options = [
@@ -300,7 +310,9 @@ class SettingsViewController: UITableViewController {
 
 
     func showPurchaseConfirmationAlert(for tip: Tip, completion: @escaping (Bool) -> Void) {
-        let alertController = UIAlertController(title: "Send Tip", message: "Would you like to send a $0.99 Tip?", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Send Tip",
+                                                message: TipConfirmationText.message(displayPrice: tip.displayPrice),
+                                                preferredStyle: .alert)
 
         let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
             completion(true)

@@ -10,6 +10,8 @@
 		FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */; };
 		FC12AB000000000000000002 /* LayoutRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC12AB000000000000000001 /* LayoutRegressionTests.swift */; };
 		FC8A22220000000000000018 /* MemoryReminderPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */; };
+		FC18A18000000000000000A2 /* ReviewPromptPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC18A18000000000000000A1 /* ReviewPromptPolicyTests.swift */; };
+		FC18A18000000000000000A4 /* TipConfirmationTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC18A18000000000000000A3 /* TipConfirmationTextTests.swift */; };
 		FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000005 /* MemoryQueryTests.swift */; };
 		FC11B11100000000000000A2 /* WidgetMemoryDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11B11100000000000000A1 /* WidgetMemoryDate.swift */; };
 		FC11B11100000000000000A3 /* WidgetMemoryDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11B11100000000000000A1 /* WidgetMemoryDate.swift */; };
@@ -45,7 +47,7 @@
 		A17A0D100000000000000004 /* VideoAudioSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A17A0D100000000000000003 /* VideoAudioSessionTests.swift */; };
 		FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */; };
 		FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC10A10C0000000000000001 /* LocationNameResolverTests.swift */; };
-		FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C329D40AF1006B8705 /* IAPHelper.swift */; };
+		FC18A18000000000000000B2 /* ReviewPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC18A18000000000000000B1 /* ReviewPrompt.swift */; };
 		FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */; };
 		FC9872EA29D55C8C006B8705 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872E929D55C8C006B8705 /* WidgetKit.framework */; };
 		FC9872EB29D55C8C006B8705 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC9872CE29D556C8006B8705 /* SwiftUI.framework */; };
@@ -107,6 +109,8 @@
 		FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettingsTests.swift; sourceTree = "<group>"; };
 		FC12AB000000000000000001 /* LayoutRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutRegressionTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderPlannerTests.swift; sourceTree = "<group>"; };
+		FC18A18000000000000000A1 /* ReviewPromptPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPromptPolicyTests.swift; sourceTree = "<group>"; };
+		FC18A18000000000000000A3 /* TipConfirmationTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipConfirmationTextTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000005 /* MemoryQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQueryTests.swift; sourceTree = "<group>"; };
 		FC11B11100000000000000A1 /* WidgetMemoryDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMemoryDate.swift; sourceTree = "<group>"; };
 		FC11B11100000000000000A4 /* WidgetMemoryDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMemoryDateTests.swift; sourceTree = "<group>"; };
@@ -139,7 +143,7 @@
 		FC8A1111000000000000000A /* PhotoFlashBackTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhotoFlashBackTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRequestApplyGateTests.swift; sourceTree = "<group>"; };
 		FC10A10C0000000000000001 /* LocationNameResolverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNameResolverTests.swift; sourceTree = "<group>"; };
-		FC9872C329D40AF1006B8705 /* IAPHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPHelper.swift; sourceTree = "<group>"; };
+		FC18A18000000000000000B1 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
 		FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalActivityIndicator.swift; sourceTree = "<group>"; };
 		FC9872CE29D556C8006B8705 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		FC9872E829D55C8C006B8705 /* TodayWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TodayWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,6 +220,8 @@
 				FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */,
 				FC12AB000000000000000001 /* LayoutRegressionTests.swift */,
 				FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */,
+				FC18A18000000000000000A1 /* ReviewPromptPolicyTests.swift */,
+				FC18A18000000000000000A3 /* TipConfirmationTextTests.swift */,
 				FC8A22220000000000000027 /* MemoryReminderSchedulerTests.swift */,
 				FC8A22220000000000000037 /* PendingMemoryDateTests.swift */,
 				FC8A22220000000000000005 /* MemoryQueryTests.swift */,
@@ -294,7 +300,7 @@
 				FC821D2129C6C50400890051 /* SettingsViewController.swift */,
 				FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */,
 				FCB1DF1F28DAB11000160033 /* Helper.swift */,
-				FC9872C329D40AF1006B8705 /* IAPHelper.swift */,
+				FC18A18000000000000000B1 /* ReviewPrompt.swift */,
 				FC9872C529D41409006B8705 /* GlobalActivityIndicator.swift */,
 				FC98730129D68ECE006B8705 /* PhotoManager.swift */,
 				FCB1DF0728D9602A00160033 /* Main.storyboard */,
@@ -446,6 +452,8 @@
 				FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */,
 				FC12AB000000000000000002 /* LayoutRegressionTests.swift in Sources */,
 				FC8A22220000000000000018 /* MemoryReminderPlannerTests.swift in Sources */,
+				FC18A18000000000000000A2 /* ReviewPromptPolicyTests.swift in Sources */,
+				FC18A18000000000000000A4 /* TipConfirmationTextTests.swift in Sources */,
 				FC8A22220000000000000028 /* MemoryReminderSchedulerTests.swift in Sources */,
 				FC8A22220000000000000038 /* PendingMemoryDateTests.swift in Sources */,
 				FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */,
@@ -487,7 +495,7 @@
 				FC9872C629D41409006B8705 /* GlobalActivityIndicator.swift in Sources */,
 				FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */,
 				FC5FBD272F3AF858006A5356 /* LocationCache.swift in Sources */,
-				FC9872C429D40AF1006B8705 /* IAPHelper.swift in Sources */,
+				FC18A18000000000000000B2 /* ReviewPrompt.swift in Sources */,
 				FC821D2229C6C50400890051 /* SettingsViewController.swift in Sources */,
 				FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */,
 				FCB1DF0428D9602A00160033 /* SceneDelegate.swift in Sources */,
