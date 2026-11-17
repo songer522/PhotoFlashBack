@@ -70,57 +70,12 @@ class Helper {
         expect(expectedIdentifier, for: label)
 
         Task {
-            // Check cache first
-            if let cachedLocation = await LocationCache.shared.getCachedLocation(for: location) {
-                await MainActor.run {
-                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
-                    label.text = "\(cachedLocation)\n\(formattedDate)"
-                }
-                return
-            }
-
-            do {
-                let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-
-                guard let placemark = placemarks.first else {
-                    await MainActor.run {
-                        guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
-                        label.text = "\(formattedDate)"
-                    }
-                    return
-                }
-
-                var locationName = ""
-
-                if let city = placemark.locality {
-                    locationName += city
-                }
-
-                if let state = placemark.administrativeArea {
-                    if !locationName.isEmpty {
-                        locationName += ", "
-                    }
-                    locationName += state
-                }
-
-                // Cache the result
-                if !locationName.isEmpty {
-                    await LocationCache.shared.cacheLocation(locationName, for: location)
-                }
-
-                await MainActor.run {
-                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
-                    if !locationName.isEmpty {
-                        label.text = "\(locationName)\n\(formattedDate)"
-                    } else {
-                        label.text = "\(formattedDate)"
-                    }
-                }
-            } catch {
-                await MainActor.run {
-                    guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
-                    label.text = "\(formattedDate)"
-                }
+            let locationName = await LocationNameResolver.shared.viewerName(for: location)
+            guard shouldApplyLabelResult(label: label, expecting: expectedIdentifier) else { return }
+            if let locationName {
+                label.text = "\(locationName)\n\(formattedDate)"
+            } else {
+                label.text = "\(formattedDate)"
             }
         }
     }

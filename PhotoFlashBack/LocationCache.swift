@@ -8,12 +8,110 @@
 import Foundation
 import CoreLocation
 
-/// Manages caching of geocoded location names to avoid repeated API calls
+/// Raw reverse-geocoded placemark fields. The cache stores these unformatted so each screen
+/// formats the same place its own way, no matter which screen geocoded it first (issue #10).
+struct PlaceComponents: Codable, Equatable, Sendable {
+    let subLocality: String?
+    let locality: String?
+    let administrativeArea: String?
+    let country: String?
+
+    init(subLocality: String?, locality: String?, administrativeArea: String?, country: String?) {
+        self.subLocality = subLocality
+        self.locality = locality
+        self.administrativeArea = administrativeArea
+        self.country = country
+    }
+
+    init(placemark: CLPlacemark) {
+        self.init(
+            subLocality: placemark.subLocality,
+            locality: placemark.locality,
+            administrativeArea: placemark.administrativeArea,
+            country: placemark.country
+        )
+    }
+
+    /// Grid year headers: the most specific name available, e.g. "Brooklyn".
+    var headerName: String? {
+        [subLocality, locality, administrativeArea, country].lazy.compactMap(Self.nonEmpty).first
+    }
+
+    /// Full-screen viewer: "City, State", e.g. "New York, NY".
+    var viewerName: String? {
+        let parts = [locality, administrativeArea].compactMap(Self.nonEmpty)
+        return parts.isEmpty ? nil : parts.joined(separator: ", ")
+    }
+
+    /// True when no screen has anything to show for this place.
+    var isEmpty: Bool {
+        headerName == nil
+    }
+
+    private static func nonEmpty(_ value: String?) -> String? {
+        guard let value, !value.isEmpty else { return nil }
+        return value
+    }
+}
+
+/// The single reverse-geocode + cache path used by both the grid year headers and the
+/// full-screen viewer (issue #10).
+struct LocationNameResolver: Sendable {
+    typealias Geocode = @Sendable (CLLocation) async throws -> PlaceComponents?
+
+    static let shared = LocationNameResolver(cache: .shared) { location in
+        let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+        return placemarks.first.map(PlaceComponents.init(placemark:))
+    }
+
+    let cache: LocationCache
+    private let geocode: Geocode
+
+    init(cache: LocationCache, geocode: @escaping Geocode) {
+        self.cache = cache
+        self.geocode = geocode
+    }
+
+    /// Cached place for `location`, geocoding and caching it on a miss. Returns nil when
+    /// geocoding fails or finds nothing; those results are not cached.
+    func placeComponents(for location: CLLocation) async -> PlaceComponents? {
+        if let cached = await cache.getCachedPlace(for: location) {
+            return cached
+        }
+        guard let place = try? await geocode(location), !place.isEmpty else {
+            return nil
+        }
+        await cache.cachePlace(place, for: location)
+        return place
+    }
+
+    /// Name for a grid year header, e.g. "Brooklyn".
+    func headerName(for location: CLLocation) async -> String? {
+        await placeComponents(for: location)?.headerName
+    }
+
+    /// Name for the full-screen viewer label, e.g. "New York, NY".
+    func viewerName(for location: CLLocation) async -> String? {
+        await placeComponents(for: location)?.viewerName
+    }
+}
+
+/// Manages caching of geocoded places to avoid repeated API calls
 actor LocationCache {
-    static let shared = LocationCache()
-    
+    static let shared = LocationCache(
+        directory: FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+    )
+
+    /// Versioned so a schema change starts a fresh file instead of decoding old entries.
+    static let fileName = "location_cache_v2.json"
+    /// Earlier cache files, deleted on load. v1 held preformatted names in two different
+    /// formats (issue #10).
+    static let legacyFileNames = ["location_cache.json"]
+
     private var memoryCache: [String: CachedLocation] = [:]
     private let fileURL: URL
+    private let legacyFileURLs: [URL]
+    private var hasLoaded = false
 
     /// Shared expiry window, used by `CachedLocation.isExpired` so the two cannot drift.
     static let maxCacheAge: TimeInterval = 60 * 60 * 24 * 30 // 30 days
@@ -27,7 +125,7 @@ actor LocationCache {
     private static let flushDebounceInterval: UInt64 = 5 * 1_000_000_000 // 5 seconds
 
     struct CachedLocation: Codable {
-        let locationName: String
+        let place: PlaceComponents
         let timestamp: Date
         let coordinate: CoordinateData
 
@@ -62,50 +160,46 @@ actor LocationCache {
         }
     }
     
-    private init() {
-        // Create cache directory if needed
-        let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        fileURL = cacheDirectory.appendingPathComponent("location_cache.json")
-        
-        // Load existing cache
-        Task {
-            await loadCache()
-        }
+    init(directory: URL) {
+        fileURL = directory.appendingPathComponent(LocationCache.fileName)
+        legacyFileURLs = LocationCache.legacyFileNames.map { directory.appendingPathComponent($0) }
     }
-    
-    /// Retrieves a cached location name if available and not expired
-    func getCachedLocation(for location: CLLocation) -> String? {
+
+    /// Retrieves a cached place if available and not expired
+    func getCachedPlace(for location: CLLocation) -> PlaceComponents? {
+        loadIfNeeded()
         let coordinate = CoordinateData(from: location)
 
         // Fast path: exact key hit using the same rounding used on write.
         let key = cacheKey(for: coordinate)
         if let exact = memoryCache[key], !exact.isExpired {
-            return exact.locationName
+            return exact.place
         }
 
         // Fall back to a proximity scan, returning the CLOSEST match within 100m
         // (dictionary order is arbitrary, so picking the first match would be
         // nondeterministic).
-        var closest: (name: String, distance: Double)?
+        var closest: (place: PlaceComponents, distance: Double)?
         for (_, cached) in memoryCache {
             guard !cached.isExpired else { continue }
             let distance = cached.coordinate.distance(from: coordinate)
             guard distance < 100 else { continue }
             if closest == nil || distance < closest!.distance {
-                closest = (cached.locationName, distance)
+                closest = (cached.place, distance)
             }
         }
 
-        return closest?.name
+        return closest?.place
     }
 
-    /// Caches a location name for future use
-    func cacheLocation(_ locationName: String, for location: CLLocation) {
+    /// Caches a place for future use
+    func cachePlace(_ place: PlaceComponents, for location: CLLocation) {
+        loadIfNeeded()
         let coordinate = CoordinateData(from: location)
         let key = cacheKey(for: coordinate)
 
         let cached = CachedLocation(
-            locationName: locationName,
+            place: place,
             timestamp: Date(),
             coordinate: coordinate
         )
@@ -117,6 +211,7 @@ actor LocationCache {
 
     /// Clears expired entries from cache
     func clearExpiredEntries() {
+        loadIfNeeded()
         memoryCache = memoryCache.filter { !$0.value.isExpired }
 
         scheduleFlush()
@@ -147,7 +242,13 @@ actor LocationCache {
         isDirty = false
         saveCache()
     }
-    
+
+    /// Writes any pending changes to disk now instead of waiting for the debounce.
+    func flushNow() async {
+        pendingFlushTask?.cancel()
+        await flushIfNeeded()
+    }
+
     private func cacheKey(for coordinate: CoordinateData) -> String {
         // Round coordinates to 4 decimal places (~11m precision)
         let lat = String(format: "%.4f", coordinate.latitude)
@@ -155,6 +256,21 @@ actor LocationCache {
         return "\(lat),\(lon)"
     }
     
+    /// Loads the file on first use, inside the actor, so a late load can never replace entries
+    /// cached after launch.
+    private func loadIfNeeded() {
+        guard !hasLoaded else { return }
+        hasLoaded = true
+        removeLegacyCacheFiles()
+        loadCache()
+    }
+
+    private func removeLegacyCacheFiles() {
+        for url in legacyFileURLs where FileManager.default.fileExists(atPath: url.path) {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     private func loadCache() {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return
