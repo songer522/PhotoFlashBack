@@ -237,7 +237,8 @@ class PhotosViewModel {
         let totalYears = assetDict.count
         var completedYears = 0
         
-        // Use TaskGroup to fetch locations concurrently for all years
+        // One task per year; cached years return at once, and `LocationNameResolver` caps how
+        // many geocode requests run together so Apple doesn't throttle them (issue #15).
         await withTaskGroup(of: (String, String?).self) { group in
             for (year, assets) in assetDict {
                 group.addTask {
