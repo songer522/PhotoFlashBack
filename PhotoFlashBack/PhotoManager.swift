@@ -50,36 +50,20 @@ actor PhotoManager {
                 return []
             }
             
-            let fetchOptions = PHFetchOptions()
-            let predicates = Helper.compoundPredicateFrom(day: day, month: month)
-            let predicate2 = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-            let compoundPredicate1 = NSCompoundPredicate(type: .or, subpredicates: predicates)
-            let compoundPredicate3 = NSCompoundPredicate(type: .and, subpredicates: [compoundPredicate1, predicate2])
-            
-            fetchOptions.predicate = compoundPredicate3
-            
-            let sameDayAndMonthPhotos = PHAsset.fetchAssets(with: fetchOptions)
-            
+            // Same query and month/day rule as the grid and reminder counts, narrowed to the
+            // widget's past still photos by `MemoryQuery.widgetYear`.
+            let sameDayAndMonthPhotos = PHAsset.fetchAssets(with: MemoryQuery.fetchOptions(month: month, day: day))
+
             var assetsByYear: [Int: [PHAsset]] = [:]
             sameDayAndMonthPhotos.enumerateObjects { (asset, _, _) in
-                guard let creationDate = asset.creationDate else { return }
-                let assetDateComponents = calendar.dateComponents([.day, .month, .year], from: creationDate)
-                guard let assetDay = assetDateComponents.day,
-                      let assetMonth = assetDateComponents.month,
-                      let assetYear = assetDateComponents.year,
-                      assetDay == day,
-                      assetMonth == month,
-                      assetYear != currentYear else {
+                let kind = MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes)
+                guard let assetYear = MemoryQuery.widgetYear(
+                    creationDate: asset.creationDate, kind: kind, month: month, day: day,
+                    currentYear: currentYear, calendar: calendar
+                ) else {
                     return
                 }
-                guard !asset.mediaSubtypes.contains(.photoScreenshot) else {
-                    return
-                }
-                
-                if assetsByYear[assetYear] == nil {
-                    assetsByYear[assetYear] = []
-                }
-                assetsByYear[assetYear]?.append(asset)
+                assetsByYear[assetYear, default: []].append(asset)
             }
             
             // Select random assets from randomly selected years

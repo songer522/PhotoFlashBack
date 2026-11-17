@@ -11,28 +11,6 @@ import UIKit
 import CoreLocation
 
 class Helper {
-    class func compoundPredicateFrom(day: Int, month: Int) -> [NSPredicate] {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .current
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.calendar = calendar
-        dateFormatter.timeZone = .current
-        dateFormatter.dateFormat = "yyyy-M-d"
-        var predicates: [NSPredicate] = []
-        for year in 1970...2050 {
-            let dateString = String(year) + "-" + String(month) + "-" + String(day)
-            if let date = dateFormatter.date(from: dateString) {
-                let dateFrom = calendar.startOfDay(for: date) // eg. 2016-10-10 00:00:00
-                let dateTo = calendar.date(byAdding: .day, value: 1, to: dateFrom)
-                let predicate1 = NSPredicate(format: "creationDate <= %@", dateTo! as CVarArg)
-                let predicate2 = NSPredicate(format: "creationDate > %@",  dateFrom as CVarArg)
-                predicates.append(NSCompoundPredicate(type: .and, subpredicates: [predicate1,predicate2]))
-            }
-        }
-        return predicates
-    }
-
     class func durationFormatter(duration: TimeInterval) -> String {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = .abbreviated
