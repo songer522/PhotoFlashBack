@@ -15,10 +15,12 @@ extension AVAudioSession: AudioSessionControlling {}
 
 /// Owns the app's audio session for full-screen video playback.
 ///
-/// The `.playback` category is set at launch so viewer video plays sound even with the
-/// silent switch on, but the session is only activated while a video is actually playing.
-/// That way, launching or browsing the app never touches audio playing in another app,
-/// and other apps are notified to resume when our playback stops.
+/// While browsing, the category is `.ambient`: it mixes with other apps, so launching the app
+/// or the muted looping grid thumbnails never interrupt Music or a podcast. When a viewer video
+/// starts playing, the session switches to non-mixable `.playback` and activates, which pauses
+/// other audio and plays sound even with the silent switch on. When it stops, the session is
+/// deactivated with `.notifyOthersOnDeactivation` (so the other app can resume) and returns to
+/// `.ambient`.
 final class VideoAudioSession {
     static let shared = VideoAudioSession()
 
@@ -34,22 +36,24 @@ final class VideoAudioSession {
         self.log = log
     }
 
-    /// Sets the category without activating the session. Safe to call at launch.
+    /// Sets the browsing (ambient) category without activating the session. Safe to call at launch.
     func configureCategory() {
-        do {
-            try session.setCategory(.playback, mode: .default, options: [.mixWithOthers])
-        } catch {
-            log("Failed to set audio session category: \(error)")
-        }
+        setBrowsingCategory()
     }
 
     func playbackStarted() {
         guard !isActive else { return }
         do {
+            try session.setCategory(.playback, mode: .moviePlayback, options: [])
+        } catch {
+            log("Failed to set playback audio category: \(error)")
+        }
+        do {
             try session.setActive(true, options: [])
             isActive = true
         } catch {
             log("Failed to activate audio session: \(error)")
+            setBrowsingCategory()
         }
     }
 
@@ -59,7 +63,18 @@ final class VideoAudioSession {
             try session.setActive(false, options: [.notifyOthersOnDeactivation])
             isActive = false
         } catch {
+            // Stay in playback so a later stop can retry the deactivation and notify others.
             log("Failed to deactivate audio session: \(error)")
+            return
+        }
+        setBrowsingCategory()
+    }
+
+    private func setBrowsingCategory() {
+        do {
+            try session.setCategory(.ambient, mode: .default, options: [])
+        } catch {
+            log("Failed to set ambient audio category: \(error)")
         }
     }
 }

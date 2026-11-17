@@ -46,26 +46,31 @@ final class VideoAudioSessionTests: XCTestCase {
         super.tearDown()
     }
 
-    func testConfigureSetsPlaybackCategoryWithoutActivating() {
+    // Browsing: ambient mixes with other apps, so muted grid thumbnails never interrupt Music.
+    private let browsing = FakeAudioSession.Call.setCategory(.ambient, .default, [])
+    // Viewer video: non-mixable playback pauses other audio and plays with the silent switch on.
+    private let viewerVideo = FakeAudioSession.Call.setCategory(.playback, .moviePlayback, [])
+
+    func testConfigureSetsAmbientCategoryWithoutActivating() {
         sut.configureCategory()
 
-        XCTAssertEqual(session.calls, [.setCategory(.playback, .default, [.mixWithOthers])])
+        XCTAssertEqual(session.calls, [browsing])
         XCTAssertFalse(sut.isActive)
     }
 
-    func testPlaybackStartedActivatesSessionOnce() {
+    func testPlaybackStartedSwitchesToNonMixingPlaybackAndActivatesOnce() {
         sut.playbackStarted()
         sut.playbackStarted()
 
-        XCTAssertEqual(session.calls, [.setActive(true, [])])
+        XCTAssertEqual(session.calls, [viewerVideo, .setActive(true, [])])
         XCTAssertTrue(sut.isActive)
     }
 
-    func testPlaybackStoppedDeactivatesAndNotifiesOthers() {
+    func testPlaybackStoppedDeactivatesNotifiesOthersAndReturnsToAmbient() {
         sut.playbackStarted()
         sut.playbackStopped()
 
-        XCTAssertEqual(session.calls, [.setActive(true, []), .setActive(false, [.notifyOthersOnDeactivation])])
+        XCTAssertEqual(session.calls, [viewerVideo, .setActive(true, []), .setActive(false, [.notifyOthersOnDeactivation]), browsing])
         XCTAssertFalse(sut.isActive)
     }
 
@@ -83,13 +88,14 @@ final class VideoAudioSessionTests: XCTestCase {
         XCTAssertEqual(logged.count, 1)
     }
 
-    func testActivationFailureIsLoggedAndLeavesSessionInactive() {
+    func testActivationFailureIsLoggedLeavesSessionInactiveAndReturnsToAmbient() {
         session.failActivate = true
 
         sut.playbackStarted()
 
         XCTAssertEqual(logged.count, 1)
         XCTAssertFalse(sut.isActive)
+        XCTAssertEqual(session.calls.last, browsing)
     }
 
     func testDeactivationFailureIsLoggedAndCanBeRetried() {
@@ -100,11 +106,13 @@ final class VideoAudioSessionTests: XCTestCase {
 
         XCTAssertEqual(logged.count, 1)
         XCTAssertTrue(sut.isActive)
+        XCTAssertNotEqual(session.calls.last, browsing, "stay in playback until deactivation succeeds")
 
         session.failDeactivate = false
         sut.playbackStopped()
 
         XCTAssertFalse(sut.isActive)
         XCTAssertEqual(logged.count, 1)
+        XCTAssertEqual(session.calls.last, browsing)
     }
 }

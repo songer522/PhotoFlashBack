@@ -18,7 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     static let backgroundTaskIdentifier = "com.YangSong.PhotoFlashBack.fetch"
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Category only: the session is activated when viewer video starts playing (issue #17).
+        // Ambient category only: the session switches to playback and activates when viewer video starts (issue #17).
         VideoAudioSession.shared.configureCategory()
         
         // Must be set before launch finishes so a notification tap that cold-starts the app is delivered.
