@@ -60,8 +60,7 @@ struct MemoryTimelineProvider: TimelineProvider {
         let entry = loadMemories(for: currentDate, context: context)
         
         // Update at midnight tomorrow
-        let calendar = Calendar.current
-        let tomorrow = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: currentDate)!)
+        let tomorrow = WidgetMemoryDate.nextRefresh(after: currentDate)
         
         let timeline = Timeline(entries: [entry], policy: .after(tomorrow))
         completion(timeline)
@@ -77,7 +76,7 @@ struct MemoryTimelineProvider: TimelineProvider {
             maxPhotos = 1
         case .systemMedium:
             maxPhotos = 3
-        case .systemLarge, .systemExtraLarge:
+        case .systemLarge, .systemExtraLarge, .systemExtraLargePortrait:
             maxPhotos = 6
         @unknown default:
             maxPhotos = 1
@@ -88,8 +87,6 @@ struct MemoryTimelineProvider: TimelineProvider {
         let maxStoredAssetCount = 6
 
         var memories: [MemoryEntry.MemoryPhoto] = []
-        let calendar = Calendar.current
-        let todayComponents = calendar.dateComponents([.day, .month], from: date)
 
         // Scan forward through the stored slots until we've collected maxPhotos
         // valid (non-stale) entries, rather than only looking at the first
@@ -109,16 +106,13 @@ struct MemoryTimelineProvider: TimelineProvider {
 
                 // Skip stale entries left over from a previous day's fetch that don't
                 // actually match today's day/month, so old "on this day" photos don't linger.
-                let storedComponents = calendar.dateComponents([.day, .month], from: creationDate)
-                guard storedComponents.day == todayComponents.day,
-                      storedComponents.month == todayComponents.month else {
+                guard WidgetMemoryDate.isEntry(creationDate: creationDate, forDay: date) else {
                     continue
                 }
 
-                let year = Calendar.current.component(.year, from: creationDate)
                 let memory = MemoryEntry.MemoryPhoto(
                     image: image,
-                    year: String(year),
+                    year: WidgetMemoryDate.yearLabel(for: creationDate),
                     creationDate: creationDate,
                     localIdentifier: localIdentifier,
                     widgetIndex: index
@@ -147,7 +141,7 @@ struct TodayWidgetEntryView: View {
                 SmallWidgetView(entry: entry)
             case .systemMedium:
                 MediumWidgetView(entry: entry)
-            case .systemLarge, .systemExtraLarge:
+            case .systemLarge, .systemExtraLarge, .systemExtraLargePortrait:
                 LargeWidgetView(entry: entry)
             case .accessoryCircular:
                 CircularWidgetView(entry: entry)
