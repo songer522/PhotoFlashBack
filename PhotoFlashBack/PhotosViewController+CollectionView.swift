@@ -168,7 +168,7 @@ extension PhotosViewController: UICollectionViewDataSource {
                                                 targetSize: targetSize,
                                                 contentMode: .aspectFill,
                                                 options: options,
-                                                resultHandler: { [weak collectionCell] image, info in
+                                                resultHandler: { [weak collectionCell, weak self] image, info in
                 DispatchQueue.main.async { [weak collectionCell, weak self] in
                     guard let cell = collectionCell,
                           let self = self,

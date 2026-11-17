@@ -293,15 +293,20 @@ class EmptyStateView: UIView {
     }()
     
     private let actionButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitleColor(UIColor(red: 235/255, green: 226/255, blue: 203/255, alpha: 1.0), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 28, bottom: 12, trailing: 28)
+        configuration.baseForegroundColor = UIColor(red: 235/255, green: 226/255, blue: 203/255, alpha: 1.0)
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = .systemFont(ofSize: 15, weight: .medium)
+            return outgoing
+        }
+        let button = UIButton(configuration: configuration)
         button.titleLabel?.numberOfLines = 1
         button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.titleLabel?.minimumScaleFactor = 0.8
         button.backgroundColor = UIColor(red: 60/255, green: 55/255, blue: 35/255, alpha: 1.0)
         button.layer.cornerRadius = 20
-        button.contentEdgeInsets = UIEdgeInsets(top: 12, left: 28, bottom: 12, right: 28)
         button.isHidden = true
         return button
     }()

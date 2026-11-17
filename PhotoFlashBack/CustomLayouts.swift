@@ -33,12 +33,12 @@ class CustomLayouts {
         let largeGroup = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .fractionalHeight(0.25)),
-            subitem: largeItem, count: 1)
+            repeatingSubitem: largeItem, count: 1)
         
         let smallGroup1 = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/3),
                                                heightDimension: .fractionalHeight(1)),
-            subitem: samllItem1, count: 2)
+            repeatingSubitem: samllItem1, count: 2)
         
         let mediumGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -52,7 +52,7 @@ class CustomLayouts {
         let smallGroup2 = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .fractionalHeight(0.25 * (1/3))),
-            subitem: samllItem2, count: 3)
+            repeatingSubitem: samllItem2, count: 3)
         
         let height = size.width * 4
         let megaGroup = NSCollectionLayoutGroup.vertical(
@@ -97,7 +97,7 @@ class CustomLayouts {
         let smallGroup1 = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/3),
                                                heightDimension: .fractionalHeight(1)),
-            subitem: samllItem1, count: 2)
+            repeatingSubitem: samllItem1, count: 2)
         let largeGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .fractionalHeight(3/14)),
@@ -111,13 +111,13 @@ class CustomLayouts {
         let mediumGroup = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .fractionalHeight(3/14)),
-            subitem: mediumItem, count: 3)
+            repeatingSubitem: mediumItem, count: 3)
 
         
         let smallGroup2 = NSCollectionLayoutGroup.horizontal(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
                                                heightDimension: .fractionalHeight(1/14)),
-            subitem: samllItem2, count: 6)
+            repeatingSubitem: samllItem2, count: 6)
         
         let height = size.height * (14/3)
         let megaGroup = NSCollectionLayoutGroup.vertical(
@@ -148,7 +148,7 @@ class CustomLayouts {
 
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .fractionalWidth(itemSizeFraction))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: count)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, repeatingSubitem: item, count: count)
         group.interItemSpacing = .fixed(edgeInsets)
 
         let section = NSCollectionLayoutSection(group: group)
@@ -196,20 +196,22 @@ class CustomLayouts {
         let leadingItem = NSCollectionLayoutItem(layoutSize: leadingItemSize)
         leadingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
         
+        // 0.5: two items fill each trailing group. (The deprecated subitem:count: API stretched
+        // items to fill the group; repeatingSubitem:count: honors this size, so it must be exact.)
         let trailingItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                      heightDimension: .fractionalHeight(0.3))
+                                                      heightDimension: .fractionalHeight(0.5))
         let trailingItem = NSCollectionLayoutItem(layoutSize: trailingItemSize)
         trailingItem.contentInsets = NSDirectionalEdgeInsets(top: 1, leading: 1, bottom: 1, trailing: 1)
         
         let trailingLeftGroup = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
                                                heightDimension: .fractionalHeight(1.0)),
-            subitem: trailingItem, count: 2)
+            repeatingSubitem: trailingItem, count: 2)
         
         let trailingRightGroup = NSCollectionLayoutGroup.vertical(
             layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.25),
                                                heightDimension: .fractionalHeight(1.0)),
-            subitem: trailingItem, count: 2)
+            repeatingSubitem: trailingItem, count: 2)
         
         let fractionalHeight = isLandscape ? NSCollectionLayoutDimension.fractionalHeight(0.8) : NSCollectionLayoutDimension.fractionalHeight(0.4)
         let groupDimensionHeight: NSCollectionLayoutDimension = fractionalHeight

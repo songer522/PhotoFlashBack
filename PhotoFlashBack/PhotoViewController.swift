@@ -325,7 +325,7 @@ class PhotoViewController: UIViewController {
         
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.deleteAssets([assetToDelete] as NSArray)
-        }) { success, error in
+        }) { [weak self] success, error in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */; };
+		FC12AB000000000000000002 /* LayoutRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC12AB000000000000000001 /* LayoutRegressionTests.swift */; };
 		FC8A22220000000000000018 /* MemoryReminderPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */; };
 		FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000005 /* MemoryQueryTests.swift */; };
 		FC8A22220000000000000004 /* MemoryReminderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000003 /* MemoryReminderSettings.swift */; };
@@ -19,7 +20,6 @@
 		FC8A22220000000000000002 /* MemoryQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000001 /* MemoryQuery.swift */; };
 		FC3ED4912EED2A2500E5435C /* PhotoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4902EED2A2500E5435C /* PhotoError.swift */; };
 		FC3ED4932EED2CF400E5435C /* ImageLoadingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */; };
-		FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4942EED35A400E5435C /* PhotoViewController.swift */; };
 		FC3ED4972EED3DBD00E5435C /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */; };
 		FC3EFB8A28E77D7000704DE3 /* Player in Frameworks */ = {isa = PBXBuildFile; productRef = FC3EFB8928E77D7000704DE3 /* Player */; };
 		FC3EFB9428F0C30900704DE3 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */; };
@@ -99,6 +99,7 @@
 		FC8A22220000000000000031 /* PendingMemoryDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingMemoryDate.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000037 /* PendingMemoryDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingMemoryDateTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettingsTests.swift; sourceTree = "<group>"; };
+		FC12AB000000000000000001 /* LayoutRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutRegressionTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderPlannerTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000005 /* MemoryQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQueryTests.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000003 /* MemoryReminderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettings.swift; sourceTree = "<group>"; };
@@ -108,7 +109,6 @@
 		FC8A22220000000000000001 /* MemoryQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQuery.swift; sourceTree = "<group>"; };
 		FC3ED4902EED2A2500E5435C /* PhotoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoError.swift; sourceTree = "<group>"; };
 		FC3ED4922EED2CF400E5435C /* ImageLoadingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoadingManager.swift; sourceTree = "<group>"; };
-		FC3ED4942EED35A400E5435C /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		FC3EFB9328F0C30900704DE3 /* PhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		FC3EFB9528F0C43200704DE3 /* ImageViewerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -202,6 +202,7 @@
 			children = (
 				FC8A11110000000000000007 /* MediaFilterTests.swift */,
 				FC8A22220000000000000007 /* MemoryReminderSettingsTests.swift */,
+				FC12AB000000000000000001 /* LayoutRegressionTests.swift */,
 				FC8A22220000000000000017 /* MemoryReminderPlannerTests.swift */,
 				FC8A22220000000000000027 /* MemoryReminderSchedulerTests.swift */,
 				FC8A22220000000000000037 /* PendingMemoryDateTests.swift */,
@@ -268,7 +269,6 @@
 				FC3ED4962EED3DBD00E5435C /* SkeletonView.swift */,
 				FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */,
 				FC821D3729CEB03400890051 /* CustomTransitionAnimator.swift */,
-				FC3ED4942EED35A400E5435C /* PhotoViewController.swift */,
 				FCB1DF2328DC214700160033 /* PlayerView.swift */,
 				FC3ED4902EED2A2500E5435C /* PhotoError.swift */,
 				FCB1DF1528D9638000160033 /* PhotosViewModel.swift */,
@@ -427,6 +427,7 @@
 			files = (
 				FC8A11110000000000000008 /* MediaFilterTests.swift in Sources */,
 				FC8A22220000000000000008 /* MemoryReminderSettingsTests.swift in Sources */,
+				FC12AB000000000000000002 /* LayoutRegressionTests.swift in Sources */,
 				FC8A22220000000000000018 /* MemoryReminderPlannerTests.swift in Sources */,
 				FC8A22220000000000000028 /* MemoryReminderSchedulerTests.swift in Sources */,
 				FC8A22220000000000000038 /* PendingMemoryDateTests.swift in Sources */,
@@ -454,7 +455,6 @@
 				FC98730229D68ECE006B8705 /* PhotoManager.swift in Sources */,
 				FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */,
 				FC3EFB9628F0C43200704DE3 /* ImageViewerCollectionViewCell.swift in Sources */,
-				FC3ED4952EED35A400E5435C /* PhotoViewController.swift in Sources */,
 				FC3ED4972EED3DBD00E5435C /* SkeletonView.swift in Sources */,
 				FCB1DF0628D9602A00160033 /* PhotosViewController.swift in Sources */,
 				FCB1DF2028DAB11000160033 /* Helper.swift in Sources */,
