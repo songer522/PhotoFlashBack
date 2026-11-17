@@ -16,6 +16,9 @@
 		FC11B11100000000000000A2 /* WidgetMemoryDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11B11100000000000000A1 /* WidgetMemoryDate.swift */; };
 		FC11B11100000000000000A3 /* WidgetMemoryDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11B11100000000000000A1 /* WidgetMemoryDate.swift */; };
 		FC11B11100000000000000A5 /* WidgetMemoryDateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC11B11100000000000000A4 /* WidgetMemoryDateTests.swift */; };
+		FC14E14E00000000000000A5 /* WidgetPhotoStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC14E14E00000000000000A4 /* WidgetPhotoStoreTests.swift */; };
+		FC14E14E00000000000000A2 /* WidgetPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC14E14E00000000000000A1 /* WidgetPhotoStore.swift */; };
+		FC14E14E00000000000000A3 /* WidgetPhotoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC14E14E00000000000000A1 /* WidgetPhotoStore.swift */; };
 		FC8A22220000000000000004 /* MemoryReminderSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000003 /* MemoryReminderSettings.swift */; };
 		FC8A22220000000000000014 /* MemoryReminderPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000013 /* MemoryReminderPlanner.swift */; };
 		FC8A22220000000000000024 /* MemoryReminderScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8A22220000000000000023 /* MemoryReminderScheduler.swift */; };
@@ -114,6 +117,8 @@
 		FC8A22220000000000000005 /* MemoryQueryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryQueryTests.swift; sourceTree = "<group>"; };
 		FC11B11100000000000000A1 /* WidgetMemoryDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMemoryDate.swift; sourceTree = "<group>"; };
 		FC11B11100000000000000A4 /* WidgetMemoryDateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetMemoryDateTests.swift; sourceTree = "<group>"; };
+		FC14E14E00000000000000A4 /* WidgetPhotoStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPhotoStoreTests.swift; sourceTree = "<group>"; };
+		FC14E14E00000000000000A1 /* WidgetPhotoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetPhotoStore.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000003 /* MemoryReminderSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderSettings.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000013 /* MemoryReminderPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderPlanner.swift; sourceTree = "<group>"; };
 		FC8A22220000000000000023 /* MemoryReminderScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryReminderScheduler.swift; sourceTree = "<group>"; };
@@ -226,6 +231,7 @@
 				FC8A22220000000000000037 /* PendingMemoryDateTests.swift */,
 				FC8A22220000000000000005 /* MemoryQueryTests.swift */,
 				FC11B11100000000000000A4 /* WidgetMemoryDateTests.swift */,
+				FC14E14E00000000000000A4 /* WidgetPhotoStoreTests.swift */,
 				FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */,
 				FC10A10C0000000000000001 /* LocationNameResolverTests.swift */,
 			);
@@ -239,6 +245,7 @@
 				FC9872EF29D55C8C006B8705 /* TodayWidgetLiveActivity.swift */,
 				FC9872F129D55C8C006B8705 /* TodayWidget.swift */,
 				FC11B11100000000000000A1 /* WidgetMemoryDate.swift */,
+				FC14E14E00000000000000A1 /* WidgetPhotoStore.swift */,
 				FC9872F429D55C8D006B8705 /* Assets.xcassets */,
 				FC9872F629D55C8D006B8705 /* Info.plist */,
 			);
@@ -459,6 +466,7 @@
 				FC8A22220000000000000006 /* MemoryQueryTests.swift in Sources */,
 				FC11B11100000000000000A3 /* WidgetMemoryDate.swift in Sources */,
 				FC11B11100000000000000A5 /* WidgetMemoryDateTests.swift in Sources */,
+				FC14E14E00000000000000A5 /* WidgetPhotoStoreTests.swift in Sources */,
 				FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */,
 				FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */,
 			);
@@ -471,6 +479,7 @@
 				FC9872F029D55C8C006B8705 /* TodayWidgetLiveActivity.swift in Sources */,
 				FC9872F229D55C8C006B8705 /* TodayWidget.swift in Sources */,
 				FC11B11100000000000000A2 /* WidgetMemoryDate.swift in Sources */,
+				FC14E14E00000000000000A2 /* WidgetPhotoStore.swift in Sources */,
 				FC9872EE29D55C8C006B8705 /* TodayWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -513,6 +522,7 @@
 				FC8A11110000000000000004 /* ToolbarDropdownViews.swift in Sources */,
 				FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */,
 				FCA111110000000000000022 /* WidgetDeepLink.swift in Sources */,
+				FC14E14E00000000000000A3 /* WidgetPhotoStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -3,7 +3,7 @@
 //  PhotoFlashBack
 //
 //  Parses per-photo widget deep links (openToday://widget?index=N&localId=...)
-//  and resolves them to the matching metadata blob in the shared App Group.
+//  and resolves them to the matching photo's metadata in WidgetPhotoStore.
 //
 
 import Foundation
@@ -11,8 +11,6 @@ import Foundation
 enum WidgetDeepLink {
     static let scheme = "openToday"
     static let host = "widget"
-    static let suiteName = "group.com.YangSong.PhotoFlashBack.Today"
-    static let maxStoredAssetCount = 6
 
     struct Target {
         let index: Int?
@@ -40,31 +38,26 @@ enum WidgetDeepLink {
         return components.url ?? URL(string: "openToday://widget")!
     }
 
-    private static func metadataKey(for index: Int) -> String {
-        index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-    }
-
     /// Returns the metadata dict for the tapped photo. Prefers an exact
     /// localIdentifier match (the tapped card), then the requested index,
     /// then index 0 for backwards compatibility with old widget timelines
     /// that carry no query items.
-    static func resolveMetadata(index: Int?, localIdentifier: String?) -> [String: Any]? {
-        let sharedDefaults = UserDefaults(suiteName: suiteName)
+    static func resolveMetadata(index: Int?, localIdentifier: String?,
+                                store: WidgetPhotoStore? = .appGroup()) -> [String: Any]? {
+        guard let store else { return nil }
 
         if let localIdentifier, !localIdentifier.isEmpty {
-            for i in 0..<maxStoredAssetCount {
-                if let meta = sharedDefaults?.dictionary(forKey: metadataKey(for: i)),
-                   (meta["localIdentifier"] as? String) == localIdentifier {
-                    return meta
+            for i in 0..<WidgetPhotoStore.maxStoredAssetCount {
+                if let meta = store.metadata(at: i), meta.localIdentifier == localIdentifier {
+                    return meta.dictionary
                 }
             }
         }
 
-        if let index, index >= 0, index < maxStoredAssetCount,
-           let meta = sharedDefaults?.dictionary(forKey: metadataKey(for: index)) {
-            return meta
+        if let index, let meta = store.metadata(at: index) {
+            return meta.dictionary
         }
 
-        return sharedDefaults?.dictionary(forKey: metadataKey(for: 0))
+        return store.metadata(at: 0)?.dictionary
     }
 }
