@@ -26,7 +26,7 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     var videoPlayer = AVQueuePlayer()
     var playerLooper: AVPlayerLooper?
     
-    // 骨架屏
+    // Skeleton
     private lazy var skeletonOverlay: SkeletonCellOverlay = {
         let skeleton = SkeletonCellOverlay()
         skeleton.translatesAutoresizingMaskIntoConstraints = false
@@ -68,14 +68,14 @@ class PhotoCollectionViewCell: UICollectionViewCell {
         super.prepareForReuse()
         itemImageView.image = nil
         itemImageView.backgroundColor = UIColor(red: 31/255, green: 27/255, blue: 13/255, alpha: 1.0)
-        showSkeleton() // 重用时显示骨架屏
+        showSkeleton() // Show the skeleton on reuse
         stopVideo()
         playerView.removeFromSuperview()
         
-        // 释放 playerLooper：AVPlayerLooper 无需显式失效，清空引用即可
+        // Release playerLooper: AVPlayerLooper needs no explicit invalidation; clearing the reference is enough
         playerLooper = nil
         
-        // 停止并释放 videoPlayer
+        // Stop and release videoPlayer
         videoPlayer.pause()
         videoPlayer.removeAllItems()
         videoPlayer = AVQueuePlayer()
@@ -91,9 +91,9 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     }
     
     deinit {
-        // 确保在 deinit 时释放资源
+        // Make sure resources are released in deinit
         stopVideo()
-        // 释放 looper 引用并清空队列
+        // Release the looper reference and clear the queue
         playerLooper = nil
         videoPlayer.removeAllItems()
     }
@@ -108,7 +108,7 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     }
     
     func playVideo(playerItem: AVPlayerItem) {
-        // 先停止之前的播放
+        // Stop any previous playback first
         stopVideo()
         
         videoPlayer = AVQueuePlayer(playerItem: playerItem)
@@ -121,7 +121,7 @@ class PhotoCollectionViewCell: UICollectionViewCell {
     
     func stopVideo() {
         playerView.player?.pause()
-        // AVPlayerLooper 不需要调用 invalidate，直接释放引用
+        // AVPlayerLooper doesn't need invalidate; just release the reference
         playerLooper = nil
         videoPlayer.removeAllItems()
     }

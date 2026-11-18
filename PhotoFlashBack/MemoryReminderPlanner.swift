@@ -49,11 +49,10 @@ enum MemoryReminderPlanner {
         return reminders
     }
 
-    static func body(count: Int, month: Int, day: Int) -> String {
-        var posix = Calendar(identifier: .gregorian)
-        posix.locale = Locale(identifier: "en_US_POSIX")
-        let monthName = posix.shortMonthSymbols[month - 1]
-        let noun = count == 1 ? "memory" : "memories"
-        return "📸 \(count) \(noun) from \(monthName) \(day)"
+    static func body(count: Int, month: Int, day: Int, locale: Locale = MemoryDateText.userLocale) -> String {
+        let date = MemoryDateText.abbreviatedDayMonth(month: month, day: day, locale: locale) ?? "\(month)/\(day)"
+        // The catalog holds the singular/plural forms.
+        return String(localized: "📸 \(count) memories from \(date)", locale: locale,
+                      comment: "Daily reminder notification body, e.g. 📸 3 memories from Oct 27")
     }
 }

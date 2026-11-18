@@ -82,9 +82,9 @@ final class FilterDropdownView: UIView {
             stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -4),
             widthAnchor.constraint(equalToConstant: 220)
         ])
-        addRow(title: "Photos", keyPath: \.photos)
-        addRow(title: "Videos", keyPath: \.videos)
-        addRow(title: "Screenshots", keyPath: \.screenshots)
+        addRow(title: String(localized: "Photos"), keyPath: \.photos)
+        addRow(title: String(localized: "Videos"), keyPath: \.videos)
+        addRow(title: String(localized: "Screenshots"), keyPath: \.screenshots)
         reload(from: filter)
     }
 

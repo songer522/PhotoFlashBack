@@ -19,7 +19,7 @@ extension PhotosViewController: UIPickerViewDelegate, UIPickerViewDataSource {
         
         switch component {
         case 0:
-            pickerLabel.text = viewModel.monthArray[row]
+            pickerLabel.text = viewModel.monthSymbols[safe: row]
         case 1:
             pickerLabel.text = String(row + 1)
         default:

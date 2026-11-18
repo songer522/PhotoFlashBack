@@ -157,11 +157,11 @@ extension PhotosViewController: UICollectionViewDataSource {
             let asset = viewModel.assetArray[indexPath.section].1[indexPath.row]
             collectionCell.identifier = asset.localIdentifier
             
-            // 使用优化的图片加载管理器
+            // Use the optimized image loading manager
             let loadingManager = ImageLoadingManager.shared
             let options = ImageLoadingManager.thumbnailOptions()
             
-            // 显示骨架屏
+            // Show the skeleton
             collectionCell.showSkeleton()
             
             collectionCell.currentImageRequestID = loadingManager.requestImage(for: asset,
@@ -176,7 +176,7 @@ extension PhotosViewController: UICollectionViewDataSource {
                         return
                     }
                     
-                    // 隐藏骨架屏
+                    // Hide the skeleton
                     cell.hideSkeleton()
                     
                     cell.itemImageView.image = image
@@ -245,7 +245,7 @@ extension PhotosViewController: UICollectionViewDataSourcePrefetching {
         }
         
         if !assetsToPrefetch.isEmpty {
-            // 预加载缩略图
+            // Preload thumbnails
             let thumbnailSize = CGSize(width: 200 * 2, height: 200 * 2) // 2x scale for retina
             loadingManager.startCaching(assets: assetsToPrefetch, targetSize: thumbnailSize)
         }

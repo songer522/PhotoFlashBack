@@ -1,0 +1,291 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Are you sure you want to delete this photo?" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Check out this amazing app I've been using:" : {
+
+    },
+    "Check your network connection and try again" : {
+
+    },
+    "Confirm" : {
+
+    },
+    "Couldn't look up the location: %@" : {
+
+    },
+    "Daily Reminder" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete Photo" : {
+
+    },
+    "Error" : {
+
+    },
+    "Error: %@" : {
+
+    },
+    "Failed to delete photo: %@" : {
+
+    },
+    "Finding locations (%lld/%lld)..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Finding locations (%1$lld/%2$lld)..."
+          }
+        }
+      }
+    },
+    "Finding locations for %@... (%lld/%lld)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Finding locations for %1$@... (%2$lld/%3$lld)"
+          }
+        }
+      }
+    },
+    "Found %lld photos" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Found %lld photo"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Found %lld photos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Get a notification each day when you have memories from that date." : {
+
+    },
+    "Go to Settings" : {
+
+    },
+    "Grant photo library access in Settings" : {
+
+    },
+    "Image processing failed" : {
+
+    },
+    "Index out of range" : {
+
+    },
+    "Invalid Date" : {
+
+    },
+    "Invalid date" : {
+
+    },
+    "Invalid month: %lld" : {
+
+    },
+    "Invalid photo asset" : {
+
+    },
+    "Loading photos..." : {
+
+    },
+    "Loading photos... %lld/%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Loading photos... %1$lld/%2$lld"
+          }
+        }
+      }
+    },
+    "Loading..." : {
+
+    },
+    "Location information may be unavailable" : {
+
+    },
+    "Memory of the Day" : {
+
+    },
+    "Network error: %@" : {
+
+    },
+    "No Photos" : {
+
+    },
+    "No Photos on This Day" : {
+
+    },
+    "No items match the current filters for %@\nTry turning more types on" : {
+
+    },
+    "No photos found" : {
+
+    },
+    "No photos found for %@\nTry selecting a different date" : {
+
+    },
+    "Nothing Matches Your Filters" : {
+
+    },
+    "Notifications are turned off for Rewind" : {
+
+    },
+    "OK" : {
+
+    },
+    "Open Settings" : {
+
+    },
+    "Organizing memories..." : {
+
+    },
+    "Permission Required" : {
+
+    },
+    "Photo library access is required" : {
+
+    },
+    "Photos" : {
+
+    },
+    "Please grant photo library access\nin Settings to view your memories" : {
+
+    },
+    "Provide Feedback" : {
+
+    },
+    "Rate the App" : {
+
+    },
+    "Ready!" : {
+
+    },
+    "Refresh and try again" : {
+
+    },
+    "Retry" : {
+
+    },
+    "Screenshots" : {
+
+    },
+    "Searching for memories" : {
+
+    },
+    "Searching for memories..." : {
+
+    },
+    "Select" : {
+
+    },
+    "Select Date" : {
+
+    },
+    "Send Tip" : {
+
+    },
+    "Send Tips" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Share with Friends" : {
+
+    },
+    "Something Went Wrong" : {
+
+    },
+    "Thank You!" : {
+
+    },
+    "The photo has no creation date" : {
+
+    },
+    "This photo may be damaged; skip it" : {
+
+    },
+    "Time" : {
+
+    },
+    "Try again later" : {
+
+    },
+    "Try selecting a different date" : {
+
+    },
+    "Unable to delete: Invalid index" : {
+
+    },
+    "Unknown" : {
+
+    },
+    "Unknown error" : {
+
+    },
+    "Unknown error: %@" : {
+
+    },
+    "Videos" : {
+
+    },
+    "Would you like to send a %@ tip?" : {
+
+    },
+    "Would you like to send a tip?" : {
+
+    },
+    "Your photo library is empty" : {
+
+    },
+    "Your support is greatly appreciated." : {
+
+    },
+    "📸 %lld memories from %@" : {
+      "comment" : "Daily reminder notification body, e.g. 📸 3 memories from Oct 27",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "📸 %1$lld memory from %2$@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "📸 %1$lld memories from %2$@"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

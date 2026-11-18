@@ -23,58 +23,58 @@ enum PhotoError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noPhotosFound:
-            return "未找到照片"
+            return String(localized: "No photos found")
         case .authorizationDenied:
-            return "需要照片库访问权限"
+            return String(localized: "Photo library access is required")
         case .networkError(let error):
-            return "网络错误: \(error.localizedDescription)"
+            return String(localized: "Network error: \(error.localizedDescription)")
         case .invalidAsset:
-            return "无效的照片资源"
+            return String(localized: "Invalid photo asset")
         case .invalidDate:
-            return "无效的日期"
+            return String(localized: "Invalid date")
         case .arrayIndexOutOfBounds:
-            return "数组索引越界"
+            return String(localized: "Index out of range")
         case .invalidMonth(let month):
-            return "无效的月份: \(month)"
+            return String(localized: "Invalid month: \(month)")
         case .creationDateMissing:
-            return "照片缺少创建日期"
+            return String(localized: "The photo has no creation date")
         case .geocodingError(let error):
-            return "地理位置解析失败: \(error?.localizedDescription ?? "未知错误")"
+            return String(localized: "Couldn't look up the location: \(error?.localizedDescription ?? String(localized: "Unknown error"))")
         case .imageProcessingFailed:
-            return "图片处理失败"
+            return String(localized: "Image processing failed")
         case .unknown(let error):
-            return "未知错误: \(error?.localizedDescription ?? "未知")"
+            return String(localized: "Unknown error: \(error?.localizedDescription ?? String(localized: "Unknown"))")
         }
     }
     
     var recoverySuggestion: String? {
         switch self {
         case .noPhotosFound:
-            return "请尝试选择其他日期"
+            return String(localized: "Try selecting a different date")
         case .authorizationDenied:
-            return "请在设置中授予照片库访问权限"
+            return String(localized: "Grant photo library access in Settings")
         case .networkError:
-            return "请检查网络连接后重试"
+            return String(localized: "Check your network connection and try again")
         case .invalidAsset, .invalidDate, .arrayIndexOutOfBounds, .invalidMonth:
-            return "请刷新页面重试"
+            return String(localized: "Refresh and try again")
         case .creationDateMissing, .imageProcessingFailed:
-            return "该照片可能已损坏，请跳过"
+            return String(localized: "This photo may be damaged; skip it")
         case .geocodingError:
-            return "位置信息可能不可用"
+            return String(localized: "Location information may be unavailable")
         case .unknown:
-            return "请稍后重试"
+            return String(localized: "Try again later")
         }
     }
 }
 
-// 安全的数组访问扩展
+// Safe array access
 extension Collection {
     subscript(safe index: Index) -> Element? {
         return indices.contains(index) ? self[index] : nil
     }
 }
 
-// 安全的字典访问扩展
+// Safe dictionary access
 extension Dictionary {
     func safeValue(forKey key: Key) -> Value? {
         return self[key]
