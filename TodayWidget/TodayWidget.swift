@@ -98,15 +98,15 @@ struct MemoryTimelineProvider: TimelineProvider {
             if memories.count >= maxPhotos {
                 break
             }
-            if let entry = store?.entry(at: index) {
+            // Skip stale entries left over from a previous day's fetch that don't
+            // actually match today's day/month, so old "on this day" photos don't linger.
+            // loadImage re-reads the slot if the app replaces its image mid-read.
+            if let (entry, cgImage) = store?.loadImage(
+                at: index,
+                accept: { WidgetMemoryDate.isEntry(creationDate: $0.creationDate, forDay: date) },
+                decode: { WidgetPhotoStore.downsampledImage(at: $0, maxPixelSize: maxPixelSize) }
+            ) {
                 let creationDate = entry.metadata.creationDate
-
-                // Skip stale entries left over from a previous day's fetch that don't
-                // actually match today's day/month, so old "on this day" photos don't linger.
-                guard WidgetMemoryDate.isEntry(creationDate: creationDate, forDay: date),
-                      let cgImage = WidgetPhotoStore.downsampledImage(at: entry.imageURL, maxPixelSize: maxPixelSize) else {
-                    continue
-                }
 
                 let memory = MemoryEntry.MemoryPhoto(
                     image: UIImage(cgImage: cgImage),

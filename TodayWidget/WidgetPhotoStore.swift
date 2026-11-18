@@ -124,6 +124,27 @@ struct WidgetPhotoStore {
         return Entry(index: index, metadata: metadata, imageURL: imageURL)
     }
 
+    /// The slot's entry and decoded image, for the widget, which reads without `writeLock` from
+    /// another process. If the image vanishes between reading the metadata and decoding it, the app
+    /// has just rewritten the slot (cleanup runs only after the new metadata is published), so this
+    /// re-reads the slot and decodes the new image. Gives up when the metadata hasn't changed.
+    /// `accept` filters on metadata before any decode (e.g. stale dates).
+    func loadImage(at index: Int, accept: (Metadata) -> Bool,
+                   decode: (URL) -> CGImage?) -> (Entry, CGImage)? {
+        var previous: Metadata?
+        for _ in 0..<Self.maxLoadAttempts {
+            guard let metadata = metadata(at: index), metadata != previous, accept(metadata) else {
+                return nil
+            }
+            let imageURL = directory.appendingPathComponent(metadata.imageFileName)
+            if let image = decode(imageURL) {
+                return (Entry(index: index, metadata: metadata, imageURL: imageURL), image)
+            }
+            previous = metadata
+        }
+        return nil
+    }
+
     /// Decodes the image at `url` directly at no more than `maxPixelSize` on its longer side,
     /// so the widget never holds a larger bitmap than it can show (widgets have a tight memory limit).
     static func downsampledImage(at url: URL, maxPixelSize: Int) -> CGImage? {
@@ -166,6 +187,9 @@ struct WidgetPhotoStore {
     /// call `store` on arbitrary queues. Readers (the widget) never take it; atomic writes keep
     /// each file whole for them.
     private static let writeLock = NSLock()
+
+    /// Bounds `loadImage` re-reads if the app keeps rewriting the slot during the read.
+    private static let maxLoadAttempts = 3
 
     // Readable after first unlock, so the lock-screen widget and background refresh still work.
     private static let writeOptions: Data.WritingOptions = [.atomic, .completeFileProtectionUntilFirstUserAuthentication]

@@ -171,6 +171,48 @@ final class WidgetPhotoStoreTests: XCTestCase {
         XCTAssertEqual(image.height, 75)
     }
 
+    /// The widget reads metadata, then the app rewrites the slot and its cleanup deletes the image
+    /// that metadata named before the widget decodes it. The widget must re-read the slot and get
+    /// the new photo instead of skipping it.
+    func testLoadImageRereadsSlotWhenImageIsReplacedMidRead() throws {
+        try save("old", at: 0)
+        var decodeCalls = 0
+
+        let loaded = store.loadImage(at: 0, accept: { _ in true }) { url in
+            decodeCalls += 1
+            if decodeCalls == 1 {
+                // The app's refresh lands between the metadata read and the decode.
+                try? self.save("new", at: 0)
+            }
+            return WidgetPhotoStore.downsampledImage(at: url, maxPixelSize: 100)
+        }
+
+        let (entry, _) = try XCTUnwrap(loaded)
+        XCTAssertEqual(entry.metadata.localIdentifier, "new")
+        XCTAssertEqual(decodeCalls, 2)
+    }
+
+    func testLoadImageGivesUpOnSlotWhoseImageStaysUnreadable() throws {
+        try save("asset-A", at: 0)
+        var decodeCalls = 0
+
+        let loaded = store.loadImage(at: 0, accept: { _ in true }) { _ in
+            decodeCalls += 1
+            return nil
+        }
+
+        XCTAssertNil(loaded)
+        XCTAssertEqual(decodeCalls, 1, "unchanged metadata means no rewrite happened, so no retry")
+    }
+
+    func testLoadImageReturnsNilForEmptyOrRejectedSlotWithoutDecoding() throws {
+        try save("asset-A", at: 1)
+        var decodeCalls = 0
+        XCTAssertNil(store.loadImage(at: 3, accept: { _ in true }) { _ in decodeCalls += 1; return nil })
+        XCTAssertNil(store.loadImage(at: 1, accept: { _ in false }) { _ in decodeCalls += 1; return nil })
+        XCTAssertEqual(decodeCalls, 0)
+    }
+
     // MARK: - Legacy UserDefaults migration
 
     func testRemoveLegacyDefaultsDeletesImageAndMetadataKeysOnly() throws {
