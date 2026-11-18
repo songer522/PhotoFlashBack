@@ -1,0 +1,33 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Loading memories..." : {
+
+    },
+    "Memory" : {
+
+    },
+    "Memory from %@" : {
+
+    },
+    "No memories" : {
+
+    },
+    "No memories today" : {
+
+    },
+    "On this day" : {
+
+    },
+    "Rediscover photos taken on this day in previous years" : {
+
+    },
+    "Rewind: Today's Memories" : {
+
+    },
+    "for this day" : {
+
+    }
+  },
+  "version" : "1.0"
+}

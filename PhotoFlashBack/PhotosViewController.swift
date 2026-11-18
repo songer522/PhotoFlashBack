@@ -32,14 +32,14 @@ class PhotosViewController: UIViewController {
     // transition.
     var photoTransitioningDelegate: CustomTransitioningDelegate?
     
-    // 加载进度视图
+    // Loading progress view
     private lazy var loadingProgressView: LoadingProgressView = {
         let view = LoadingProgressView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    // 空状态视图
+    // Empty state view
     private lazy var emptyStateView: EmptyStateView = {
         let view = EmptyStateView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -164,7 +164,7 @@ class PhotosViewController: UIViewController {
                     self.fetchPhotos()
                     // The user authorized this app to access Photos data.
                 case .limited:
-                    // 有限访问权限也可以使用
+                    // Limited access works too
                     self.fetchPhotos()
                     // The user authorized this app for limited Photos access.
                 @unknown default:
@@ -224,7 +224,7 @@ class PhotosViewController: UIViewController {
     }
     
     func setupLoadingAndEmptyStateViews() {
-        // 添加加载进度视图
+        // Add the loading progress view
         view.addSubview(loadingProgressView)
         NSLayoutConstraint.activate([
             loadingProgressView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -233,7 +233,7 @@ class PhotosViewController: UIViewController {
             loadingProgressView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        // 添加空状态视图
+        // Add the empty state view
         view.addSubview(emptyStateView)
         NSLayoutConstraint.activate([
             emptyStateView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -245,21 +245,21 @@ class PhotosViewController: UIViewController {
         // Add hidden date text field for empty state date picker
         view.addSubview(hiddenDateTextField)
         
-        // 设置空状态视图的操作回调
+        // Set the empty state view's action callback
         emptyStateView.onActionTapped = { [weak self] in
             self?.handleEmptyStateAction()
         }
     }
     
     private func handleEmptyStateAction() {
-        // 检查当前空状态类型并执行相应操作
+        // Check the current empty state type and act on it
         if PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized {
-            // 前往设置
+            // Go to Settings
             if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
                 UIApplication.shared.open(settingsUrl)
             }
         } else {
-            // 选择日期
+            // Select a date
             selectDate()
         }
     }
@@ -268,14 +268,14 @@ class PhotosViewController: UIViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.emptyStateView.isHidden = true
-            self.loadingProgressView.show(title: "Searching for memories...")
+            self.loadingProgressView.show(title: String(localized: "Searching for memories..."))
         }
     }
     
     func updateLoadingProgress(_ progress: Float, loaded: Int, total: Int) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            let detail = "Found \(loaded) photos"
+            let detail = String(localized: "Found \(loaded) photos")
             self.loadingProgressView.updateProgress(progress, detail: detail)
         }
     }
@@ -301,7 +301,7 @@ class PhotosViewController: UIViewController {
         picker.selectRow(viewModel.month - 1, inComponent: 0, animated: false)
         picker.selectRow(viewModel.day - 1, inComponent: 1, animated: false)
         configureHierarchy()
-        // 启用预加载
+        // Enable prefetching
         if #available(iOS 10.0, *) {
             photoCollectionView.prefetchDataSource = self
         }
@@ -377,7 +377,7 @@ class PhotosViewController: UIViewController {
                     let generator = UIImpactFeedbackGenerator(style: .soft)
                     generator.impactOccurred(intensity: 0.5)
                     
-                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: String(localized: "Organizing memories..."))
                     
                 case .fetchingLocations(_, let current, let total):
                     // Subtle haptic when starting location fetch
@@ -386,7 +386,7 @@ class PhotosViewController: UIViewController {
                         generator.impactOccurred(intensity: 0.5)
                     }
                     
-                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: String(localized: "Finding locations (\(current)/\(total))..."))
                     
                 case .completed:
                     let hasPhotos = viewModel.assetSequence.count > 0
@@ -514,10 +514,10 @@ class PhotosViewController: UIViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.photoCollectionView.isHidden = true
-            self.emptyStateLabel.isHidden = true // 隐藏旧的空状态标签
+            self.emptyStateLabel.isHidden = true // Hide the old empty state label
             self.emptyStateView.isHidden = false
             
-            // 根据类型配置空状态视图
+            // Configure the empty state view for the type
             let stateType: EmptyStateView.EmptyStateType
             if let type = type {
                 stateType = type
@@ -584,10 +584,10 @@ class PhotosViewController: UIViewController {
                     updateLoadingProgress(Float(progress.overallProgress), loaded: current, total: total)
 
                 case .groupingByYear:
-                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Organizing memories...")
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: String(localized: "Organizing memories..."))
 
                 case .fetchingLocations(_, let current, let total):
-                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: "Finding locations (\(current)/\(total))...")
+                    loadingProgressView.updateProgress(Float(progress.overallProgress), detail: String(localized: "Finding locations (\(current)/\(total))..."))
 
                 case .completed:
                     let hasPhotos = viewModel.assetSequence.count > 0

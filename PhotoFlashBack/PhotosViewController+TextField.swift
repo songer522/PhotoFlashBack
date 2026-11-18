@@ -25,12 +25,12 @@ extension PhotosViewController: UITextFieldDelegate {
         keyboardDoneButtonView.translatesAutoresizingMaskIntoConstraints = false
         keyboardDoneButtonView.tintColor = .white
 
-        let selectButton = UIBarButtonItem(title: "Select", style: .plain, target: self, action: #selector(PhotosViewController.datePicked))
+        let selectButton = UIBarButtonItem(title: String(localized: "Select"), style: .plain, target: self, action: #selector(PhotosViewController.datePicked))
         selectButton.tintColor = .white
         selectButton.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .semibold), .foregroundColor: UIColor.white], for: .normal)
         selectButton.setTitleTextAttributes([.font: UIFont.systemFont(ofSize: 17, weight: .semibold), .foregroundColor: UIColor.white], for: .highlighted)
 
-        let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(PhotosViewController.dateCancelled))
+        let cancelButton = UIBarButtonItem(title: String(localized: "Cancel"), style: .plain, target: self, action: #selector(PhotosViewController.dateCancelled))
         cancelButton.tintColor = .white
         cancelButton.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .normal)
         cancelButton.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .highlighted)

@@ -33,7 +33,7 @@ class SkeletonView: UIView {
         guard !isAnimating else { return }
         isAnimating = true
         
-        // 创建渐变层
+        // Create the gradient layer
         let gradient = CAGradientLayer()
         gradient.colors = [
             UIColor(red: 45/255, green: 40/255, blue: 25/255, alpha: 1.0).cgColor,
@@ -48,7 +48,7 @@ class SkeletonView: UIView {
         layer.addSublayer(gradient)
         gradientLayer = gradient
         
-        // 创建动画
+        // Create the animation
         let animation = CABasicAnimation(keyPath: "transform.translation.x")
         animation.fromValue = -bounds.width
         animation.toValue = bounds.width
@@ -133,7 +133,7 @@ class LoadingProgressView: UIView {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Loading photos..."
+        label.text = String(localized: "Loading photos...")
         label.textColor = UIColor(red: 235/255, green: 226/255, blue: 203/255, alpha: 1.0)
         label.font = .systemFont(ofSize: 15, weight: .medium)
         label.textAlignment = .center
@@ -209,7 +209,7 @@ class LoadingProgressView: UIView {
         ])
     }
     
-    func show(title: String = "Loading photos...") {
+    func show(title: String = String(localized: "Loading photos...")) {
         titleLabel.text = title
         progressView.progress = 0
         detailLabel.text = ""
@@ -367,42 +367,42 @@ class EmptyStateView: UIView {
         switch type {
         case .noPhotos:
             iconImageView.image = UIImage(systemName: "photo.on.rectangle.angled")
-            titleLabel.text = "No Photos"
-            messageLabel.text = "Your photo library is empty"
+            titleLabel.text = String(localized: "No Photos")
+            messageLabel.text = String(localized: "Your photo library is empty")
             actionButton.isHidden = true
             
         case .noPhotosForDate(let date):
             iconImageView.image = UIImage(systemName: "calendar.badge.clock")
-            titleLabel.text = "No Photos on This Day"
-            messageLabel.text = "No photos found for \(date)\nTry selecting a different date"
-            actionButton.setTitle("Select Date", for: .normal)
+            titleLabel.text = String(localized: "No Photos on This Day")
+            messageLabel.text = String(localized: "No photos found for \(date)\nTry selecting a different date")
+            actionButton.setTitle(String(localized: "Select Date"), for: .normal)
             actionButton.isHidden = false
 
         case .noItemsForFilters(let date):
             iconImageView.image = UIImage(systemName: "line.3.horizontal.decrease.circle")
-            titleLabel.text = "Nothing Matches Your Filters"
-            messageLabel.text = "No items match the current filters for \(date)\nTry turning more types on"
-            actionButton.setTitle("Select Date", for: .normal)
+            titleLabel.text = String(localized: "Nothing Matches Your Filters")
+            messageLabel.text = String(localized: "No items match the current filters for \(date)\nTry turning more types on")
+            actionButton.setTitle(String(localized: "Select Date"), for: .normal)
             actionButton.isHidden = false
             
         case .noPermission:
             iconImageView.image = UIImage(systemName: "lock.shield")
-            titleLabel.text = "Permission Required"
-            messageLabel.text = "Please grant photo library access\nin Settings to view your memories"
-            actionButton.setTitle("Go to Settings", for: .normal)
+            titleLabel.text = String(localized: "Permission Required")
+            messageLabel.text = String(localized: "Please grant photo library access\nin Settings to view your memories")
+            actionButton.setTitle(String(localized: "Go to Settings"), for: .normal)
             actionButton.isHidden = false
             
         case .loading:
             iconImageView.image = UIImage(systemName: "hourglass")
-            titleLabel.text = "Loading..."
-            messageLabel.text = "Searching for memories"
+            titleLabel.text = String(localized: "Loading...")
+            messageLabel.text = String(localized: "Searching for memories")
             actionButton.isHidden = true
             
         case .error(let message):
             iconImageView.image = UIImage(systemName: "exclamationmark.triangle")
-            titleLabel.text = "Something Went Wrong"
+            titleLabel.text = String(localized: "Something Went Wrong")
             messageLabel.text = message
-            actionButton.setTitle("Retry", for: .normal)
+            actionButton.setTitle(String(localized: "Retry"), for: .normal)
             actionButton.isHidden = false
         }
     }

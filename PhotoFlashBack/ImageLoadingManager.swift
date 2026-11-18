@@ -30,8 +30,8 @@ class ImageLoadingManager {
     
     static func fullScreenOptions() -> PHImageRequestOptions {
         let options = PHImageRequestOptions()
-        options.deliveryMode = .opportunistic // 渐进式加载：先显示低质量，再加载高质量
-        options.resizeMode = .none // 不裁剪，保持原始比例和尺寸
+        options.deliveryMode = .opportunistic // Progressive loading: show low quality first, then high quality
+        options.resizeMode = .none // Don't crop; keep the original aspect ratio and size
         options.isNetworkAccessAllowed = true
         options.isSynchronous = false
         options.version = .current
@@ -41,7 +41,7 @@ class ImageLoadingManager {
     // MARK: - Optimized Size Calculation
     
     static func thumbnailSize(for cellSize: CGSize, scale: CGFloat = UIScreen.main.scale) -> CGSize {
-        // 缩略图只需要2倍分辨率即可
+        // Thumbnails only need 2x resolution
         return CGSize(width: cellSize.width * 2, height: cellSize.height * 2)
     }
     

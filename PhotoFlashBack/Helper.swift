@@ -18,12 +18,9 @@ class Helper {
         return formatter.string(from: duration) ?? ""
     }
     
+    /// Date and time in the user's locale, e.g. "Jan 5, 2024 at 3:30 PM" or "5 janv. 2024 à 15:30".
     class func formatDateAndTime(_ date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        
-        return dateFormatter.string(from: date)
+        date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened, locale: MemoryDateText.userLocale))
     }
     
     class func getYear(from asset: PHAsset) -> String {

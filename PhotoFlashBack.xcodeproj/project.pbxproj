@@ -72,6 +72,11 @@
 		FCB1DF2228DC163500160033 /* PhotoCollectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */; };
 		FCB1DF2428DC214700160033 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCB1DF2328DC214700160033 /* PlayerView.swift */; };
 		FCA111110000000000000022 /* WidgetDeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA111110000000000000021 /* WidgetDeepLink.swift */; };
+		FC1919000000000000000002 /* MemoryDateText.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1919000000000000000001 /* MemoryDateText.swift */; };
+		FC1919000000000000000004 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC1919000000000000000003 /* LocalizationTests.swift */; };
+		FC1919000000000000000006 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FC1919000000000000000005 /* Localizable.xcstrings */; };
+		FC1919000000000000000008 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FC1919000000000000000007 /* Localizable.xcstrings */; };
+		FC191900000000000000000A /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = FC1919000000000000000009 /* InfoPlist.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,6 +178,11 @@
 		FCB1DF1F28DAB11000160033 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		FCB1DF2128DC163500160033 /* PhotoCollectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCollectionHeaderView.swift; sourceTree = "<group>"; };
 		FCB1DF2328DC214700160033 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		FC1919000000000000000001 /* MemoryDateText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryDateText.swift; sourceTree = "<group>"; };
+		FC1919000000000000000003 /* LocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationTests.swift; sourceTree = "<group>"; };
+		FC1919000000000000000005 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		FC1919000000000000000007 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		FC1919000000000000000009 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +242,7 @@
 				FC14E14E00000000000000A4 /* WidgetPhotoStoreTests.swift */,
 				FC8A11110000000000000014 /* ImageRequestApplyGateTests.swift */,
 				FC10A10C0000000000000001 /* LocationNameResolverTests.swift */,
+				FC1919000000000000000003 /* LocalizationTests.swift */,
 			);
 			path = PhotoFlashBackTests;
 			sourceTree = "<group>";
@@ -245,6 +256,7 @@
 				FC14E14E00000000000000A1 /* WidgetPhotoStore.swift */,
 				FC9872F429D55C8D006B8705 /* Assets.xcassets */,
 				FC9872F629D55C8D006B8705 /* Info.plist */,
+				FC1919000000000000000007 /* Localizable.xcstrings */,
 			);
 			path = TodayWidget;
 			sourceTree = "<group>";
@@ -314,6 +326,9 @@
 				FC821D2B29C81A7200890051 /* Rewind: Memories on This Day.storekit */,
 				FC5FBD262F3AF858006A5356 /* LocationCache.swift */,
 				FCA111110000000000000021 /* WidgetDeepLink.swift */,
+				FC1919000000000000000001 /* MemoryDateText.swift */,
+				FC1919000000000000000005 /* Localizable.xcstrings */,
+				FC1919000000000000000009 /* InfoPlist.xcstrings */,
 			);
 			path = PhotoFlashBack;
 			sourceTree = "<group>";
@@ -430,6 +445,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FC9872F529D55C8D006B8705 /* Assets.xcassets in Resources */,
+				FC1919000000000000000008 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -441,6 +457,8 @@
 				FCB1DF0B28D9602C00160033 /* Assets.xcassets in Resources */,
 				FCB1DF0928D9602A00160033 /* Main.storyboard in Resources */,
 				FC821D2C29C81A7200890051 /* Rewind: Memories on This Day.storekit in Resources */,
+				FC1919000000000000000006 /* Localizable.xcstrings in Resources */,
+				FC191900000000000000000A /* InfoPlist.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,6 +484,7 @@
 				FC14E14E00000000000000A5 /* WidgetPhotoStoreTests.swift in Sources */,
 				FC8A11110000000000000015 /* ImageRequestApplyGateTests.swift in Sources */,
 				FC10A10C0000000000000002 /* LocationNameResolverTests.swift in Sources */,
+				FC1919000000000000000004 /* LocalizationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,6 +538,7 @@
 				FC8A11110000000000000006 /* PhotosViewController+Toolbar.swift in Sources */,
 				FCA111110000000000000022 /* WidgetDeepLink.swift in Sources */,
 				FC14E14E00000000000000A3 /* WidgetPhotoStore.swift in Sources */,
+				FC1919000000000000000002 /* MemoryDateText.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

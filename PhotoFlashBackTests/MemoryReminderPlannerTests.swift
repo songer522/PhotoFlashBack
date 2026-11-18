@@ -97,8 +97,9 @@ final class MemoryReminderPlannerTests: XCTestCase {
     }
 
     func testBodyCopy() {
-        XCTAssertEqual(MemoryReminderPlanner.body(count: 24, month: 10, day: 27), "📸 24 memories from Oct 27")
-        XCTAssertEqual(MemoryReminderPlanner.body(count: 1, month: 10, day: 27), "📸 1 memory from Oct 27")
-        XCTAssertEqual(MemoryReminderPlanner.body(count: 3, month: 9, day: 5), "📸 3 memories from Sep 5")
+        let english = Locale(identifier: "en_US")
+        XCTAssertEqual(MemoryReminderPlanner.body(count: 24, month: 10, day: 27, locale: english), "📸 24 memories from Oct 27")
+        XCTAssertEqual(MemoryReminderPlanner.body(count: 1, month: 10, day: 27, locale: english), "📸 1 memory from Oct 27")
+        XCTAssertEqual(MemoryReminderPlanner.body(count: 3, month: 9, day: 5, locale: english), "📸 3 memories from Sep 5")
     }
 }

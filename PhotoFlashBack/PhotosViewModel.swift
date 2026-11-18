@@ -24,15 +24,15 @@ struct PhotoFetchProgress {
     var description: String {
         switch phase {
         case .fetchingPhotos(let current, let total):
-            return "Loading photos... \(current)/\(total)"
+            return String(localized: "Loading photos... \(current)/\(total)")
         case .groupingByYear:
-            return "Organizing memories..."
+            return String(localized: "Organizing memories...")
         case .fetchingLocations(let year, let current, let total):
-            return "Finding locations for \(year)... (\(current)/\(total))"
+            return String(localized: "Finding locations for \(year)... (\(current)/\(total))")
         case .completed:
-            return "Ready!"
+            return String(localized: "Ready!")
         case .failed(let error):
-            return "Error: \(error.localizedDescription)"
+            return String(localized: "Error: \(error.localizedDescription)")
         }
     }
     
@@ -90,7 +90,8 @@ class PhotosViewModel {
     var lastAppliedFilter = MediaFilter(photos: true, videos: true, screenshots: true)
     var month = 1
     var day = 1
-    var monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    /// Month names for the date picker, in the user's locale.
+    let monthSymbols = MemoryDateText.monthSymbols()
     
     init() {
         let calendar = MemoryQuery.memoryCalendar()
@@ -98,11 +99,9 @@ class PhotosViewModel {
         month = calendar.component(.month, from: Date())
     }
     
-    func displayDate() -> String {
-        guard month >= 1 && month <= 12 else {
-            return "Invalid Date"
-        }
-        return String(monthArray[month - 1] + " " + String(day))
+    /// The selected month and day in the user's locale, e.g. "January 5" or "5 janvier".
+    func displayDate(locale: Locale = MemoryDateText.userLocale) -> String {
+        MemoryDateText.dayMonth(month: month, day: day, locale: locale) ?? String(localized: "Invalid Date")
     }
     
     func isToday() -> Bool {

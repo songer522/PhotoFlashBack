@@ -164,13 +164,13 @@ class PhotoViewController: UIViewController {
                                                  wasPlayingVideo: wasPlayingVideoAtClose,
                                                  wasDeleting: isDeletionInProgress || isClosingAfterDeletion)
         }
-        // 停止所有缓存以释放内存
+        // Stop all caching to free memory
         imageLoadingManager.stopCachingAll()
         prefetchRange = 0..<0
     }
     
     deinit {
-        // 确保在 deinit 时释放所有资源
+        // Make sure all resources are released in deinit
         imageLoadingManager.stopCachingAll()
         dismissVideo()
     }
@@ -327,9 +327,9 @@ class PhotoViewController: UIViewController {
 
     // Then, implement the deletion with user confirmation:
     @objc func deleteButtonTapped() {
-        let alert = UIAlertController(title: "Delete Photo", message: "Are you sure you want to delete this photo?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+        let alert = UIAlertController(title: String(localized: "Delete Photo"), message: String(localized: "Are you sure you want to delete this photo?"), preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: String(localized: "Cancel"), style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: String(localized: "Delete"), style: .destructive, handler: { _ in
             self.performDeletion()
         }))
         present(alert, animated: true, completion: nil)
@@ -338,8 +338,8 @@ class PhotoViewController: UIViewController {
     func performDeletion() {
         // Get the current asset from the viewModel
         guard currentIndex >= 0 && currentIndex < viewModel.assetSequence.count else {
-            let errorAlert = UIAlertController(title: "Error", message: "Unable to delete: Invalid index", preferredStyle: .alert)
-            errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            let errorAlert = UIAlertController(title: String(localized: "Error"), message: String(localized: "Unable to delete: Invalid index"), preferredStyle: .alert)
+            errorAlert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default, handler: nil))
             present(errorAlert, animated: true, completion: nil)
             return
         }
@@ -393,8 +393,8 @@ class PhotoViewController: UIViewController {
                     let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.error)
                     
-                    let errorAlert = UIAlertController(title: "Error", message: "Failed to delete photo: \(error?.localizedDescription ?? "Unknown error")", preferredStyle: .alert)
-                    errorAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    let errorAlert = UIAlertController(title: String(localized: "Error"), message: String(localized: "Failed to delete photo: \(error?.localizedDescription ?? String(localized: "Unknown error"))"), preferredStyle: .alert)
+                    errorAlert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default, handler: nil))
                     self.present(errorAlert, animated: true, completion: nil)
                 }
             }
@@ -548,7 +548,7 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
             return collectionCell
         }
         
-        // 保持全屏尺寸不变
+        // Keep the full-screen size unchanged
         let targetSize = CGSize(width: collectionView.bounds.width * UIScreen.main.scale, height: collectionView.bounds.height * UIScreen.main.scale)
         let asset = viewModel.assetSequence[indexPath.row]
         collectionCell.representedAssetIdentifier = asset.localIdentifier
@@ -558,13 +558,13 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
             collectionCell.currentImageRequestID = nil
         }
 
-        // 使用优化的图片加载管理器，支持渐进式加载
+        // Use the optimized image loading manager, with progressive loading
         let loadingManager = ImageLoadingManager.shared
         let options = ImageLoadingManager.fullScreenOptions()
 
         collectionCell.currentImageRequestID = loadingManager.requestImage(for: asset,
                                    targetSize: targetSize,
-                                   contentMode: .aspectFit, // 使用 aspectFit 保持完整图片，不裁切
+                                   contentMode: .aspectFit, // aspectFit keeps the whole image, uncropped
                                    options: options,
                                    resultHandler: { [weak collectionCell] image, info in
             DispatchQueue.main.async {
@@ -576,11 +576,11 @@ extension PhotoViewController: UICollectionViewDelegate, UICollectionViewDataSou
                       ) else {
                     return
                 }
-                // 渐进式加载：先显示低质量图片，再更新为高质量
+                // Progressive loading: show the low-quality image first, then update to high quality
                 if let image = image {
                     let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
                     if !isDegraded || cell.itemImageView.image == nil {
-                        // 如果是高质量图片，或者还没有图片，则更新
+                        // Update if this is the high-quality image, or there is no image yet
                         cell.itemImageView.image = image
                         cell.videoLengthLabel.isHidden = asset.mediaType != .video
                         cell.layoutSubviews()
@@ -653,7 +653,7 @@ extension PhotoViewController: UIScrollViewDelegate {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // 开始滚动时预加载相邻图片
+        // Preload neighboring images when scrolling starts
         prefetchAdjacentImages()
     }
 }
@@ -665,14 +665,14 @@ extension PhotoViewController {
             return
         }
         
-        // 预加载前后各2张图片
+        // Preload 2 images on each side
         let prefetchCount = 2
         let startIndex = max(0, currentIndex - prefetchCount)
         let endIndex = min(viewModel.assetSequence.count - 1, currentIndex + prefetchCount)
         
         let newRange = startIndex..<(endIndex + 1)
         
-        // 停止不再需要的缓存
+        // Stop caching images no longer needed
         if !prefetchRange.isEmpty {
             let assetsToStop = viewModel.assetSequence.enumerated()
                 .filter { !newRange.contains($0.offset) && prefetchRange.contains($0.offset) }
@@ -685,7 +685,7 @@ extension PhotoViewController {
             }
         }
         
-        // 开始缓存需要的图片
+        // Start caching the needed images
         let assetsToCache = viewModel.assetSequence.enumerated()
             .filter { newRange.contains($0.offset) && !prefetchRange.contains($0.offset) }
             .map { $0.element }

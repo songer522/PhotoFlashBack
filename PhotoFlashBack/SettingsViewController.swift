@@ -15,18 +15,18 @@ import UserNotifications
 enum TipConfirmationText {
     static func message(displayPrice: String) -> String {
         let price = displayPrice.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !price.isEmpty else { return "Would you like to send a tip?" }
-        return "Would you like to send a \(price) tip?"
+        guard !price.isEmpty else { return String(localized: "Would you like to send a tip?") }
+        return String(localized: "Would you like to send a \(price) tip?")
     }
 }
 
 class SettingsViewController: UITableViewController {
 
     private let options = [
-        "Rate the App",
-        "Provide Feedback",
-        "Send Tips",
-        "Share with Friends"
+        String(localized: "Rate the App"),
+        String(localized: "Provide Feedback"),
+        String(localized: "Send Tips"),
+        String(localized: "Share with Friends")
     ]
 
     let tipJar = SwiftTipJar(tipsIdentifiers: Set([
@@ -47,7 +47,7 @@ class SettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = "Settings"
+        navigationItem.title = String(localized: "Settings")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
 
         let closeButton = UIBarButtonItem(image: UIImage(systemName: "xmark"),
@@ -128,7 +128,7 @@ class SettingsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return section == 0 ? "Daily Reminder" : nil
+        return section == 0 ? String(localized: "Daily Reminder") : nil
     }
 
     // A plain-style table draws footer titles on one line, so use a view that wraps.
@@ -136,7 +136,7 @@ class SettingsViewController: UITableViewController {
         guard section == 0 else { return nil }
         let footer = UITableViewHeaderFooterView()
         var content = UIListContentConfiguration.groupedFooter()
-        content.text = "Get a notification each day when you have memories from that date."
+        content.text = String(localized: "Get a notification each day when you have memories from that date.")
         footer.contentConfiguration = content
         return footer
     }
@@ -146,13 +146,13 @@ class SettingsViewController: UITableViewController {
         if indexPath.section == 0 {
             cell.selectionStyle = .none
             if indexPath.row == 0 {
-                cell.textLabel?.text = "Memory of the Day"
+                cell.textLabel?.text = String(localized: "Memory of the Day")
                 let toggle = UISwitch()
                 toggle.isOn = reminderShownOn
                 toggle.addTarget(self, action: #selector(reminderSwitchChanged(_:)), for: .valueChanged)
                 cell.accessoryView = toggle
             } else {
-                cell.textLabel?.text = "Time"
+                cell.textLabel?.text = String(localized: "Time")
                 let settings = MemoryReminderSettingsStore.load()
                 let picker = UIDatePicker()
                 picker.datePickerMode = .time
@@ -218,13 +218,13 @@ class SettingsViewController: UITableViewController {
     }
 
     private func showNotificationsOffAlert() {
-        let alert = UIAlertController(title: "Notifications are turned off for Rewind", message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { _ in
+        let alert = UIAlertController(title: String(localized: "Notifications are turned off for Rewind"), message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: String(localized: "Open Settings"), style: .default) { _ in
             if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
                 UIApplication.shared.open(url)
             }
         })
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized: "Cancel"), style: .cancel))
         present(alert, animated: true)
     }
 
@@ -286,7 +286,7 @@ class SettingsViewController: UITableViewController {
     func shareApp() {
         let yourAppID = "1137168287"
         let appStoreURL = "https://apps.apple.com/app/id\(yourAppID)"
-        let shareText = "Check out this amazing app I've been using:"
+        let shareText = String(localized: "Check out this amazing app I've been using:")
 
         let activityViewController = UIActivityViewController(activityItems: [shareText, appStoreURL], applicationActivities: nil)
 
@@ -310,15 +310,15 @@ class SettingsViewController: UITableViewController {
 
 
     func showPurchaseConfirmationAlert(for tip: Tip, completion: @escaping (Bool) -> Void) {
-        let alertController = UIAlertController(title: "Send Tip",
+        let alertController = UIAlertController(title: String(localized: "Send Tip"),
                                                 message: TipConfirmationText.message(displayPrice: tip.displayPrice),
                                                 preferredStyle: .alert)
 
-        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
+        let confirmAction = UIAlertAction(title: String(localized: "Confirm"), style: .default) { _ in
             completion(true)
         }
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: String(localized: "Cancel"), style: .cancel) { _ in
             completion(false)
         }
 
@@ -332,8 +332,8 @@ class SettingsViewController: UITableViewController {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.activityIndicator.stopAnimating()
-            let alertController = UIAlertController(title: "Thank You!", message: "Your support is greatly appreciated.", preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            let alertController = UIAlertController(title: String(localized: "Thank You!"), message: String(localized: "Your support is greatly appreciated."), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: String(localized: "OK"), style: .default, handler: nil)
             alertController.addAction(okAction)
             self.present(alertController, animated: true, completion: nil)
 
