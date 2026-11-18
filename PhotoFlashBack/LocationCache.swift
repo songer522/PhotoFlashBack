@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 
 /// Raw reverse-geocoded placemark fields. The cache stores these unformatted so each screen
 /// formats the same place its own way, no matter which screen geocoded it first (issue #10).
@@ -32,6 +33,31 @@ struct PlaceComponents: Codable, Equatable, Sendable {
         )
     }
 
+    /// Fields from MapKit's `MKAddressRepresentations` (iOS 26+), which has no separate
+    /// neighborhood or state fields. `cityWithContext` (short style) reads "City, State", e.g.
+    /// "London, England"; `cityName` is the most specific place and may lead with a district,
+    /// e.g. "City of Westminster, London", which becomes `subLocality`.
+    init(cityName: String?, cityWithContext: String?, regionName: String?) {
+        let city = Self.nonEmpty(cityName)
+        var locality = city
+        var administrativeArea: String?
+        if let context = Self.nonEmpty(cityWithContext) {
+            if let comma = context.range(of: ", ", options: .backwards) {
+                locality = Self.nonEmpty(String(context[..<comma.lowerBound]))
+                administrativeArea = Self.nonEmpty(String(context[comma.upperBound...]))
+            } else {
+                locality = context
+            }
+        }
+        let district = city?.components(separatedBy: ", ").first.flatMap(Self.nonEmpty)
+        self.init(
+            subLocality: district == locality ? nil : district,
+            locality: locality,
+            administrativeArea: administrativeArea,
+            country: Self.nonEmpty(regionName)
+        )
+    }
+
     /// Grid year headers: the most specific name available, e.g. "Brooklyn".
     var headerName: String? {
         [subLocality, locality, administrativeArea, country].lazy.compactMap(Self.nonEmpty).first
@@ -54,21 +80,82 @@ struct PlaceComponents: Codable, Equatable, Sendable {
     }
 }
 
+/// Reverse geocoding for the app: MapKit's `MKReverseGeocodingRequest` on iOS 26+, where
+/// `CLGeocoder` is deprecated, and `CLGeocoder` below iOS 26 (issue #15).
+enum ReverseGeocoder {
+    static func placeComponents(for location: CLLocation) async throws -> PlaceComponents? {
+        if #available(iOS 26.0, *) {
+            guard let request = MKReverseGeocodingRequest(location: location) else { return nil }
+            let mapItems = try await request.mapItems
+            guard let address = mapItems.first?.addressRepresentations else { return nil }
+            return PlaceComponents(
+                cityName: address.cityName,
+                cityWithContext: address.cityWithContext(.short),
+                regionName: address.regionName
+            )
+        } else {
+            let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
+            return placemarks.first.map(PlaceComponents.init(placemark:))
+        }
+    }
+}
+
+/// Caps how many geocode requests run at once. Apple throttles reverse geocoding, and a busy
+/// day used to fire two requests per year all at once, so some failed and their year headers
+/// lost their location (issue #15).
+actor GeocodeLimiter {
+    private let limit: Int
+    private var running = 0
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    init(limit: Int) {
+        precondition(limit > 0, "GeocodeLimiter needs at least one slot")
+        self.limit = limit
+    }
+
+    /// Waits for a free slot. Every `acquire()` must be paired with one `release()`.
+    func acquire() async {
+        if running < limit {
+            running += 1
+            return
+        }
+        // `release()` hands its slot straight to the oldest waiter, so `running` is unchanged.
+        await withCheckedContinuation { waiters.append($0) }
+    }
+
+    func release() {
+        if waiters.isEmpty {
+            running -= 1
+        } else {
+            waiters.removeFirst().resume()
+        }
+    }
+}
+
 /// The single reverse-geocode + cache path used by both the grid year headers and the
-/// full-screen viewer (issue #10).
+/// full-screen viewer (issue #10). Cache hits return at once; misses wait for one of a few
+/// geocode slots (issue #15).
 struct LocationNameResolver: Sendable {
     typealias Geocode = @Sendable (CLLocation) async throws -> PlaceComponents?
 
+    /// Geocode requests allowed in flight at once across the app.
+    static let defaultMaxConcurrentGeocodes = 2
+
     static let shared = LocationNameResolver(cache: .shared) { location in
-        let placemarks = try await CLGeocoder().reverseGeocodeLocation(location)
-        return placemarks.first.map(PlaceComponents.init(placemark:))
+        try await ReverseGeocoder.placeComponents(for: location)
     }
 
     let cache: LocationCache
+    private let limiter: GeocodeLimiter
     private let geocode: Geocode
 
-    init(cache: LocationCache, geocode: @escaping Geocode) {
+    init(
+        cache: LocationCache,
+        maxConcurrentGeocodes: Int = LocationNameResolver.defaultMaxConcurrentGeocodes,
+        geocode: @escaping Geocode
+    ) {
         self.cache = cache
+        self.limiter = GeocodeLimiter(limit: maxConcurrentGeocodes)
         self.geocode = geocode
     }
 
@@ -78,6 +165,22 @@ struct LocationNameResolver: Sendable {
         if let cached = await cache.getCachedPlace(for: location) {
             return cached
         }
+
+        await limiter.acquire()
+        let place = await geocodeAndCache(location)
+        await limiter.release()
+        return place
+    }
+
+    /// Runs while holding a geocode slot.
+    private func geocodeAndCache(_ location: CLLocation) async -> PlaceComponents? {
+        // A lookup that waited may find the place cached by the one ahead of it (e.g. the
+        // first and last photo of two years taken at home).
+        if let cached = await cache.getCachedPlace(for: location) {
+            return cached
+        }
+        // A superseded fetch should not spend a throttled request.
+        guard !Task.isCancelled else { return nil }
         guard let place = try? await geocode(location), !place.isEmpty else {
             return nil
         }
@@ -103,10 +206,11 @@ actor LocationCache {
     )
 
     /// Versioned so a schema change starts a fresh file instead of decoding old entries.
-    static let fileName = "location_cache_v2.json"
-    /// Earlier cache files, deleted on load. v1 held preformatted names in two different
-    /// formats (issue #10).
-    static let legacyFileNames = ["location_cache.json"]
+    static let fileName = "location_cache_v3.json"
+    /// Earlier cache files, deleted on load and never decoded. v1 held preformatted names in
+    /// two different formats (issue #10); v2 held CLGeocoder fields, which would mix with the
+    /// MapKit-style entries iOS 26+ writes (issue #15).
+    static let legacyFileNames = ["location_cache.json", "location_cache_v2.json"]
 
     private var memoryCache: [String: CachedLocation] = [:]
     private let fileURL: URL

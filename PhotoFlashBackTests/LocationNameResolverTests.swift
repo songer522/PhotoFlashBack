@@ -112,6 +112,116 @@ final class LocationNameResolverTests: XCTestCase {
         XCTAssertEqual(geocodeCount, 2)
     }
 
+    // MARK: - Throttling (issue #15)
+
+    /// Locations spaced ~1 km apart so none of them share a cache entry (100 m match radius).
+    private func distinctLocations(_ count: Int) -> [CLLocation] {
+        (0..<count).map { CLLocation(latitude: 40.0 + Double($0) * 0.01, longitude: -73.0) }
+    }
+
+    func testGeocodesRunAtMostLimitAtOnceAndAllSucceed() async {
+        let tracker = ConcurrencyTracker()
+        let resolver = LocationNameResolver(cache: LocationCache(directory: directory), maxConcurrentGeocodes: 2) { [brooklyn] _ in
+            await tracker.begin()
+            try? await Task.sleep(nanoseconds: 20_000_000)
+            await tracker.end()
+            return brooklyn
+        }
+
+        // A 15-year library for one day: up to two geocodes per year, all started at once.
+        let names = await withTaskGroup(of: String?.self) { group in
+            for location in distinctLocations(30) {
+                group.addTask { await resolver.headerName(for: location) }
+            }
+            var names: [String?] = []
+            for await name in group { names.append(name) }
+            return names
+        }
+
+        XCTAssertEqual(names.count, 30)
+        XCTAssertTrue(names.allSatisfy { $0 == "Brooklyn" }, "Every lookup should get a name, none dropped")
+        let peak = await tracker.peak
+        let total = await tracker.total
+        XCTAssertLessThanOrEqual(peak, 2, "No more than the limit should be geocoding at once")
+        XCTAssertEqual(total, 30)
+    }
+
+    func testQueuedLookupUsesPlaceCachedWhileItWaited() async {
+        let counter = GeocodeCounter()
+        let resolver = LocationNameResolver(cache: LocationCache(directory: directory), maxConcurrentGeocodes: 1) { [brooklyn] _ in
+            await counter.increment()
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            return brooklyn
+        }
+
+        async let first = resolver.headerName(for: location)
+        async let second = resolver.headerName(for: nearbyLocation)
+        let names = await [first, second]
+
+        XCTAssertEqual(names, ["Brooklyn", "Brooklyn"])
+        let geocodeCount = await counter.count
+        XCTAssertEqual(geocodeCount, 1, "The waiting lookup should be served from the cache the first one filled")
+    }
+
+    func testCachedLookupIsNotQueuedBehindRunningGeocodes() async {
+        let gate = Gate()
+        let paris = CLLocation(latitude: 48.8566, longitude: 2.3522)
+        let resolver = LocationNameResolver(cache: LocationCache(directory: directory), maxConcurrentGeocodes: 1) { [brooklyn] _ in
+            await gate.wait()
+            return brooklyn
+        }
+        await resolver.cache.cachePlace(brooklyn, for: location)
+
+        // Occupy the only geocode slot with a request that cannot finish yet.
+        let blocked = Task { await resolver.headerName(for: paris) }
+        await gate.waitUntilEntered()
+
+        let cachedLookupReturned = expectation(description: "cached lookup returns while a geocode is running")
+        Task {
+            let name = await resolver.headerName(for: self.location)
+            XCTAssertEqual(name, "Brooklyn")
+            cachedLookupReturned.fulfill()
+        }
+        await fulfillment(of: [cachedLookupReturned], timeout: 2)
+
+        await gate.open()
+        _ = await blocked.value
+    }
+
+    // MARK: - MapKit address mapping (issue #15)
+
+    /// Inputs are real `MKAddressRepresentations` values (cityName, cityWithContext(.short),
+    /// regionName) observed from MapKit for these places.
+    func testMapKitAddressMapsToPlaceComponents() {
+        let cupertino = PlaceComponents(cityName: "Cupertino", cityWithContext: "Cupertino, CA", regionName: "United States")
+        XCTAssertEqual(cupertino, PlaceComponents(subLocality: nil, locality: "Cupertino", administrativeArea: "CA", country: "United States"))
+        XCTAssertEqual(cupertino.headerName, "Cupertino")
+        XCTAssertEqual(cupertino.viewerName, "Cupertino, CA")
+
+        // MapKit returns an empty cityWithContext for Brooklyn.
+        let brooklyn = PlaceComponents(cityName: "Brooklyn", cityWithContext: "", regionName: "United States")
+        XCTAssertEqual(brooklyn, PlaceComponents(subLocality: nil, locality: "Brooklyn", administrativeArea: nil, country: "United States"))
+        XCTAssertEqual(brooklyn.headerName, "Brooklyn")
+        XCTAssertEqual(brooklyn.viewerName, "Brooklyn")
+
+        // The district comes first in cityName; cityWithContext names the city.
+        let westminster = PlaceComponents(cityName: "City of Westminster, London", cityWithContext: "London, England", regionName: "United Kingdom")
+        XCTAssertEqual(westminster, PlaceComponents(subLocality: "City of Westminster", locality: "London", administrativeArea: "England", country: "United Kingdom"))
+        XCTAssertEqual(westminster.headerName, "City of Westminster")
+        XCTAssertEqual(westminster.viewerName, "London, England")
+
+        // The short style drops the country, leaving just the city.
+        let paris = PlaceComponents(cityName: "Paris", cityWithContext: "Paris", regionName: "France")
+        XCTAssertEqual(paris, PlaceComponents(subLocality: nil, locality: "Paris", administrativeArea: nil, country: "France"))
+
+        let countryOnly = PlaceComponents(cityName: nil, cityWithContext: nil, regionName: "Iceland")
+        XCTAssertEqual(countryOnly.headerName, "Iceland")
+        XCTAssertNil(countryOnly.viewerName)
+
+        // Open ocean: MapKit gives an empty city and no short context or region.
+        XCTAssertTrue(PlaceComponents(cityName: "", cityWithContext: nil, regionName: nil).isEmpty)
+    }
+
     // MARK: - Cache versioning
 
     func testLegacyMixedFormatCacheFileIsDroppedNotDecoded() async throws {
@@ -134,10 +244,90 @@ final class LocationNameResolverTests: XCTestCase {
     }
 }
 
+extension LocationNameResolverTests {
+    /// Issue #15: v2 entries were filled by CLGeocoder (neighborhood + state fields). On iOS 26+
+    /// MapKit fills entries in a different style, so the v2 file is dropped and every place is
+    /// looked up fresh rather than mixing the two styles for up to 30 days.
+    func testPreMapKitV2CacheFileIsDroppedNotDecoded() async throws {
+        XCTAssertEqual(LocationCache.fileName, "location_cache_v3.json")
+        XCTAssertTrue(LocationCache.legacyFileNames.contains("location_cache.json"), "v1 must still be cleaned up")
+
+        // A valid v2 entry for this exact spot, in the CLGeocoder style.
+        let v2JSON = """
+        {"40.6782,-73.9442":{"place":{"subLocality":"Brooklyn","locality":"New York","administrativeArea":"NY",\
+        "country":"United States"},"timestamp":"\(ISO8601DateFormatter().string(from: Date()))",\
+        "coordinate":{"latitude":40.6782,"longitude":-73.9442}}}
+        """
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LocationNameResolverTests-v2-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let v2URL = directory.appendingPathComponent("location_cache_v2.json")
+        try Data(v2JSON.utf8).write(to: v2URL)
+
+        let mapKitStyle = PlaceComponents(cityName: "Brooklyn", cityWithContext: "", regionName: "United States")
+        let counter = GeocodeCounter()
+        let resolver = LocationNameResolver(cache: LocationCache(directory: directory)) { _ in
+            await counter.increment()
+            return mapKitStyle
+        }
+        let viewerName = await resolver.viewerName(for: CLLocation(latitude: 40.6782, longitude: -73.9442))
+
+        XCTAssertEqual(viewerName, "Brooklyn", "The v2 entry ('New York, NY') must not be served")
+        let geocodeCount = await counter.count
+        XCTAssertEqual(geocodeCount, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: v2URL.path), "The v2 cache file should be deleted")
+    }
+}
+
 private actor GeocodeCounter {
     private(set) var count = 0
 
     func increment() {
         count += 1
+    }
+}
+
+/// Records how many fake geocodes are running at once.
+private actor ConcurrencyTracker {
+    private var running = 0
+    private(set) var peak = 0
+    private(set) var total = 0
+
+    func begin() {
+        running += 1
+        total += 1
+        peak = max(peak, running)
+    }
+
+    func end() {
+        running -= 1
+    }
+}
+
+/// Holds fake geocodes until the test opens it.
+private actor Gate {
+    private var isOpen = false
+    private var hasEntered = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    private var entryWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func wait() async {
+        hasEntered = true
+        entryWaiters.forEach { $0.resume() }
+        entryWaiters.removeAll()
+        guard !isOpen else { return }
+        await withCheckedContinuation { waiters.append($0) }
+    }
+
+    func waitUntilEntered() async {
+        guard !hasEntered else { return }
+        await withCheckedContinuation { entryWaiters.append($0) }
+    }
+
+    func open() {
+        isOpen = true
+        waiters.forEach { $0.resume() }
+        waiters.removeAll()
     }
 }
