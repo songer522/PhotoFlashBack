@@ -3,16 +3,16 @@
 //  PhotoFlashBack
 //
 //  Parses per-photo widget deep links (openToday://widget?index=N&localId=...)
-//  and resolves them to the matching metadata blob in the shared App Group.
+//  and resolves them to the matching photo's metadata in WidgetPhotoStore,
+//  or in the photo library when the store doesn't have it.
 //
 
 import Foundation
+import Photos
 
 enum WidgetDeepLink {
     static let scheme = "openToday"
     static let host = "widget"
-    static let suiteName = "group.com.YangSong.PhotoFlashBack.Today"
-    static let maxStoredAssetCount = 6
 
     struct Target {
         let index: Int?
@@ -40,31 +40,57 @@ enum WidgetDeepLink {
         return components.url ?? URL(string: "openToday://widget")!
     }
 
-    private static func metadataKey(for index: Int) -> String {
-        index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-    }
-
     /// Returns the metadata dict for the tapped photo. Prefers an exact
-    /// localIdentifier match (the tapped card), then the requested index,
-    /// then index 0 for backwards compatibility with old widget timelines
-    /// that carry no query items.
-    static func resolveMetadata(index: Int?, localIdentifier: String?) -> [String: Any]? {
-        let sharedDefaults = UserDefaults(suiteName: suiteName)
-
+    /// localIdentifier match (the tapped card): from the store, else from
+    /// `assetLookup`, which covers an empty or stale store (e.g. the first
+    /// launch after the issue #14 migration, from a tap on an existing
+    /// widget). Then the requested index, then index 0 for backwards
+    /// compatibility with old widget timelines that carry no query items.
+    static func resolveMetadata(index: Int?, localIdentifier: String?,
+                                store: WidgetPhotoStore? = .appGroup(),
+                                assetLookup: (String) -> [String: Any]? = photoLibraryMetadata) -> [String: Any]? {
         if let localIdentifier, !localIdentifier.isEmpty {
-            for i in 0..<maxStoredAssetCount {
-                if let meta = sharedDefaults?.dictionary(forKey: metadataKey(for: i)),
-                   (meta["localIdentifier"] as? String) == localIdentifier {
-                    return meta
+            if let store {
+                for i in 0..<WidgetPhotoStore.maxStoredAssetCount {
+                    if let meta = store.metadata(at: i), meta.localIdentifier == localIdentifier {
+                        return meta.dictionary
+                    }
                 }
+            }
+            if let meta = assetLookup(localIdentifier) {
+                return meta
             }
         }
 
-        if let index, index >= 0, index < maxStoredAssetCount,
-           let meta = sharedDefaults?.dictionary(forKey: metadataKey(for: index)) {
-            return meta
+        guard let store else { return nil }
+
+        if let index, let meta = store.metadata(at: index) {
+            return meta.dictionary
         }
 
-        return sharedDefaults?.dictionary(forKey: metadataKey(for: 0))
+        return store.metadata(at: 0)?.dictionary
+    }
+
+    /// The tap-routing metadata for a photo library asset, or nil if it no
+    /// longer exists or photo access isn't granted.
+    static func photoLibraryMetadata(localIdentifier: String) -> [String: Any]? {
+        guard let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject else {
+            return nil
+        }
+        return metadataDictionary(localIdentifier: asset.localIdentifier, creationDate: asset.creationDate,
+                                  pixelWidth: asset.pixelWidth, pixelHeight: asset.pixelHeight)
+    }
+
+    /// Same keys as `WidgetPhotoStore.Metadata.dictionary`; a missing date is
+    /// omitted, since `ItemToGo` must be a property list.
+    static func metadataDictionary(localIdentifier: String, creationDate: Date?,
+                                   pixelWidth: Int, pixelHeight: Int) -> [String: Any] {
+        var dictionary: [String: Any] = [
+            "localIdentifier": localIdentifier,
+            "pixelWidth": pixelWidth,
+            "pixelHeight": pixelHeight,
+        ]
+        dictionary["creationDate"] = creationDate
+        return dictionary
     }
 }

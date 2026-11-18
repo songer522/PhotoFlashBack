@@ -67,8 +67,8 @@ struct MemoryTimelineProvider: TimelineProvider {
     }
     
     private func loadMemories(for date: Date, context: Context) -> MemoryEntry {
-        let sharedDefaults = UserDefaults(suiteName: "group.com.YangSong.PhotoFlashBack.Today")
-        
+        let store = WidgetPhotoStore.appGroup()
+
         // Determine how many photos to load based on widget size
         let maxPhotos: Int
         switch context.family {
@@ -82,39 +82,37 @@ struct MemoryTimelineProvider: TimelineProvider {
             maxPhotos = 1
         }
         
-        // The app stores at most this many entries (indices 0..<maxStoredAssetCount)
-        // and clears the rest, so scanning never needs to look past this bound.
-        let maxStoredAssetCount = 6
+        // Decode each photo no larger than the whole widget at the largest iPhone scale (3x),
+        // which keeps the extension under its memory limit. The app stores ~500 px images, so
+        // that size is the fallback if the system reports no display size.
+        let widgetPixelSize = Int((max(context.displaySize.width, context.displaySize.height) * 3).rounded(.up))
+        let maxPixelSize = widgetPixelSize > 0 ? widgetPixelSize : 500
 
         var memories: [MemoryEntry.MemoryPhoto] = []
 
         // Scan forward through the stored slots until we've collected maxPhotos
         // valid (non-stale) entries, rather than only looking at the first
         // maxPhotos slots — an early slot being stale shouldn't hide later ones.
-        for index in 0..<maxStoredAssetCount {
+        // The app stores at most WidgetPhotoStore.maxStoredAssetCount entries and clears the rest.
+        for index in 0..<WidgetPhotoStore.maxStoredAssetCount {
             if memories.count >= maxPhotos {
                 break
             }
-            let imageKey = index == 0 ? "randomAssetImageData" : "randomAssetImageData_\(index)"
-            let metadataKey = index == 0 ? "randomAssetMetadata" : "randomAssetMetadata_\(index)"
-
-            if let imageData = sharedDefaults?.data(forKey: imageKey),
-               let image = UIImage(data: imageData),
-               let metadata = sharedDefaults?.dictionary(forKey: metadataKey) as? [String: Any],
-               let creationDate = metadata["creationDate"] as? Date,
-               let localIdentifier = metadata["localIdentifier"] as? String {
-
-                // Skip stale entries left over from a previous day's fetch that don't
-                // actually match today's day/month, so old "on this day" photos don't linger.
-                guard WidgetMemoryDate.isEntry(creationDate: creationDate, forDay: date) else {
-                    continue
-                }
+            // Skip stale entries left over from a previous day's fetch that don't
+            // actually match today's day/month, so old "on this day" photos don't linger.
+            // loadImage re-reads the slot if the app replaces its image mid-read.
+            if let (entry, cgImage) = store?.loadImage(
+                at: index,
+                accept: { WidgetMemoryDate.isEntry(creationDate: $0.creationDate, forDay: date) },
+                decode: { WidgetPhotoStore.downsampledImage(at: $0, maxPixelSize: maxPixelSize) }
+            ) {
+                let creationDate = entry.metadata.creationDate
 
                 let memory = MemoryEntry.MemoryPhoto(
-                    image: image,
+                    image: UIImage(cgImage: cgImage),
                     year: WidgetMemoryDate.yearLabel(for: creationDate),
                     creationDate: creationDate,
-                    localIdentifier: localIdentifier,
+                    localIdentifier: entry.metadata.localIdentifier,
                     widgetIndex: index
                 )
                 memories.append(memory)

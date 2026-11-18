@@ -20,6 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Ambient category only: the session switches to playback and activates when viewer video starts (issue #17).
         VideoAudioSession.shared.configureCategory()
+
+        // One-time cleanup of the photo blobs older builds kept in the App Group defaults (issue #14).
+        PhotoManager.removeLegacyWidgetDefaults()
         
         // Must be set before launch finishes so a notification tap that cold-starts the app is delivered.
         UNUserNotificationCenter.current().delegate = self
