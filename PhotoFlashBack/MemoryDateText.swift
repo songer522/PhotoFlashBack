@@ -14,8 +14,12 @@ enum MemoryDateText {
 
     static func userLocale(preferredLanguages: [String], current: Locale) -> Locale {
         guard let preferred = preferredLanguages.first else { return current }
+        let language = Locale.Language(identifier: preferred)
         var components = Locale.Components(locale: current)
-        components.languageComponents = Locale.Language.Components(identifier: preferred)
+        // Only the language and script: the device's Region setting keeps deciding formats
+        // (e.g. English (US) on a UK-region phone still gets "5 Jan 2025 at 15:30").
+        components.languageComponents.languageCode = language.languageCode
+        components.languageComponents.script = language.script
         return Locale(components: components)
     }
 

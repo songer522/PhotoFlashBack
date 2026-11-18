@@ -17,6 +17,21 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(MemoryDateText.dayMonth(month: 11, day: 18, locale: locale), "18 novembre")
     }
 
+    func testUserLocaleKeepsDeviceRegionWhenPreferredLanguageNamesAnother() {
+        // English (US) as the language on a UK-region phone: UK date/time formats stay.
+        let locale = MemoryDateText.userLocale(preferredLanguages: ["en-US"], current: Locale(identifier: "en_GB"))
+        XCTAssertEqual(locale.language.languageCode, .english)
+        XCTAssertEqual(locale.region, .unitedKingdom)
+        XCTAssertEqual(locale.language.region, .unitedKingdom)
+        XCTAssertEqual(MemoryDateText.abbreviatedDayMonth(month: 1, day: 5, locale: locale), "5 Jan")
+    }
+
+    func testUserLocaleKeepsDeviceRegionForRegionlessPreferredLanguage() {
+        let locale = MemoryDateText.userLocale(preferredLanguages: ["fr"], current: Locale(identifier: "en_CA"))
+        XCTAssertEqual(locale.language.languageCode, .french)
+        XCTAssertEqual(locale.region, .canada)
+    }
+
     func testUserLocaleFallsBackToCurrentWithoutPreferredLanguages() {
         let current = Locale(identifier: "en_GB")
         XCTAssertEqual(MemoryDateText.userLocale(preferredLanguages: [], current: current), current)
