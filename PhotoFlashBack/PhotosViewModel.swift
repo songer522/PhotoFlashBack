@@ -110,48 +110,6 @@ class PhotosViewModel {
         return day == calendar.component(.day, from: Date()) && month == calendar.component(.month, from: Date())
     }
     
-    func fetchPhoto() async {
-        locationDict.removeAll()
-        assetArray.removeAll()
-        assetDict.removeAll()
-        assetSequence.removeAll()
-        
-        // Perform fetch on background thread to avoid blocking UI
-        let filter = MediaFilterStore.load()
-        let newAssetDict = await Task.detached(priority: .userInitiated) { [day = self.day, month = self.month, filter] in
-            let options = MemoryQuery.fetchOptions(month: month, day: day)
-            
-            let assetsFetchResults = PHAsset.fetchAssets(with: options)
-            var tempAssetDict: [String: [PHAsset]] = [:]
-            
-            assetsFetchResults.enumerateObjects { (object: AnyObject, count: Int, stop: UnsafeMutablePointer<ObjCBool>) in
-                if let asset = object as? PHAsset {
-                    guard let creationDate = asset.creationDate else {
-                        return
-                    }
-                    
-                    let assetYear = MemoryQuery.memoryCalendar().component(.year, from: creationDate)
-                    
-                    if MemoryQuery.isMemory(creationDate: creationDate, kind: MediaFilter.kind(mediaType: asset.mediaType, mediaSubtypes: asset.mediaSubtypes), month: month, day: day, filter: filter) {
-                        if var assetArray = tempAssetDict[String(assetYear)] {
-                            assetArray.append(asset)
-                            tempAssetDict[String(assetYear)] = assetArray
-                        } else {
-                            tempAssetDict[String(assetYear)] = [asset]
-                        }
-                    }
-                }
-            }
-            
-            return tempAssetDict
-        }.value
-        
-        self.lastAppliedFilter = filter.normalizedForFetch()
-        
-        self.assetDict = newAssetDict
-        sortAssetArray()
-    }
-    
     /// Fetches photos with progress tracking
     func fetchPhotoWithProgress() -> AsyncStream<PhotoFetchProgress> {
         AsyncStream { continuation in
@@ -268,76 +226,6 @@ class PhotosViewModel {
         for (_, assets) in assetArray {
             for asset in assets {
                 assetSequence.append(asset)
-            }
-        }
-    }
-    
-    func nextDay() async {
-        if day < maxday() {
-            day = day + 1
-        } else {
-            if month < 12 {
-                month = month + 1
-                day = 1
-            } else {
-                month = 1
-                day = 1
-            }
-        }
-        
-        await fetchPhoto()
-    }
-    
-    func previousDay() async {
-        if day == 1 {
-            if month == 1 {
-                month = 12
-                day = maxday()
-            } else {
-                month = month - 1
-                day = maxday()
-            }
-        } else {
-            day = day - 1
-        }
-        
-        await fetchPhoto()
-    }
-    
-    func maxday() -> Int {
-        switch month {
-        case 1, 3, 5, 7, 8, 10, 12:
-            return 31
-        case 4, 6, 9, 11:
-            return 30
-        case 2:
-            // Check for leap year
-            let calendar = MemoryQuery.memoryCalendar()
-            let currentYear = calendar.component(.year, from: Date())
-            let isLeapYear = calendar.range(of: .day, in: .month, for: calendar.date(from: DateComponents(year: currentYear, month: 2, day: 1))!)!.count == 29
-            return isLeapYear ? 29 : 28
-        default:
-            return 30
-        }
-    }
-    
-    func findLocations() async {
-        guard !assetDict.isEmpty else { return }
-        
-        // Use TaskGroup to fetch locations concurrently for all years
-        await withTaskGroup(of: (String, String?).self) { group in
-            for (year, assets) in assetDict {
-                group.addTask {
-                    let location = await self.findLocation(year: year, assets: assets)
-                    return (year, location)
-                }
-            }
-            
-            // Collect results
-            for await (year, location) in group {
-                if let location = location {
-                    self.locationDict[year] = location
-                }
             }
         }
     }

@@ -181,8 +181,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     /// Finds the underlying grid even when a viewer (or settings) is presented
-    /// on top. Unlike topMostViewController(), this never returns the viewer
-    /// itself, so widget taps aren't dropped while a photo is open.
+    /// on top. This never returns the viewer itself, so widget taps aren't
+    /// dropped while a photo is open.
     private func photosViewController() -> PhotosViewController? {
         guard let rootViewController = UIApplication.shared.connectedScenes
             .filter({ $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive })
@@ -213,33 +213,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
         }
         return nil
-    }
-
-    func topMostViewController() -> UIViewController? {
-        guard let rootViewController = UIApplication.shared.connectedScenes
-                .filter({$0.activationState == .foregroundActive})
-                .map({$0 as? UIWindowScene})
-                .compactMap({$0})
-                .first?.windows
-                .filter({$0.isKeyWindow}).first?.rootViewController else {
-            return nil
-        }
-
-        return topMostViewController(of: rootViewController)
-    }
-
-    private func topMostViewController(of viewController: UIViewController) -> UIViewController {
-        if let presentedViewController = viewController.presentedViewController {
-            return topMostViewController(of: presentedViewController)
-        } else if let navigationController = viewController as? UINavigationController,
-                  let visibleViewController = navigationController.visibleViewController {
-            return topMostViewController(of: visibleViewController)
-        } else if let tabBarController = viewController as? UITabBarController,
-                  let selectedViewController = tabBarController.selectedViewController {
-            return topMostViewController(of: selectedViewController)
-        } else {
-            return viewController
-        }
     }
 
 }
